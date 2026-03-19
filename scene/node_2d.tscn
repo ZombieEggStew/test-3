@@ -1,0 +1,104 @@
+[gd_scene format=3 uid="uid://bmyhw36fx17qy"]
+
+[ext_resource type="Script" uid="uid://d2847h7wpjx85" path="res://scene/node_2d.gd" id="1_guiot"]
+[ext_resource type="Texture2D" uid="uid://bacarg6uviypr" path="res://tex/preview_3.jpg" id="2_guiot"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_drhme"]
+bg_color = Color(0.43137255, 0.68235296, 0.7137255, 0)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.25490198, 0.5137255, 0.9607843, 0)
+corner_detail = 1
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ppd22"]
+content_margin_left = 0.0
+content_margin_top = 0.0
+content_margin_right = 0.0
+content_margin_bottom = 0.0
+bg_color = Color(0.1, 0.1, 0.1, 0.6)
+corner_detail = 1
+
+[sub_resource type="LabelSettings" id="LabelSettings_drhme"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_guiot"]
+content_margin_left = 0.0
+content_margin_top = 0.0
+content_margin_right = 0.0
+content_margin_bottom = 0.0
+bg_color = Color(0.015686275, 0.015686275, 0.015686275, 0)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.25490198, 0.5137255, 0.9607843, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_3cebx"]
+content_margin_left = 0.0
+content_margin_top = 0.0
+content_margin_right = 0.0
+content_margin_bottom = 0.0
+bg_color = Color(0.015686275, 0.015686275, 0.015686275, 0)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.76486766, 0.00033778162, 0.7366943, 1)
+
+[node name="PanelContainer" type="PanelContainer" unique_id=747637982 node_paths=PackedStringArray("tex", "inside_panel", "inside_panel2")]
+custom_minimum_size = Vector2(100, 100)
+offset_right = 202.0
+offset_bottom = 202.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_drhme")
+script = ExtResource("1_guiot")
+tex = NodePath("TextureRect")
+inside_panel = NodePath("Panel")
+inside_panel2 = NodePath("Panel2")
+defalt_tex = ExtResource("2_guiot")
+
+[node name="TextureRect" type="TextureRect" parent="." unique_id=501766723]
+custom_minimum_size = Vector2(200, 200)
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="PanelContainer" type="PanelContainer" parent="." unique_id=1056371017]
+z_index = 1
+layout_mode = 2
+size_flags_vertical = 8
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_ppd22")
+
+[node name="MarginContainer" type="MarginContainer" parent="PanelContainer" unique_id=1666995985]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="Label" type="Label" parent="PanelContainer/MarginContainer" unique_id=1501102649]
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+text = "default_name_longlonglonglonglonglonglonglonglonglong"
+label_settings = SubResource("LabelSettings_drhme")
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
+text_overrun_behavior = 3
+
+[node name="Panel" type="Panel" parent="." unique_id=1960985328]
+z_index = 1
+layout_mode = 2
+mouse_filter = 1
+theme_override_styles/panel = SubResource("StyleBoxFlat_guiot")
+
+[node name="Panel2" type="Panel" parent="." unique_id=1258984499]
+z_index = 1
+layout_mode = 2
+mouse_filter = 1
+theme_override_styles/panel = SubResource("StyleBoxFlat_3cebx")
+
+[connection signal="gui_input" from="." to="." method="_on_gui_input"]
+[connection signal="mouse_entered" from="." to="." method="_on_mouse_entered"]
+[connection signal="mouse_exited" from="." to="." method="_on_mouse_exited"]

@@ -1,0 +1,15 @@
+[gd_scene format=3 uid="uid://5poiej2aowo"]
+
+[ext_resource type="Theme" uid="uid://dnhnt8qo2nlyy" path="res://new_theme.tres" id="1_05svr"]
+[ext_resource type="ButtonGroup" uid="uid://d3b7nkifms1lp" path="res://button_group/new_button_group.tres" id="2_bs75e"]
+
+[node name="page_1" type="Button" unique_id=109932289]
+custom_minimum_size = Vector2(30, 30)
+size_flags_horizontal = 4
+size_flags_vertical = 4
+theme = ExtResource("1_05svr")
+theme_type_variation = &"button_page"
+toggle_mode = true
+button_pressed = true
+button_group = ExtResource("2_bs75e")
+text = "1"

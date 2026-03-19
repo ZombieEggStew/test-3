@@ -1,0 +1,463 @@
+[gd_scene format=3 uid="uid://c0xw48rf51h8k"]
+
+[ext_resource type="Script" uid="uid://cxutw5bxqcjtd" path="res://scene/main.gd" id="1_4j5ol"]
+[ext_resource type="Script" uid="uid://cwp6sx5187trt" path="res://scene/main_ui.gd" id="1_v0l8b"]
+[ext_resource type="Script" uid="uid://cqd108gyswuu1" path="res://scene/tab_bar.gd" id="2_0ha60"]
+[ext_resource type="PackedScene" uid="uid://bmyhw36fx17qy" path="res://scene/node_2d.tscn" id="3_4j5ol"]
+[ext_resource type="Texture2D" uid="uid://bacarg6uviypr" path="res://tex/preview_3.jpg" id="3_wp4xf"]
+[ext_resource type="PackedScene" uid="uid://8i0frwpx4bec" path="res://scene/control.tscn" id="4_brvut"]
+[ext_resource type="Script" uid="uid://d2r1dil1jo6c0" path="res://scripts/right_panel.gd" id="5_p1hux"]
+[ext_resource type="Theme" uid="uid://dnhnt8qo2nlyy" path="res://new_theme.tres" id="5_tqoya"]
+[ext_resource type="Script" uid="uid://r1o1erk3r2qn" path="res://scripts/page_num.gd" id="6_k65ib"]
+[ext_resource type="PackedScene" uid="uid://5poiej2aowo" path="res://scene/page_1.tscn" id="7_k65ib"]
+[ext_resource type="Script" uid="uid://fsqo2uyiubyg" path="res://scripts/converter.gd" id="7_of57s"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_wp4xf"]
+content_margin_left = 10.0
+content_margin_top = 4.0
+content_margin_right = 10.0
+content_margin_bottom = 4.0
+bg_color = Color(0.13333334, 0.1254902, 0.13333334, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.25490198, 0.5137255, 0.9607843, 1)
+corner_detail = 1
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_0ha60"]
+content_margin_left = 10.0
+content_margin_top = 4.0
+content_margin_right = 10.0
+content_margin_bottom = 4.0
+bg_color = Color(0.102352686, 0.366793, 0.8107625, 1)
+border_width_left = 1
+border_width_right = 1
+border_color = Color(0.175, 0.175, 0.175, 1)
+corner_detail = 1
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_brvut"]
+content_margin_left = 10.0
+content_margin_top = 4.0
+content_margin_right = 10.0
+content_margin_bottom = 4.0
+bg_color = Color(0.25490198, 0.5137255, 0.9607843, 1)
+border_color = Color(1, 1, 1, 0.75)
+corner_detail = 1
+
+[sub_resource type="ButtonGroup" id="ButtonGroup_k65ib"]
+allow_unpress = true
+
+[sub_resource type="Theme" id="Theme_tqoya"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_wp4xf"]
+font_size = 24
+
+[sub_resource type="LabelSettings" id="LabelSettings_brvut"]
+font_size = 20
+
+[sub_resource type="StyleBoxLine" id="StyleBoxLine_wp4xf"]
+content_margin_left = 4.0
+content_margin_top = 0.0
+content_margin_right = 4.0
+content_margin_bottom = 0.0
+color = Color(0.25490198, 0.5137255, 0.9607843, 1)
+
+[sub_resource type="StyleBoxLine" id="StyleBoxLine_brvut"]
+content_margin_left = 4.0
+content_margin_top = 0.0
+content_margin_right = 4.0
+content_margin_bottom = 0.0
+color = Color(0.25490198, 0.5137255, 0.9607843, 1)
+
+[sub_resource type="InputEventAction" id="InputEventAction_wp4xf"]
+
+[sub_resource type="Shortcut" id="Shortcut_brvut"]
+events = [SubResource("InputEventAction_wp4xf")]
+
+[node name="Node2D" type="Node2D" unique_id=1929871842 node_paths=PackedStringArray("context_menu")]
+script = ExtResource("1_4j5ol")
+context_menu = NodePath("main_ui/Control")
+
+[node name="main_ui" type="CanvasLayer" parent="." unique_id=1938298878 node_paths=PackedStringArray("card_container", "page_num_node", "title_label", "folder_size_label", "resolution_label", "bitrate_label", "preset", "cq", "maxrate", "is_h", "progress_bar", "start_convert_button", "stop_convert_button")]
+script = ExtResource("1_v0l8b")
+card_container = NodePath("HBoxContainer/MarginContainer/VBoxContainer/ScrollContainer2/MarginContainer/HFlowContainer")
+card_scene = ExtResource("3_4j5ol")
+page_num_node = NodePath("HBoxContainer/MarginContainer/VBoxContainer/MarginContainer/HBoxContainer/page_num")
+title_label = NodePath("HBoxContainer/right_panel/ScrollContainer/VBox/MarginContainer2/title_Label")
+folder_size_label = NodePath("HBoxContainer/right_panel/ScrollContainer/VBox/Attributes/VBoxContainer/size_Label")
+resolution_label = NodePath("HBoxContainer/right_panel/ScrollContainer/VBox/Attributes/VBoxContainer/resolution_Label2")
+bitrate_label = NodePath("HBoxContainer/right_panel/ScrollContainer/VBox/Attributes/VBoxContainer/biterate_Label3")
+preset = NodePath("HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/HBoxContainer/preset")
+cq = NodePath("HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/HBoxContainer/cq")
+maxrate = NodePath("HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/HBoxContainer2/maxrate")
+is_h = NodePath("HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/HBoxContainer2/is_H")
+progress_bar = NodePath("HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/ProgressBar")
+start_convert_button = NodePath("HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/start_convert")
+stop_convert_button = NodePath("HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/stop_button")
+
+[node name="ColorRect" type="ColorRect" parent="main_ui" unique_id=98198692]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+color = Color(0.13333334, 0.1254902, 0.13333334, 1)
+
+[node name="HBoxContainer" type="HBoxContainer" parent="main_ui" unique_id=908944758]
+custom_minimum_size = Vector2(400, 0)
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="main_ui/HBoxContainer" unique_id=1702603490]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/margin_left = 5
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 5
+theme_override_constants/margin_bottom = 5
+
+[node name="VBoxContainer" type="VBoxContainer" parent="main_ui/HBoxContainer/MarginContainer" unique_id=873184152]
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer" unique_id=1582054126]
+layout_mode = 2
+
+[node name="TabBar" type="TabBar" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer" unique_id=1849870455]
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_selected_color = Color(1, 1, 1, 1)
+theme_override_colors/font_hovered_color = Color(1, 1, 1, 1)
+theme_override_colors/font_unselected_color = Color(1, 1, 1, 1)
+theme_override_styles/tab_unselected = SubResource("StyleBoxFlat_wp4xf")
+theme_override_styles/tab_hovered = SubResource("StyleBoxFlat_0ha60")
+theme_override_styles/tab_selected = SubResource("StyleBoxFlat_brvut")
+current_tab = 0
+tab_count = 2
+tab_0/title = "tab_1"
+tab_1/title = "tab_2"
+script = ExtResource("2_0ha60")
+
+[node name="LineEdit" type="LineEdit" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer" unique_id=1950790850]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+placeholder_text = "搜索(按回车)"
+
+[node name="is_show_workshop" type="CheckButton" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer" unique_id=1258397633]
+layout_mode = 2
+button_pressed = true
+text = "显示工坊 "
+
+[node name="is_show_local" type="CheckButton" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer" unique_id=1481386004]
+layout_mode = 2
+button_pressed = true
+text = "显示本地 "
+
+[node name="delete_button" type="Button" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer" unique_id=1966308821]
+layout_mode = 2
+text = "删除本地空文件"
+
+[node name="Button" type="Button" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer" unique_id=127346375]
+layout_mode = 2
+text = "刷新"
+
+[node name="OptionButton" type="OptionButton" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer" unique_id=1097904006]
+custom_minimum_size = Vector2(110, 0)
+layout_mode = 2
+size_flags_horizontal = 8
+selected = 1
+item_count = 4
+popup/item_0/text = "  发布日期"
+popup/item_0/id = 0
+popup/item_1/text = "  订阅日期"
+popup/item_1/id = 1
+popup/item_2/text = "  文件大小"
+popup/item_2/id = 2
+popup/item_3/text = "  随机"
+popup/item_3/id = 3
+
+[node name="ScrollContainer2" type="ScrollContainer" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer" unique_id=778066209]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="MarginContainer" type="MarginContainer" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/ScrollContainer2" unique_id=765039720]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/margin_left = 25
+theme_override_constants/margin_top = 25
+theme_override_constants/margin_right = 25
+theme_override_constants/margin_bottom = 25
+
+[node name="HFlowContainer" type="HFlowContainer" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/ScrollContainer2/MarginContainer" unique_id=1796475393]
+layout_mode = 2
+
+[node name="Node2D" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/ScrollContainer2/MarginContainer/HFlowContainer" unique_id=747637982 instance=ExtResource("3_4j5ol")]
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer" unique_id=712038022]
+layout_mode = 2
+theme_override_constants/margin_left = 0
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 0
+theme_override_constants/margin_bottom = 20
+
+[node name="HBoxContainer" type="HBoxContainer" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/MarginContainer" unique_id=581211235]
+layout_mode = 2
+theme_override_constants/separation = 10
+alignment = 1
+
+[node name="Button" type="Button" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/MarginContainer/HBoxContainer" unique_id=62267357]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+theme = ExtResource("5_tqoya")
+theme_type_variation = &"button_page"
+theme_override_font_sizes/font_size = 18
+text = "  <<  "
+
+[node name="page_num" type="HBoxContainer" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/MarginContainer/HBoxContainer" unique_id=1034348021]
+layout_mode = 2
+theme_override_constants/separation = 4
+alignment = 1
+script = ExtResource("6_k65ib")
+page_card = ExtResource("7_k65ib")
+
+[node name="page_1" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/MarginContainer/HBoxContainer/page_num" unique_id=109932289 instance=ExtResource("7_k65ib")]
+layout_mode = 2
+button_group = SubResource("ButtonGroup_k65ib")
+
+[node name="Button2" type="Button" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/MarginContainer/HBoxContainer" unique_id=924454259]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+theme = SubResource("Theme_tqoya")
+theme_type_variation = &"button_page"
+theme_override_font_sizes/font_size = 18
+text = "  >>  "
+
+[node name="right_panel" type="MarginContainer" parent="main_ui/HBoxContainer" unique_id=756927448]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.3
+theme_override_constants/margin_left = 5
+theme_override_constants/margin_top = 36
+theme_override_constants/margin_right = 5
+theme_override_constants/margin_bottom = 5
+script = ExtResource("5_p1hux")
+
+[node name="ScrollContainer" type="ScrollContainer" parent="main_ui/HBoxContainer/right_panel" unique_id=549181938]
+layout_mode = 2
+
+[node name="VBox" type="VBoxContainer" parent="main_ui/HBoxContainer/right_panel/ScrollContainer" unique_id=394862259]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="panel_tex" type="MarginContainer" parent="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox" unique_id=900688838]
+layout_mode = 2
+theme_override_constants/margin_left = 6
+theme_override_constants/margin_top = 0
+theme_override_constants/margin_right = 15
+theme_override_constants/margin_bottom = 0
+
+[node name="TextureRect" type="TextureRect" parent="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/panel_tex" unique_id=2105504702]
+layout_mode = 2
+size_flags_vertical = 0
+texture = ExtResource("3_wp4xf")
+expand_mode = 4
+stretch_mode = 5
+
+[node name="MarginContainer2" type="MarginContainer" parent="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox" unique_id=1443634084]
+layout_mode = 2
+size_flags_vertical = 0
+theme_override_constants/margin_left = 6
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 15
+theme_override_constants/margin_bottom = 12
+
+[node name="title_Label" type="Label" parent="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/MarginContainer2" unique_id=668942518]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+size_flags_vertical = 0
+text = "name_test_longlonglonglonglonglong"
+label_settings = SubResource("LabelSettings_wp4xf")
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
+
+[node name="Attribute_label" type="HBoxContainer" parent="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox" unique_id=1960490138]
+layout_mode = 2
+
+[node name="Label2" type="Label" parent="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/Attribute_label" unique_id=1897395305]
+layout_mode = 2
+size_flags_vertical = 0
+text = "属性"
+label_settings = SubResource("LabelSettings_brvut")
+
+[node name="MarginContainer" type="MarginContainer" parent="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/Attribute_label" unique_id=1160841591]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/margin_left = 0
+theme_override_constants/margin_right = 12
+
+[node name="HSeparator" type="HSeparator" parent="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/Attribute_label/MarginContainer" unique_id=548318415]
+layout_mode = 2
+theme_override_styles/separator = SubResource("StyleBoxLine_wp4xf")
+
+[node name="Attributes" type="MarginContainer" parent="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox" unique_id=1758704139]
+layout_mode = 2
+theme_override_constants/margin_left = 3
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_right = 15
+theme_override_constants/margin_bottom = 10
+
+[node name="VBoxContainer" type="VBoxContainer" parent="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/Attributes" unique_id=2032544000]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 4
+
+[node name="size_Label" type="Label" parent="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/Attributes/VBoxContainer" unique_id=5260522]
+layout_mode = 2
+size_flags_vertical = 0
+text = "文件大小："
+
+[node name="resolution_Label2" type="Label" parent="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/Attributes/VBoxContainer" unique_id=574732040]
+layout_mode = 2
+size_flags_vertical = 0
+text = "分辨率："
+
+[node name="biterate_Label3" type="Label" parent="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/Attributes/VBoxContainer" unique_id=636252279]
+layout_mode = 2
+size_flags_vertical = 0
+text = "平均码率："
+
+[node name="sep" type="MarginContainer" parent="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox" unique_id=1298188000]
+layout_mode = 2
+theme_override_constants/margin_left = 6
+theme_override_constants/margin_right = 12
+
+[node name="HSeparator" type="HSeparator" parent="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/sep" unique_id=788386045]
+layout_mode = 2
+theme_override_styles/separator = SubResource("StyleBoxLine_brvut")
+
+[node name="converter" type="MarginContainer" parent="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox" unique_id=1327560853]
+layout_mode = 2
+theme_override_constants/margin_left = 3
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_right = 15
+theme_override_constants/margin_bottom = 10
+script = ExtResource("7_of57s")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter" unique_id=1141371230]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 4
+
+[node name="HBoxContainer" type="HBoxContainer" parent="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer" unique_id=1837966096]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/HBoxContainer" unique_id=1276115207]
+layout_mode = 2
+size_flags_vertical = 0
+text = "preset : "
+
+[node name="preset" type="OptionButton" parent="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/HBoxContainer" unique_id=209178452]
+layout_mode = 2
+size_flags_horizontal = 3
+selected = 2
+item_count = 3
+popup/item_0/text = "p1"
+popup/item_0/id = 0
+popup/item_1/text = "p5"
+popup/item_1/id = 1
+popup/item_2/text = "p7"
+popup/item_2/id = 2
+
+[node name="Label2" type="Label" parent="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/HBoxContainer" unique_id=1830131352]
+layout_mode = 2
+size_flags_vertical = 0
+text = "  cq : "
+
+[node name="cq" type="OptionButton" parent="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/HBoxContainer" unique_id=917459962]
+layout_mode = 2
+size_flags_horizontal = 3
+selected = 1
+item_count = 4
+popup/item_0/text = "18"
+popup/item_0/id = 0
+popup/item_1/text = "21"
+popup/item_1/id = 1
+popup/item_2/text = "24"
+popup/item_2/id = 2
+popup/item_3/text = "28"
+popup/item_3/id = 3
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer" unique_id=1741259704]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/HBoxContainer2" unique_id=525533897]
+layout_mode = 2
+text = "maxrate : "
+
+[node name="maxrate" type="OptionButton" parent="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/HBoxContainer2" unique_id=1455187944]
+layout_mode = 2
+size_flags_horizontal = 3
+selected = 2
+item_count = 5
+popup/item_0/text = "5M"
+popup/item_0/id = 3
+popup/item_1/text = "10M"
+popup/item_1/id = 0
+popup/item_2/text = "12M"
+popup/item_2/id = 4
+popup/item_3/text = "15M"
+popup/item_3/id = 1
+popup/item_4/text = "20M"
+popup/item_4/id = 2
+
+[node name="is_H" type="OptionButton" parent="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/HBoxContainer2" unique_id=2054930847]
+layout_mode = 2
+size_flags_horizontal = 3
+selected = 0
+item_count = 2
+popup/item_0/text = "横屏"
+popup/item_0/id = 0
+popup/item_1/text = "竖屏"
+popup/item_1/id = 1
+
+[node name="start_convert" type="Button" parent="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer" unique_id=1324767763]
+layout_mode = 2
+text = "开始转换"
+
+[node name="ProgressBar" type="ProgressBar" parent="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer" unique_id=1652196972]
+layout_mode = 2
+
+[node name="stop_button" type="Button" parent="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer" unique_id=1307335736]
+layout_mode = 2
+disabled = true
+shortcut = SubResource("Shortcut_brvut")
+text = "停止转换"
+
+[node name="Control" parent="main_ui" unique_id=1524407716 instance=ExtResource("4_brvut")]
+z_index = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_right = 210.0
+grow_horizontal = 0
+
+[connection signal="text_submitted" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/LineEdit" to="main_ui" method="_on_line_edit_text_submitted"]
+[connection signal="toggled" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/is_show_workshop" to="main_ui" method="_on_is_show_workshop_toggled"]
+[connection signal="toggled" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/is_show_local" to="main_ui" method="_on_is_show_local_toggled"]
+[connection signal="button_up" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/delete_button" to="main_ui" method="_on_delete_button_button_up"]
+[connection signal="button_up" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/Button" to="main_ui" method="_on_button_button_up"]
+[connection signal="item_selected" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/OptionButton" to="main_ui" method="_on_option_button_item_selected"]
+[connection signal="button_up" from="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/start_convert" to="main_ui" method="_on_start_convert_button_up"]
+[connection signal="button_up" from="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/stop_button" to="main_ui" method="_on_stop_button_button_up"]

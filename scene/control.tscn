@@ -1,0 +1,63 @@
+[gd_scene format=3 uid="uid://8i0frwpx4bec"]
+
+[ext_resource type="Script" uid="uid://cl3sjk65mf2ic" path="res://scene/context_menu.gd" id="1_ctxmn"]
+[ext_resource type="StyleBox" uid="uid://bp74ap4vtjw1k" path="res://context_menu_button/new_style_box_flat.tres" id="2_f676y"]
+[ext_resource type="StyleBox" uid="uid://c7g8ra72q11cq" path="res://context_menu_button/new_style_box_flat_hover.tres" id="3_8g54p"]
+[ext_resource type="Theme" uid="uid://dnhnt8qo2nlyy" path="res://new_theme.tres" id="4_8g54p"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_vrdfc"]
+content_margin_left = 0.0
+content_margin_top = 0.0
+content_margin_right = 0.0
+content_margin_bottom = 0.0
+bg_color = Color(0.28235295, 0.28235295, 0.28235295, 1)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+corner_detail = 5
+
+[node name="PanelContainer" type="PanelContainer" unique_id=1028343036]
+offset_right = 204.0
+offset_bottom = 156.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_vrdfc")
+script = ExtResource("1_ctxmn")
+
+[node name="MarginContainer" type="MarginContainer" parent="." unique_id=1032066858]
+layout_mode = 2
+size_flags_vertical = 0
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer" unique_id=1411771939]
+layout_mode = 2
+
+[node name="open_folder" type="Button" parent="MarginContainer/VBoxContainer" unique_id=2092535651]
+layout_mode = 2
+theme_override_styles/normal = ExtResource("2_f676y")
+theme_override_styles/hover = ExtResource("3_8g54p")
+text = "  打开所在文件夹"
+alignment = 0
+
+[node name="play" type="Button" parent="MarginContainer/VBoxContainer" unique_id=1471679678]
+layout_mode = 2
+theme = ExtResource("4_8g54p")
+text = "  播放"
+alignment = 0
+
+[node name="backup" type="Button" parent="MarginContainer/VBoxContainer" unique_id=1060994932]
+layout_mode = 2
+text = "  备份"
+alignment = 0
+
+[node name="delete" type="Button" parent="MarginContainer/VBoxContainer" unique_id=860491599]
+z_index = 14
+layout_mode = 2
+theme = ExtResource("4_8g54p")
+text = "  删除"
+alignment = 0
+
+[connection signal="button_up" from="MarginContainer/VBoxContainer/open_folder" to="." method="_on_open_folder_button_up"]
+[connection signal="button_up" from="MarginContainer/VBoxContainer/play" to="." method="_on_play_button_up"]
+[connection signal="button_up" from="MarginContainer/VBoxContainer/backup" to="." method="_on_backup_button_up"]
+[connection signal="button_up" from="MarginContainer/VBoxContainer/delete" to="." method="_on_delete_button_up"]
