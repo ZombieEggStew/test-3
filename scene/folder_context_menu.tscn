@@ -1,0 +1,49 @@
+[gd_scene format=3 uid="uid://besmajj3fj03t"]
+
+[ext_resource type="Script" uid="uid://dulk85ejcjx3i" path="res://scripts/folder_context_menu.gd" id="1_dbxln"]
+[ext_resource type="Theme" uid="uid://dnhnt8qo2nlyy" path="res://new_theme.tres" id="4_xo2mf"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_vrdfc"]
+content_margin_left = 0.0
+content_margin_top = 0.0
+content_margin_right = 0.0
+content_margin_bottom = 0.0
+bg_color = Color(0.28235295, 0.28235295, 0.28235295, 1)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+corner_detail = 5
+
+[node name="PanelContainer" type="PanelContainer" unique_id=1028343036]
+z_index = 2
+offset_right = 204.0
+offset_bottom = 51.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_vrdfc")
+script = ExtResource("1_dbxln")
+
+[node name="MarginContainer" type="MarginContainer" parent="." unique_id=1032066858]
+layout_mode = 2
+size_flags_vertical = 0
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer" unique_id=1411771939]
+layout_mode = 2
+
+[node name="rename" type="Button" parent="MarginContainer/VBoxContainer" unique_id=1148800396]
+z_index = 14
+layout_mode = 2
+theme = ExtResource("4_xo2mf")
+text = "  重命名"
+alignment = 0
+
+[node name="delete" type="Button" parent="MarginContainer/VBoxContainer" unique_id=860491599]
+z_index = 14
+layout_mode = 2
+theme = ExtResource("4_xo2mf")
+text = "  删除文件夹"
+alignment = 0
+
+[connection signal="button_up" from="MarginContainer/VBoxContainer/rename" to="." method="_on_rename_button_up"]
+[connection signal="button_up" from="MarginContainer/VBoxContainer/delete" to="." method="_on_delete_button_up"]

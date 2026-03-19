@@ -1,16 +1,21 @@
 [gd_scene format=3 uid="uid://c0xw48rf51h8k"]
 
-[ext_resource type="Script" uid="uid://cxutw5bxqcjtd" path="res://scene/main.gd" id="1_4j5ol"]
-[ext_resource type="Script" uid="uid://cwp6sx5187trt" path="res://scene/main_ui.gd" id="1_v0l8b"]
-[ext_resource type="Script" uid="uid://cqd108gyswuu1" path="res://scene/tab_bar.gd" id="2_0ha60"]
+[ext_resource type="Script" uid="uid://cwp6sx5187trt" path="res://scripts/main_ui.gd" id="1_v0l8b"]
+[ext_resource type="Script" uid="uid://cqd108gyswuu1" path="res://scripts/tab_bar.gd" id="2_0ha60"]
 [ext_resource type="PackedScene" uid="uid://bmyhw36fx17qy" path="res://scene/node_2d.tscn" id="3_4j5ol"]
 [ext_resource type="Texture2D" uid="uid://bacarg6uviypr" path="res://tex/preview_3.jpg" id="3_wp4xf"]
 [ext_resource type="PackedScene" uid="uid://8i0frwpx4bec" path="res://scene/control.tscn" id="4_brvut"]
+[ext_resource type="PackedScene" uid="uid://4vn0qbvanm2x" path="res://scene/folder.tscn" id="4_k65ib"]
 [ext_resource type="Script" uid="uid://d2r1dil1jo6c0" path="res://scripts/right_panel.gd" id="5_p1hux"]
 [ext_resource type="Theme" uid="uid://dnhnt8qo2nlyy" path="res://new_theme.tres" id="5_tqoya"]
+[ext_resource type="Resource" uid="uid://85tjdggbyiv0" path="res://resources/my_res.tres" id="5_v2gmf"]
 [ext_resource type="Script" uid="uid://r1o1erk3r2qn" path="res://scripts/page_num.gd" id="6_k65ib"]
+[ext_resource type="Script" uid="uid://62ylmd3dfmj7" path="res://scripts/delete_button.gd" id="7_jcbur"]
 [ext_resource type="PackedScene" uid="uid://5poiej2aowo" path="res://scene/page_1.tscn" id="7_k65ib"]
 [ext_resource type="Script" uid="uid://fsqo2uyiubyg" path="res://scripts/converter.gd" id="7_of57s"]
+[ext_resource type="Script" uid="uid://cxutw5bxqcjtd" path="res://scripts/main.gd" id="8_main"]
+[ext_resource type="PackedScene" uid="uid://besmajj3fj03t" path="res://scene/folder_context_menu.tscn" id="13_mswub"]
+[ext_resource type="PackedScene" uid="uid://dbxt26px8q0m3" path="res://scene/rename_win.tscn" id="14_hybxs"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_wp4xf"]
 content_margin_left = 10.0
@@ -45,7 +50,7 @@ bg_color = Color(0.25490198, 0.5137255, 0.9607843, 1)
 border_color = Color(1, 1, 1, 0.75)
 corner_detail = 1
 
-[sub_resource type="ButtonGroup" id="ButtonGroup_k65ib"]
+[sub_resource type="ButtonGroup" id="ButtonGroup_jcbur"]
 allow_unpress = true
 
 [sub_resource type="Theme" id="Theme_tqoya"]
@@ -75,26 +80,19 @@ color = Color(0.25490198, 0.5137255, 0.9607843, 1)
 [sub_resource type="Shortcut" id="Shortcut_brvut"]
 events = [SubResource("InputEventAction_wp4xf")]
 
-[node name="Node2D" type="Node2D" unique_id=1929871842 node_paths=PackedStringArray("context_menu")]
-script = ExtResource("1_4j5ol")
-context_menu = NodePath("main_ui/Control")
+[node name="Node2D" type="Node2D" unique_id=1929871842]
+script = ExtResource("8_main")
 
-[node name="main_ui" type="CanvasLayer" parent="." unique_id=1938298878 node_paths=PackedStringArray("card_container", "page_num_node", "title_label", "folder_size_label", "resolution_label", "bitrate_label", "preset", "cq", "maxrate", "is_h", "progress_bar", "start_convert_button", "stop_convert_button")]
+[node name="main_ui" type="CanvasLayer" parent="." unique_id=1938298878 node_paths=PackedStringArray("card_container", "page_num_node", "context_menu_card", "context_menu_folder", "converter")]
 script = ExtResource("1_v0l8b")
-card_container = NodePath("HBoxContainer/MarginContainer/VBoxContainer/ScrollContainer2/MarginContainer/HFlowContainer")
+card_container = NodePath("HBoxContainer/MarginContainer/VBoxContainer/ScrollContainer2/MarginContainer/Card_container")
 card_scene = ExtResource("3_4j5ol")
-page_num_node = NodePath("HBoxContainer/MarginContainer/VBoxContainer/MarginContainer/HBoxContainer/page_num")
-title_label = NodePath("HBoxContainer/right_panel/ScrollContainer/VBox/MarginContainer2/title_Label")
-folder_size_label = NodePath("HBoxContainer/right_panel/ScrollContainer/VBox/Attributes/VBoxContainer/size_Label")
-resolution_label = NodePath("HBoxContainer/right_panel/ScrollContainer/VBox/Attributes/VBoxContainer/resolution_Label2")
-bitrate_label = NodePath("HBoxContainer/right_panel/ScrollContainer/VBox/Attributes/VBoxContainer/biterate_Label3")
-preset = NodePath("HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/HBoxContainer/preset")
-cq = NodePath("HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/HBoxContainer/cq")
-maxrate = NodePath("HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/HBoxContainer2/maxrate")
-is_h = NodePath("HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/HBoxContainer2/is_H")
-progress_bar = NodePath("HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/ProgressBar")
-start_convert_button = NodePath("HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/start_convert")
-stop_convert_button = NodePath("HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/stop_button")
+folder_scene = ExtResource("4_k65ib")
+page_num_node = NodePath("HBoxContainer/MarginContainer/VBoxContainer/MarginContainer/HBoxContainer/page_num/page_1")
+context_menu_card = NodePath("Control")
+context_menu_folder = NodePath("folder_context_menu")
+converter = NodePath("HBoxContainer/right_panel/ScrollContainer/VBox/converter")
+res = ExtResource("5_v2gmf")
 
 [node name="ColorRect" type="ColorRect" parent="main_ui" unique_id=98198692]
 anchors_preset = 15
@@ -144,6 +142,10 @@ tab_0/title = "tab_1"
 tab_1/title = "tab_2"
 script = ExtResource("2_0ha60")
 
+[node name="create_new_folder" type="Button" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer" unique_id=1142434020]
+layout_mode = 2
+text = "新文件夹"
+
 [node name="LineEdit" type="LineEdit" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer" unique_id=1950790850]
 custom_minimum_size = Vector2(100, 0)
 layout_mode = 2
@@ -162,6 +164,8 @@ text = "显示本地 "
 [node name="delete_button" type="Button" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer" unique_id=1966308821]
 layout_mode = 2
 text = "删除本地空文件"
+script = ExtResource("7_jcbur")
+res = ExtResource("5_v2gmf")
 
 [node name="Button" type="Button" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer" unique_id=127346375]
 layout_mode = 2
@@ -189,15 +193,16 @@ size_flags_vertical = 3
 [node name="MarginContainer" type="MarginContainer" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/ScrollContainer2" unique_id=765039720]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/margin_left = 25
 theme_override_constants/margin_top = 25
-theme_override_constants/margin_right = 25
 theme_override_constants/margin_bottom = 25
 
-[node name="HFlowContainer" type="HFlowContainer" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/ScrollContainer2/MarginContainer" unique_id=1796475393]
+[node name="Card_container" type="HFlowContainer" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/ScrollContainer2/MarginContainer" unique_id=1796475393]
 layout_mode = 2
 
-[node name="Node2D" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/ScrollContainer2/MarginContainer/HFlowContainer" unique_id=747637982 instance=ExtResource("3_4j5ol")]
+[node name="Node2D" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/ScrollContainer2/MarginContainer/Card_container" unique_id=747637982 instance=ExtResource("3_4j5ol")]
+layout_mode = 2
+
+[node name="PanelContainer" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/ScrollContainer2/MarginContainer/Card_container" unique_id=1147595711 instance=ExtResource("4_k65ib")]
 layout_mode = 2
 
 [node name="MarginContainer" type="MarginContainer" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer" unique_id=712038022]
@@ -230,7 +235,7 @@ page_card = ExtResource("7_k65ib")
 
 [node name="page_1" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/MarginContainer/HBoxContainer/page_num" unique_id=109932289 instance=ExtResource("7_k65ib")]
 layout_mode = 2
-button_group = SubResource("ButtonGroup_k65ib")
+button_group = SubResource("ButtonGroup_jcbur")
 
 [node name="Button2" type="Button" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/MarginContainer/HBoxContainer" unique_id=924454259]
 layout_mode = 2
@@ -241,7 +246,7 @@ theme_type_variation = &"button_page"
 theme_override_font_sizes/font_size = 18
 text = "  >>  "
 
-[node name="right_panel" type="MarginContainer" parent="main_ui/HBoxContainer" unique_id=756927448]
+[node name="right_panel" type="MarginContainer" parent="main_ui/HBoxContainer" unique_id=756927448 node_paths=PackedStringArray("title_label", "folder_size_label", "resolution_label", "bitrate_label")]
 custom_minimum_size = Vector2(200, 0)
 layout_mode = 2
 size_flags_horizontal = 3
@@ -251,6 +256,10 @@ theme_override_constants/margin_top = 36
 theme_override_constants/margin_right = 5
 theme_override_constants/margin_bottom = 5
 script = ExtResource("5_p1hux")
+title_label = NodePath("ScrollContainer/VBox/MarginContainer2/title_Label")
+folder_size_label = NodePath("ScrollContainer/VBox/Attributes/VBoxContainer/size_Label")
+resolution_label = NodePath("ScrollContainer/VBox/Attributes/VBoxContainer/resolution_Label2")
+bitrate_label = NodePath("ScrollContainer/VBox/Attributes/VBoxContainer/biterate_Label3")
 
 [node name="ScrollContainer" type="ScrollContainer" parent="main_ui/HBoxContainer/right_panel" unique_id=549181938]
 layout_mode = 2
@@ -347,13 +356,21 @@ theme_override_constants/margin_right = 12
 layout_mode = 2
 theme_override_styles/separator = SubResource("StyleBoxLine_brvut")
 
-[node name="converter" type="MarginContainer" parent="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox" unique_id=1327560853]
+[node name="converter" type="MarginContainer" parent="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox" unique_id=1327560853 node_paths=PackedStringArray("preset", "cq", "maxrate", "is_h", "progress_bar", "start_convert_button", "stop_convert_button")]
 layout_mode = 2
 theme_override_constants/margin_left = 3
 theme_override_constants/margin_top = 6
 theme_override_constants/margin_right = 15
 theme_override_constants/margin_bottom = 10
 script = ExtResource("7_of57s")
+preset = NodePath("VBoxContainer/HBoxContainer/preset")
+cq = NodePath("VBoxContainer/HBoxContainer/cq")
+maxrate = NodePath("VBoxContainer/HBoxContainer2/maxrate")
+is_h = NodePath("VBoxContainer/HBoxContainer2/is_H")
+progress_bar = NodePath("VBoxContainer/ProgressBar")
+start_convert_button = NodePath("VBoxContainer/start_convert")
+stop_convert_button = NodePath("VBoxContainer/stop_button")
+res = ExtResource("5_v2gmf")
 
 [node name="VBoxContainer" type="VBoxContainer" parent="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter" unique_id=1141371230]
 layout_mode = 2
@@ -453,11 +470,28 @@ anchor_right = 1.0
 offset_right = 210.0
 grow_horizontal = 0
 
+[node name="folder_context_menu" parent="main_ui" unique_id=1028343036 node_paths=PackedStringArray("rename_context_menu") instance=ExtResource("13_mswub")]
+offset_left = 1385.0
+offset_top = 5.0
+offset_right = 1589.0
+offset_bottom = 91.0
+rename_context_menu = NodePath("../rename_win")
+
+[node name="rename_win" parent="main_ui" unique_id=1585673485 instance=ExtResource("14_hybxs")]
+offset_left = 1178.0
+offset_top = 168.0
+offset_right = 1678.0
+offset_bottom = 268.0
+
+[connection signal="on_card_selected" from="main_ui" to="main_ui/HBoxContainer/right_panel" method="_on_main_ui_on_card_selected"]
+[connection signal="on_card_selected" from="main_ui" to="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter" method="_on_main_ui_on_card_selected"]
+[connection signal="button_up" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/create_new_folder" to="main_ui" method="_on_create_new_folder_button_up"]
 [connection signal="text_submitted" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/LineEdit" to="main_ui" method="_on_line_edit_text_submitted"]
 [connection signal="toggled" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/is_show_workshop" to="main_ui" method="_on_is_show_workshop_toggled"]
 [connection signal="toggled" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/is_show_local" to="main_ui" method="_on_is_show_local_toggled"]
 [connection signal="button_up" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/delete_button" to="main_ui" method="_on_delete_button_button_up"]
+[connection signal="button_up" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/delete_button" to="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/delete_button" method="_on_button_up"]
 [connection signal="button_up" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/Button" to="main_ui" method="_on_button_button_up"]
 [connection signal="item_selected" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/OptionButton" to="main_ui" method="_on_option_button_item_selected"]
-[connection signal="button_up" from="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/start_convert" to="main_ui" method="_on_start_convert_button_up"]
-[connection signal="button_up" from="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/stop_button" to="main_ui" method="_on_stop_button_button_up"]
+[connection signal="button_up" from="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/start_convert" to="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter" method="_on_start_convert_button_up"]
+[connection signal="button_up" from="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/stop_button" to="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter" method="_on_stop_button_button_up"]
