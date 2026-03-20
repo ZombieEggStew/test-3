@@ -10,6 +10,7 @@ extends MarginContainer
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
+    SignalBus.on_card_selected.connect(_on_main_ui_on_card_selected)
     clear_info()
 
 

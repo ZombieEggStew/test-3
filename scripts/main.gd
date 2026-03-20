@@ -5,6 +5,32 @@ static var instance: MainManager
 
 
 # ============ 工具函数 ============
+static func is_local_project(card_info: Dictionary) -> bool:
+    return not card_info.get("is_workshop", false)
+
+
+static func is_workshop_item(card_info: Dictionary) -> bool:
+    return bool(card_info.get("is_workshop", false))
+
+
+static func read_project_data(root_path: String) -> Dictionary:
+    var project_file := "%s/project.json" % root_path
+    if not FileAccess.file_exists(project_file):
+        push_error("未找到 project.json: %s" % project_file)
+        return {}
+
+    var file := FileAccess.open(project_file, FileAccess.READ)
+    if file == null:
+        push_error("无法读取 project.json: %s" % project_file)
+        return {}
+
+    var parsed := JSON.parse_string(file.get_as_text()) as Dictionary
+    if typeof(parsed) != TYPE_DICTIONARY:
+        push_error("project.json 格式错误: %s" % project_file)
+        return {}
+
+    return parsed as Dictionary
+
 
 static func remove_empty_folders_in_root(root_path: String) -> int:
     var root_dir := DirAccess.open(root_path)
@@ -66,6 +92,31 @@ static func get_option_selected_text(option: OptionButton, fallback: String) -> 
     return text if not text.is_empty() else fallback
 
 
+static func unsubscribe_workshop_item_2(card_info: Dictionary) -> bool:
+    if card_info.is_empty():
+        push_warning("未选择可取消订阅的项目")
+        return false
+
+    var published_id := int(card_info.get("published_id", 0))
+    if published_id <= 0:
+        push_error("当前项目缺少有效 published_id，无法取消订阅")
+        return false
+
+    if not steam_ready_for_ugc():
+        push_error("Steam 尚未完成初始化或未登录，暂时无法取消订阅")
+        return false
+
+    var steam := _get_steam_singleton()
+    if steam == null:
+        push_error("无法获取 Steam 单例，取消订阅失败")
+        return false
+
+    if not _is_steam_ready_for_ugc(steam):
+        push_error("Steam 尚未准备好处理 UGC 请求，取消订阅失败")
+        return false
+    return _submit_unsubscribe_request(steam, published_id)
+
+
 static func unsubscribe_workshop_item(published_id: int) -> bool:
     if published_id <= 0:
         return false
@@ -111,14 +162,17 @@ static func _is_steam_ready_for_ugc(steam: Object) -> bool:
 static func _submit_unsubscribe_request(steam: Object, published_id: int) -> bool:
     if steam.has_method("unsubscribeItem"):
         steam.call("unsubscribeItem", published_id)
+        print("已提交取消订阅请求: %s" % str(published_id))
         return true
 
     if steam.has_method("unsubscribe_item"):
         steam.call("unsubscribe_item", published_id)
+        print("已提交取消订阅请求: %s" % str(published_id))
         return true
 
     if steam.has_method("ugc_unsubscribe_item"):
         steam.call("ugc_unsubscribe_item", published_id)
+        print("已提交取消订阅请求: %s" % str(published_id))
         return true
 
     return false
@@ -262,6 +316,78 @@ static func format_size_text(size_bytes: int) -> String:
         value /= 1024.0
         unit_index += 1
     return "%.2f %s" % [value, units[unit_index]]
+
+
+## 递归移动（剪切）目录下的所有内容到目标路径
+static func move_folder_contents(src_dir_path: String, dest_dir_path: String) -> bool:
+    if src_dir_path == dest_dir_path:
+        return false
+        
+    var src_dir := DirAccess.open(src_dir_path)
+    if src_dir == null:
+        push_error("无法打开源目录: %s" % src_dir_path)
+        return false
+
+    if not DirAccess.dir_exists_absolute(dest_dir_path):
+        var err := DirAccess.make_dir_recursive_absolute(dest_dir_path)
+        if err != OK:
+            push_error("无法创建目标目录: %s, err=%d" % [dest_dir_path, err])
+            return false
+
+    for file_name in src_dir.get_files():
+        var old_path := src_dir_path.path_join(file_name)
+        var new_path := dest_dir_path.path_join(file_name)
+        var err := src_dir.rename(old_path, new_path)
+        if err != OK:
+            push_warning("文件移动失败: %s -> %s, err=%d" % [old_path, new_path, err])
+
+    for sub_dir_name in src_dir.get_directories():
+        var old_sub_path := src_dir_path.path_join(sub_dir_name)
+        var new_sub_path := dest_dir_path.path_join(sub_dir_name)
+        move_folder_contents(old_sub_path, new_sub_path)
+        
+        # 移动后尝试删除源子目录
+        DirAccess.remove_absolute(old_sub_path)
+
+    return true
+
+
+## 递归删除目录及其下所有内容
+static func remove_dir_recursive(path: String) -> Error:
+    if not DirAccess.dir_exists_absolute(path):
+        return OK
+        
+    var dir := DirAccess.open(path)
+    if dir == null:
+        return DirAccess.get_open_error()
+        
+    # 先处理子目录
+    for dir_name in dir.get_directories():
+        var sub_path := path.path_join(dir_name)
+        var err := remove_dir_recursive(sub_path)
+        if err != OK:
+            return err
+            
+    # 再处理文件
+    for file_name in dir.get_files():
+        var file_path := path.path_join(file_name)
+        var err := dir.remove(file_path)
+        if err != OK:
+            push_error("无法删除文件: %s, err=%d" % [file_path, err])
+            return err
+            
+    # 最后删除本目录
+    var parent_path := path.get_base_dir()
+    var target_dir_name := path.get_file()
+    var parent_dir := DirAccess.open(parent_path)
+    if parent_dir == null:
+        return DirAccess.get_open_error()
+        
+    var err := parent_dir.remove(target_dir_name)
+    if err != OK:
+        push_error("无法删除目录: %s, err=%d" % [path, err])
+    return err
+
 
 func _enter_tree() -> void:
     if instance and instance != self:

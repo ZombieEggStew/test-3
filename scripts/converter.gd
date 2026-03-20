@@ -19,6 +19,7 @@ var progress_poll_interval := 0.2
 var selected_card_info: Dictionary = {}
 
 func _ready() -> void:
+	SignalBus.on_card_selected.connect(_on_main_ui_on_card_selected)
 	_set_convert_ui_state(false)
 	_reset_progress_bar()
 

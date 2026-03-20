@@ -1,131 +1,188 @@
 extends PanelContainer
 
+@export var res: MyRes
+
 var target_card_info: Dictionary = {}
 
-func _ready() -> void:
-	hide()
+
+func _ready() -> void: 
+    hide()
 
 func _input(event: InputEvent) -> void:
-	if not visible:
-		return
-	if event is InputEventMouseButton \
-	and event.button_index == MOUSE_BUTTON_LEFT \
-	and event.pressed:
-		if not get_global_rect().has_point(event.position):
-			hide()
+    if not visible:
+        return
+    if event is InputEventMouseButton \
+    and event.button_index == MOUSE_BUTTON_LEFT \
+    and event.pressed:
+        if not get_global_rect().has_point(event.position):
+            hide()
 
 
 func set_target_card_info(info: Dictionary) -> void:
-	target_card_info = info.duplicate(true)
+    target_card_info = info.duplicate(true)
 
 
 func _on_button_button_down() -> void:
-	_open_target_folder()
+    _open_target_folder()
 
 
 func _on_play_button_up() -> void:
-	var media_path := str(target_card_info.get("media_file_path", "")).strip_edges()
-	if media_path.is_empty():
-		push_warning("未找到可播放的媒体文件路径")
-		return
+    var media_file_path := _resolve_media_file_path()
+    if media_file_path.is_empty():
+        push_warning("未找到可播放的媒体文件路径")
+        return
 
-	if not FileAccess.file_exists(media_path):
-		push_warning("文件不存在: %s" % media_path)
-		return
+    if not FileAccess.file_exists(media_file_path):
+        push_warning("文件不存在: %s" % media_file_path)
+        return
 
-	var normalized_path := media_path.replace("\\", "/")
-	var file_uri := "file:///" + normalized_path
-	var err := OS.shell_open(file_uri)
-	if err != OK:
-		push_warning("打开文件失败: %s" % media_path)
-		return
+    var normalized_path := media_file_path.replace("\\", "/")
+    var file_uri := "file:///" + normalized_path
+    var err := OS.shell_open(file_uri)
+    if err != OK:
+        push_warning("打开文件失败: %s" % media_file_path)
+        return
 
-	hide()
+    hide()
 
 func _on_open_folder_button_up() -> void:
-	_open_target_folder()
+    _open_target_folder()
 
 
 
 func _open_target_folder() -> void:
-	var folder_path := _resolve_target_folder_path()
-	if folder_path.is_empty():
-		push_warning("未找到可打开的目录路径")
-		return
+    var folder_path := _resolve_target_folder_path()
+    if folder_path.is_empty():
+        push_warning("未找到可打开的目录路径")
+        return
 
-	var normalized_path := folder_path.replace("\\", "/")
-	var file_uri := "file:///" + normalized_path
-	var err := OS.shell_open(file_uri)
-	if err != OK:
-		push_warning("打开目录失败: %s" % folder_path)
-		return
+    var normalized_path := folder_path.replace("\\", "/")
+    var file_uri := "file:///" + normalized_path
+    var err := OS.shell_open(file_uri)
+    if err != OK:
+        push_warning("打开目录失败: %s" % folder_path)
+        return
 
-	hide()
+    hide()
 
 
 func _resolve_target_folder_path() -> String:
-	var media_path := str(target_card_info.get("media_file_path", "")).strip_edges()
-	if not media_path.is_empty():
-		return media_path.get_base_dir()
+    var item_path := str(target_card_info.get("item_path", "")).strip_edges()
+    if not item_path.is_empty() and DirAccess.dir_exists_absolute(item_path):
+        return item_path
 
-	var project_json_path := str(target_card_info.get("project_json_path", "")).strip_edges()
-	if not project_json_path.is_empty():
-		return project_json_path.get_base_dir()
+    var root_path := str(target_card_info.get("root_path", "")).strip_edges()
+    var folder_name := str(target_card_info.get("folder_name", "")).strip_edges()
+    if not root_path.is_empty() and not folder_name.is_empty():
+        var folder_path := "%s/%s" % [root_path, folder_name]
+        if DirAccess.dir_exists_absolute(folder_path):
+            return folder_path
 
-	return ""
+    if not root_path.is_empty() and DirAccess.dir_exists_absolute(root_path):
+        return root_path
+
+
+    return ""
+
+
+func _resolve_media_file_path() -> String:
+    var explicit_media_path := str(target_card_info.get("media_file_path", "")).strip_edges()
+    if not explicit_media_path.is_empty() and FileAccess.file_exists(explicit_media_path):
+        return explicit_media_path
+
+    var media_file_name := str(target_card_info.get("media_file_name", "")).strip_edges()
+    if media_file_name.is_empty():
+        return ""
+
+    var folder_path := _resolve_target_folder_path()
+    if folder_path.is_empty():
+        return ""
+
+    var media_file_path := "%s/%s" % [folder_path, media_file_name]
+    if FileAccess.file_exists(media_file_path):
+        return media_file_path
+
+    return ""
 
 
 func _on_delete_button_up() -> void:
-	if target_card_info.is_empty():
-		push_warning("未选择可取消订阅的项目")
-		hide()
-		return
+    if target_card_info.is_empty():
+        push_warning("未选择可删除的项目")
+        hide()
+        return
 
-	var published_id := int(target_card_info.get("published_id", 0))
-	if published_id <= 0:
-		push_warning("当前项目缺少有效 published_id，无法取消订阅")
-		hide()
-		return
+    var item_path := _resolve_target_folder_path()
+    if item_path.is_empty():
+        push_warning("未找到项目路径")
+        hide()
+        return
 
-	var root_path := str(target_card_info.get("root_path", "")).replace("\\", "/").to_lower()
-	if root_path.find("/workshop/content/") < 0:
-		push_warning("当前条目不是创意工坊订阅项")
-		hide()
-		return
+    # 首先删除目标文件夹及其内容
+    var err := MainManager.remove_dir_recursive(item_path)
+    if err != OK:
+        push_error("删除项目文件夹失败: %s, err=%d" % [item_path, err])
+    else:
+        print("已物理删除项目内容: %s" % item_path)
 
-	if MainManager.instance == null:
-		push_warning("MainManager 未就绪，无法取消订阅")
-		hide()
-		return
-
-	if not MainManager.steam_ready_for_ugc():
-		push_warning("Steam 尚未完成初始化或未登录，暂时无法取消订阅")
-		hide()
-		return
-
-	var submit_ok := MainManager.unsubscribe_workshop_item(published_id)
-	if not submit_ok:
-		push_warning("取消订阅请求提交失败: %s" % str(published_id))
-		hide()
-		return
-
-	print("已提交取消订阅请求: %s" % str(published_id))
-	_request_main_ui_reload()
-	hide()
+    # 接着如果是工坊项，提交取消订阅请求
+    if MainManager.is_workshop_item(target_card_info):
+        _submit_unsubscribe_request()
+        
+    _request_main_ui_reload()
+    hide()
 
 
 func _request_main_ui_reload() -> void:
-	if MainManager.instance == null:
-		return
-
-	var main_ui := MainManager.instance.get_node_or_null("main_ui")
-	if main_ui == null:
-		return
-
-	if main_ui.has_method("_load_workshop_cards"):
-		main_ui.call_deferred("_load_workshop_cards", true)
+    SignalBus.load_workshop_cards.emit(true)
 
 
 func _on_backup_button_up() -> void:
+    if not target_card_info.get("is_workshop",false):
+        hide()
+        return
 
-	hide()
+    if target_card_info.is_empty():
+        push_warning("未选择可备份的项目")
+        hide()
+        return
+
+    var video_name := str(target_card_info.get("media_file_name", "")).strip_edges()
+
+    if video_name.is_empty():
+        push_warning("未找到视频文件名或项目名，无法创建备份文件夹")
+        hide()
+        return
+
+    var dest_folder := "%s/%s" % [res.LOCAL_PROJECTS_ROOT, video_name]
+    dest_folder = dest_folder.replace("\\", "/")
+
+    var dir := DirAccess.open(res.LOCAL_PROJECTS_ROOT)
+    if not dir.dir_exists(dest_folder):
+        var err := dir.make_dir_recursive(dest_folder) as Error
+        if err != OK:
+            push_warning("创建目录失败: %s" % dest_folder)
+            hide()
+            return
+    var item_path := _resolve_target_folder_path()
+    if not item_path.is_empty():
+        print(MainManager.read_project_data(item_path))
+        # 剪切所有文件到备份文件夹
+        MainManager.move_folder_contents(item_path, dest_folder)
+        # 备份完成后刷新 UI
+        _request_main_ui_reload()
+
+    print("已备份并移动文件到: %s" % dest_folder)
+
+    _submit_unsubscribe_request()
+    
+    hide()
+
+
+func _submit_unsubscribe_request() -> void:
+    var submit_ok = MainManager.unsubscribe_workshop_item_2(target_card_info)
+    if not submit_ok:
+        push_warning("取消订阅请求提交失败: %s" % str(target_card_info.get("published_id", 0)))
+        hide()
+        return
+
+    _request_main_ui_reload()

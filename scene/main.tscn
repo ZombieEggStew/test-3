@@ -83,15 +83,13 @@ events = [SubResource("InputEventAction_wp4xf")]
 [node name="Node2D" type="Node2D" unique_id=1929871842]
 script = ExtResource("8_main")
 
-[node name="main_ui" type="CanvasLayer" parent="." unique_id=1938298878 node_paths=PackedStringArray("card_container", "page_num_node", "context_menu_card", "context_menu_folder", "converter")]
+[node name="main_ui" type="CanvasLayer" parent="." unique_id=1938298878 node_paths=PackedStringArray("card_container", "context_menu_card", "context_menu_folder")]
 script = ExtResource("1_v0l8b")
 card_container = NodePath("HBoxContainer/MarginContainer/VBoxContainer/ScrollContainer2/MarginContainer/Card_container")
 card_scene = ExtResource("3_4j5ol")
 folder_scene = ExtResource("4_k65ib")
-page_num_node = NodePath("HBoxContainer/MarginContainer/VBoxContainer/MarginContainer/HBoxContainer/page_num/page_1")
 context_menu_card = NodePath("Control")
 context_menu_folder = NodePath("folder_context_menu")
-converter = NodePath("HBoxContainer/right_panel/ScrollContainer/VBox/converter")
 res = ExtResource("5_v2gmf")
 
 [node name="ColorRect" type="ColorRect" parent="main_ui" unique_id=98198692]
@@ -469,6 +467,7 @@ anchor_left = 1.0
 anchor_right = 1.0
 offset_right = 210.0
 grow_horizontal = 0
+res = ExtResource("5_v2gmf")
 
 [node name="folder_context_menu" parent="main_ui" unique_id=1028343036 node_paths=PackedStringArray("rename_context_menu") instance=ExtResource("13_mswub")]
 offset_left = 1385.0
@@ -483,8 +482,7 @@ offset_top = 168.0
 offset_right = 1678.0
 offset_bottom = 268.0
 
-[connection signal="on_card_selected" from="main_ui" to="main_ui/HBoxContainer/right_panel" method="_on_main_ui_on_card_selected"]
-[connection signal="on_card_selected" from="main_ui" to="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter" method="_on_main_ui_on_card_selected"]
+[connection signal="setup_pages" from="main_ui" to="main_ui/HBoxContainer/MarginContainer/VBoxContainer/MarginContainer/HBoxContainer/page_num" method="_on_main_ui_setup_pages"]
 [connection signal="button_up" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/create_new_folder" to="main_ui" method="_on_create_new_folder_button_up"]
 [connection signal="text_submitted" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/LineEdit" to="main_ui" method="_on_line_edit_text_submitted"]
 [connection signal="toggled" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/is_show_workshop" to="main_ui" method="_on_is_show_workshop_toggled"]
@@ -493,5 +491,6 @@ offset_bottom = 268.0
 [connection signal="button_up" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/delete_button" to="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/delete_button" method="_on_button_up"]
 [connection signal="button_up" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/Button" to="main_ui" method="_on_button_button_up"]
 [connection signal="item_selected" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/OptionButton" to="main_ui" method="_on_option_button_item_selected"]
+[connection signal="page_selected" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/MarginContainer/HBoxContainer/page_num" to="main_ui" method="_on_page_num_page_selected"]
 [connection signal="button_up" from="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/start_convert" to="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter" method="_on_start_convert_button_up"]
 [connection signal="button_up" from="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/stop_button" to="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter" method="_on_stop_button_button_up"]

@@ -4,8 +4,8 @@
 #TO DO : 
 #TO DO : 
 #TO DO : 过滤显示（tag）
-#TO DO : 
-#TO DO : 
+#TO DO : 添加本地标识
+#TO DO : 显示steam连接状态
 #TO DO : 
 #TO DO : 
 #TO DO : 
@@ -36,21 +36,17 @@
 #FIX ME : 
 extends CanvasLayer
 
-signal on_card_selected(info: Dictionary)
+signal setup_pages(_total_items : int, max :int ,_current_page :int)
 
 @export var card_container : HFlowContainer
 @export var card_scene : PackedScene
 @export var folder_scene : PackedScene
-@export var page_num_node: Node
-
-
 
 
 
 @export var context_menu_card : Control
 @export var context_menu_folder : Control
 
-@export var converter : MarginContainer
 
 @export var res: MyRes
 
@@ -75,15 +71,12 @@ var is_show_pic = false
 
 
 func _ready() -> void:
+	SignalBus.load_workshop_cards.connect(_on_request_load_workshop_cards)
 	set_process(true)
 	_clear_detail_labels()
 	
 
 	_load_custom_folders_from_local()
-
-	if page_num_node and page_num_node.has_signal("page_selected"):
-		if not page_num_node.is_connected("page_selected", Callable(self, "_on_page_selected")):
-			page_num_node.connect("page_selected", Callable(self, "_on_page_selected"))
 
 	_load_workshop_cards(is_force_reload)
 
@@ -114,8 +107,8 @@ func _preload_workshop_items_once() -> bool:
 	cached_items.clear()
 	sorted_items.clear()
 
-	var items_workshop := _scan_root_for_items(res.res.WORKSHOP_ROOT)
-	var items_local := _scan_root_for_items(res.LOCAL_PROJECTS_ROOT)
+	var items_workshop := _scan_root_for_items(res.WORKSHOP_ROOT , true)
+	var items_local := _scan_root_for_items(res.LOCAL_PROJECTS_ROOT , false)
 
 	# 本地项目优先加载，合并时把本地放前面
 	var items := items_local + items_workshop
@@ -190,8 +183,8 @@ func _save_cache_to_local(items: Array) -> void:
 
 
 func _incremental_update_cached_items() -> void:
-	var current_items := _scan_root_for_item_headers(res.LOCAL_PROJECTS_ROOT)
-	current_items.append_array(_scan_root_for_item_headers(res.WORKSHOP_ROOT))
+	var current_items := _scan_root_for_item_headers(res.LOCAL_PROJECTS_ROOT, false)
+	current_items.append_array(_scan_root_for_item_headers(res.WORKSHOP_ROOT, true))
 
 	if MAX_TEST_FOLDER_COUNT > 0 and current_items.size() > MAX_TEST_FOLDER_COUNT:
 		current_items = current_items.slice(0, MAX_TEST_FOLDER_COUNT)
@@ -239,6 +232,11 @@ func _incremental_update_cached_items() -> void:
 		print("增量更新完成: 新增=%d, 变更=%d, 删除=%d" % [added_count, changed_count, removed_count])
 	else:
 		print("增量更新完成: 无变化")
+
+
+
+
+
 
 
 func _apply_sort_on_cached_items() -> void:
@@ -401,13 +399,10 @@ func _slice_items_for_page(items: Array, page: int) -> Array:
 
 
 func _update_page_num(total_items: int) -> void:
-	if page_num_node and page_num_node.has_method("setup_pages"):
-		page_num_node.call("setup_pages", total_items, MAX_ONE_PAGE_COUNT, current_page)
+	setup_pages.emit(total_items,MAX_ONE_PAGE_COUNT, current_page)
+	# if page_num_node and page_num_node.has_method("setup_pages"):
 
-
-func _on_page_selected(page_index: int) -> void:
-	current_page = page_index
-	_render_current_page_from_cache()
+	# 	page_num_node.call("setup_pages", total_items, MAX_ONE_PAGE_COUNT, current_page)
 
 
 func _add_card(card_info: Dictionary, title: String) -> void:
@@ -484,31 +479,10 @@ func _clear_cards() -> void:
 		child.queue_free()
 
 
-func _build_workshop_items(folders: Array, sub_times: Dictionary) -> Array:
-	var items: Array = []
-	for folder_name in folders:
-		var folder_id_str := str(folder_name)
-		var published_id := 0
-		if not folder_id_str.is_valid_int():
-			# keep non-numeric folder names (for local projects)
-			published_id = 0
-		else:
-			published_id = int(folder_id_str)
-
-		var subscribe_time := int(sub_times.get(folder_id_str, 0))
-		var folder_path := "%s/%s" % [res.WORKSHOP_ROOT, folder_id_str]
-		var folder_size := MainManager.calculate_dir_size_bytes(folder_path)
-		items.append({
-			"folder_name": folder_id_str,
-			"published_id": published_id,
-			"subscribe_time": subscribe_time,
-			"folder_size": folder_size,
-			"root_path": res.WORKSHOP_ROOT,
-		})
-	return items
 
 
-func _scan_root_for_items(root_path: String) -> Array:
+
+func _scan_root_for_items(root_path: String , is_wrokshop:bool) -> Array:
 	var items: Array = []
 	var dir := DirAccess.open(root_path)
 	if dir == null:
@@ -527,11 +501,12 @@ func _scan_root_for_items(root_path: String) -> Array:
 			"subscribe_time": subscribe_time,
 			"folder_size": folder_size,
 			"root_path": root_path,
+			"is_workshop": is_wrokshop,
 		})
 	return items
 
 
-func _scan_root_for_item_headers(root_path: String) -> Array:
+func _scan_root_for_item_headers(root_path: String, is_workshop: bool) -> Array:
 	var items: Array = []
 	var dir := DirAccess.open(root_path)
 	if dir == null:
@@ -547,6 +522,7 @@ func _scan_root_for_item_headers(root_path: String) -> Array:
 			"published_id": published_id,
 			"subscribe_time": subscribe_time,
 			"root_path": root_path,
+			"is_workshop": is_workshop,
 		})
 	return items
 
@@ -606,6 +582,8 @@ func _build_card_info_for_item(item: Dictionary) -> Dictionary:
 	if not FileAccess.file_exists(media_file_path):
 		return {}
 
+	var item_path := "%s/%s" % [item_root, folder_name]
+
 	var folder_size := int(item.get("folder_size", -1))
 	if folder_size < 0:
 		var folder_path := "%s/%s" % [item_root, folder_name]
@@ -627,10 +605,14 @@ func _build_card_info_for_item(item: Dictionary) -> Dictionary:
 	card_info["project_data"] = project_data
 	card_info["media_file_name"] = media_file_name
 	card_info["media_file_path"] = media_file_path
+	card_info["item_path"] = item_path
 	card_info["video_resolution"] = video_resolution
 	card_info["video_bitrate_kbps"] = video_bitrate_kbps
 	card_info["title"] = title
 	card_info["folder_size"] = folder_size
+	# root_path 必须保持为根目录路径（LOCAL/WORKSHOP），筛选逻辑依赖该语义
+	card_info["root_path"] = item_root
+	card_info["is_workshop"] = bool(item.get("is_workshop", item_root == res.WORKSHOP_ROOT))
 	return card_info
 
 
@@ -720,7 +702,7 @@ func _on_card_left_clicked(card: Node, info: Dictionary) -> void:
 
 	var selected_card_info = info.duplicate(true)
 
-	on_card_selected.emit(selected_card_info)
+	SignalBus.on_card_selected.emit(selected_card_info)
 
 
 
@@ -863,5 +845,11 @@ func _save_custom_folders_to_local() -> void:
 	file.store_string(JSON.stringify(payload))
 
 
-func _on_node_2d_load_workshop_cards(force: bool) -> void:
+func _on_request_load_workshop_cards(force: bool) -> void:
+	print("收到刷新工作坊卡片的信号，force=%s" % str(force))
 	_load_workshop_cards(force)
+
+
+func _on_page_num_page_selected(page_index: int) -> void:
+	current_page = page_index
+	_render_current_page_from_cache()

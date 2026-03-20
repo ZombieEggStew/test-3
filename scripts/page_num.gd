@@ -8,32 +8,6 @@ var _total_pages := 0
 var _page_buttons: Array[BaseButton] = []
 var _button_page_indexes: Array[int] = []
 
-func setup_pages(item_count: int, page_size: int, selected_page: int = 1) -> void:
-	_clear_pages()
-
-	if page_size <= 0 or item_count <= 0:
-		_total_pages = 0
-		_current_page = 1
-		return
-
-	_total_pages = int(ceil(float(item_count) / float(page_size)))
-	_current_page = clampi(selected_page, 1, _total_pages)
-
-	var visible_pages := _build_visible_page_indexes()
-	var prev_page := -1
-	for page_index in visible_pages:
-		if prev_page != -1 and page_index - prev_page > 1:
-			var ellipsis_node := _create_ellipsis_node()
-			if ellipsis_node != null:
-				add_child(ellipsis_node)
-
-		var page_node := _create_page_node(page_index)
-		if page_node != null:
-			add_child(page_node)
-		prev_page = page_index
-
-	_update_page_visual()
-
 
 func _build_visible_page_indexes() -> Array[int]:
 	var pages: Array[int] = []
@@ -140,3 +114,30 @@ func _clear_pages() -> void:
 	for child in get_children():
 		child.queue_free()
 
+
+
+func _on_main_ui_setup_pages(_total_items: int, max: int, _current_page: int) -> void:
+	_clear_pages()
+
+	if max <= 0 or _total_items <= 0:
+		_total_pages = 0
+		_current_page = 1
+		return
+
+	_total_pages = int(ceil(float(_total_items) / float(max)))
+	_current_page = clampi(_current_page, 1, _total_pages)
+
+	var visible_pages := _build_visible_page_indexes()
+	var prev_page := -1
+	for page_index in visible_pages:
+		if prev_page != -1 and page_index - prev_page > 1:
+			var ellipsis_node := _create_ellipsis_node()
+			if ellipsis_node != null:
+				add_child(ellipsis_node)
+
+		var page_node := _create_page_node(page_index)
+		if page_node != null:
+			add_child(page_node)
+		prev_page = page_index
+
+	_update_page_visual()
