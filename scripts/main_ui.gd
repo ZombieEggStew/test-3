@@ -6,8 +6,8 @@
 #TO DO : 过滤显示（tag）
 #TO DO : 添加本地标识
 #TO DO : 显示steam连接状态
-#TO DO : 
-#TO DO : 
+#TO DO : 配置文件记录配置
+#TO DO : 创建快捷打开本地目录入口
 #TO DO : 
 #TO DO : 
 #TO DO : 
@@ -50,6 +50,10 @@ signal setup_pages(_total_items : int, max :int ,_current_page :int)
 
 @export var res: MyRes
 
+@export var http : HTTPRequest
+
+@export var accept_dialog : AcceptDialog
+
 const MAX_ONE_PAGE_COUNT := 100
 
 var current_sort_index := 0
@@ -66,12 +70,13 @@ var selected_card_node: Node = null
 
 ##关键参数
 var is_force_reload := false
-const MAX_TEST_FOLDER_COUNT := 200
+const MAX_TEST_FOLDER_COUNT := 10000
 var is_show_pic = false
 
 
 func _ready() -> void:
 	SignalBus.load_workshop_cards.connect(_on_request_load_workshop_cards)
+	SignalBus.conversion_finished.connect(_on_conversion_finished)
 	set_process(true)
 	_clear_detail_labels()
 	
@@ -79,6 +84,15 @@ func _ready() -> void:
 	_load_custom_folders_from_local()
 
 	_load_workshop_cards(is_force_reload)
+
+func _on_conversion_finished(success: bool, message: String) -> void:
+	# 还原最小化的窗口并带到前台
+	DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
+	DisplayServer.window_move_to_foreground()
+
+	accept_dialog.title = "转换成功" if success else "转换失败"
+	accept_dialog.dialog_text = message
+	accept_dialog.popup_centered()
 
 func _load_workshop_cards(force_reload: bool = false) -> void:
 	if card_container == null:
@@ -853,3 +867,53 @@ func _on_request_load_workshop_cards(force: bool) -> void:
 func _on_page_num_page_selected(page_index: int) -> void:
 	current_page = page_index
 	_render_current_page_from_cache()
+
+
+func _on_test_button_button_up() -> void:
+	# 实验：取消订阅创意工坊项目 3647375769
+	var published_file_id := "3647375769"
+	var app_id := "431960"  # Wallpaper Engine 的 AppID
+	var api_key := res.MY_API_KEY
+	
+	http.request_completed.connect(_on_unsubscribe_request_completed)
+	
+	# 设置代理（如果代理不可用，注释掉这行测试直接连接）
+	# http_request.set_http_proxy("127.0.0.1", 7890)
+	
+	var url := "https://api.steampowered.com/ISteamUGC/UnsubscribeItem/v1/"
+	var headers := ["Content-Type: application/x-www-form-urlencoded"]
+	var body := "key=%s&appid=%s&publishedfileid=%s" % [api_key, app_id, published_file_id]
+	
+	print("正在取消订阅项目 %s..." % published_file_id)
+	
+	var error := http.request(url, headers, HTTPClient.METHOD_POST, body)
+	if error != OK:
+		push_error("发送取消订阅请求失败: %d" % error)
+		http.queue_free()
+
+func _on_unsubscribe_request_completed(result: int, response_code: int, headers: PackedStringArray, body: PackedByteArray) -> void:
+	print("调试信息 - 请求结果: %d" % result)
+	print("调试信息 - HTTP 响应码: %d" % response_code)
+	print("调试信息 - 响应头: %s" % str(headers))
+	
+	if result != HTTPRequest.RESULT_SUCCESS:
+		push_error("请求失败: %d" % result)
+		return
+	
+	if response_code != 200:
+		push_error("HTTP 错误: %d" % response_code)
+		return
+	
+	var response_text := body.get_string_from_utf8()
+	print("调试信息 - 响应体: %s" % response_text)
+	
+	var json := JSON.parse_string(response_text) as Dictionary
+	if json == null:
+		push_error("解析响应失败")
+		return
+	
+	print("取消订阅响应: %s" % response_text)
+	if json.has("result") and json["result"] == 1:
+		print("成功取消订阅项目 3647375769")
+	else:
+		push_warning("取消订阅失败: %s" % str(json))

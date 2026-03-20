@@ -17,3 +17,5 @@ const CONVERTER_PROGRESS_PATH := "D:/AGodotProjects/test-3/py/convert_progress.t
 const WORKSHOP_CACHE_PATH := "user://workshop_video_cache.json"
  
 const CUSTOM_FOLDER_STORE_PATH := "user://custom_folders.json"
+
+const MY_API_KEY := "DE95176A92EFAE8CD1F228081BA728EA"

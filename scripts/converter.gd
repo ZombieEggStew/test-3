@@ -10,6 +10,7 @@ extends Node
 @export var start_convert_button: Button
 @export var stop_convert_button: Button
 
+
 @export var res: MyRes
 
 var is_converting := false
@@ -17,6 +18,9 @@ var converter_pid := -1
 var progress_poll_accum := 0.0
 var progress_poll_interval := 0.2
 var selected_card_info: Dictionary = {}
+var converting_card_info: Dictionary = {}
+
+var is_auto_unsubscribe_and_delete := true
 
 func _ready() -> void:
 	SignalBus.on_card_selected.connect(_on_main_ui_on_card_selected)
@@ -90,7 +94,9 @@ func start_conversion(python_path: String, converter_script: String, input_file:
 	is_converting = true
 	progress_poll_accum = 0.0
 	_set_convert_ui_state(true)
+	converting_card_info = selected_card_info.duplicate(true)
 	print("已启动转换进程, pid=%d" % pid)
+
 	return true
 
 func get_progress(progress_file: String) -> float:
@@ -125,6 +131,19 @@ func kill_process_tree(pid: int) -> bool:
 	var kill_err := OS.kill(pid)
 	return kill_err == OK
 
+func is_process_alive(pid: int) -> bool:
+	if pid <= 0:
+		return false
+	
+	var output: Array = []
+	if OS.get_name() == "Windows":
+		var exit_code := OS.execute("tasklist", ["/FI", "PID eq %d" % pid, "/NH"], output, true)
+		if output.size() > 0:
+			return str(pid) in output[0]
+		return false
+	
+	var exit_code := OS.execute("kill", ["-0", str(pid)], output, true)
+	return exit_code == 0
 
 
 func _update_progress_bar_from_file() -> void:
@@ -132,14 +151,23 @@ func _update_progress_bar_from_file() -> void:
 		return
 
 	var value := get_progress(res.CONVERTER_PROGRESS_PATH)
+	
+	# 如果进度读取不到（返回 -1.0），先检查进程是否还在
 	if value < 0.0:
+		if is_process_alive(converter_pid):
+			# 进程还在，可能只是进度文件还没写或者被占用，继续等待
+			return
+		
+		# 进程确实没了，且进度没到 100，判定为异常终止
 		_finish_conversion_state(false)
-		push_warning("转换失败")
+		push_warning("转换失败: 进程已退出且进度未完成")
+		SignalBus.conversion_finished.emit(false, "转换进程异常终止或进度文件读取失败")
 		return
 
 	progress_bar.value = value
 	if value >= 100.0:
 		_finish_conversion_state(true)
+		SignalBus.conversion_finished.emit(true, "文件转换已完成！")
 
 func _finish_conversion_state(success: bool) -> void:
 	is_converting = false
@@ -205,3 +233,5 @@ func _on_stop_button_button_up() -> void:
 
 func _on_main_ui_on_card_selected(info: Dictionary) -> void:
 	selected_card_info = info
+
+

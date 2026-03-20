@@ -38,6 +38,9 @@ corner_detail = 4
 [resource]
 Button/styles/hover = ExtResource("1_i7eh4")
 Button/styles/normal = ExtResource("2_78ylj")
+CheckButton/colors/font_color = Color(0.875, 0.875, 0.875, 1)
+CheckButton/colors/icon_pressed_color = Color(0, 0, 0, 1)
+CheckButton/styles/pressed = null
 button_page/base_type = &"Button"
 button_page/colors/font_color = Color(0.25490198, 0.5137255, 0.9607843, 1)
 button_page/colors/font_hover_color = Color(0.047058824, 0.34901962, 0.87058824, 1)

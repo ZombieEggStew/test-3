@@ -83,7 +83,7 @@ events = [SubResource("InputEventAction_wp4xf")]
 [node name="Node2D" type="Node2D" unique_id=1929871842]
 script = ExtResource("8_main")
 
-[node name="main_ui" type="CanvasLayer" parent="." unique_id=1938298878 node_paths=PackedStringArray("card_container", "context_menu_card", "context_menu_folder")]
+[node name="main_ui" type="CanvasLayer" parent="." unique_id=1938298878 node_paths=PackedStringArray("card_container", "context_menu_card", "context_menu_folder", "http", "accept_dialog")]
 script = ExtResource("1_v0l8b")
 card_container = NodePath("HBoxContainer/MarginContainer/VBoxContainer/ScrollContainer2/MarginContainer/Card_container")
 card_scene = ExtResource("3_4j5ol")
@@ -91,6 +91,8 @@ folder_scene = ExtResource("4_k65ib")
 context_menu_card = NodePath("Control")
 context_menu_folder = NodePath("folder_context_menu")
 res = ExtResource("5_v2gmf")
+http = NodePath("HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/test_button/HTTPRequest")
+accept_dialog = NodePath("AcceptDialog")
 
 [node name="ColorRect" type="ColorRect" parent="main_ui" unique_id=98198692]
 anchors_preset = 15
@@ -460,6 +462,12 @@ disabled = true
 shortcut = SubResource("Shortcut_brvut")
 text = "停止转换"
 
+[node name="test_button" type="Button" parent="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer" unique_id=231714332]
+layout_mode = 2
+text = "test"
+
+[node name="HTTPRequest" type="HTTPRequest" parent="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/test_button" unique_id=1163498665]
+
 [node name="Control" parent="main_ui" unique_id=1524407716 instance=ExtResource("4_brvut")]
 z_index = 1
 anchors_preset = 1
@@ -482,6 +490,12 @@ offset_top = 168.0
 offset_right = 1678.0
 offset_bottom = 268.0
 
+[node name="AcceptDialog" type="AcceptDialog" parent="main_ui" unique_id=1252112133]
+oversampling_override = 1.0
+title = "弹窗"
+position = Vector2i(0, 36)
+dialog_text = "default"
+
 [connection signal="setup_pages" from="main_ui" to="main_ui/HBoxContainer/MarginContainer/VBoxContainer/MarginContainer/HBoxContainer/page_num" method="_on_main_ui_setup_pages"]
 [connection signal="button_up" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/create_new_folder" to="main_ui" method="_on_create_new_folder_button_up"]
 [connection signal="text_submitted" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/LineEdit" to="main_ui" method="_on_line_edit_text_submitted"]
@@ -494,3 +508,4 @@ offset_bottom = 268.0
 [connection signal="page_selected" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/MarginContainer/HBoxContainer/page_num" to="main_ui" method="_on_page_num_page_selected"]
 [connection signal="button_up" from="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/start_convert" to="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter" method="_on_start_convert_button_up"]
 [connection signal="button_up" from="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/stop_button" to="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter" method="_on_stop_button_button_up"]
+[connection signal="button_up" from="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/test_button" to="main_ui" method="_on_test_button_button_up"]
