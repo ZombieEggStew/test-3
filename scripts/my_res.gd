@@ -18,5 +18,6 @@ const WORKSHOP_CACHE_PATH := "user://workshop_video_cache.json"
 const GIF_CACHE_DIR_PATH := "user://gif_cache/"
  
 const CUSTOM_FOLDER_STORE_PATH := "user://custom_folders.json"
+const CONFIG_PATH := "user://config.json"
 
 const MY_API_KEY := "DE95176A92EFAE8CD1F228081BA728EA"

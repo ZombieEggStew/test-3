@@ -80,8 +80,9 @@ func _on_gui_input(event: InputEvent) -> void:
 
 
 
-func set_context_menu(cm: Control) -> void:
+func set_context_menu(cm: Control , cm_rename:AcceptDialog) -> void:
 	context_menu = cm
+	cm.call("set_context_menu_rename", cm_rename)
 
 
 func set_card_info(info: Dictionary, show_pic: bool = true) -> void:
@@ -113,8 +114,8 @@ func _apply_card_texture(show_pic: bool) -> void:
 
 	if not show_pic:
 		tex.texture = defalt_tex
-		if DEBUG_PREVIEW:
-			push_warning("[card_preview] show_pic=false，使用默认图")
+		# if DEBUG_PREVIEW:
+		# 	push_warning("[card_preview] show_pic=false，使用默认图")
 		return
 
 	var preview_path := _find_preview_file_path()

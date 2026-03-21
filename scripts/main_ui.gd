@@ -7,14 +7,14 @@
 #TO DO : 添加本地标识
 #TO DO : 显示steam连接状态
 #TO DO : 配置文件记录配置 ProjectSettings
-#TO DO : 创建快捷打开本地目录入口
+#TO DO : 
 #TO DO : 转换本地，project,json，与一些东西未更新
-#TO DO : 本地文件计数。。。
-#TO DO : （文件名与壁纸名）改名功能
+#TO DO : 本地文件计数,与各项信息计数
+#TO DO : 增加工坊无法重命名的提示
 #TO DO : 修改gif——loader的python环境
-#TO DO : 开关gif显示，一键删除gif缓存
-#TO DO : 
-#TO DO : 
+#TO DO : 开关gif显示，一键删除gif缓存，显示目前gif缓存大小
+#TO DO : 解决调试器中的warning
+#TO DO : 解决硬编码路径问题
 
 #FIX ME : 
 #FIX ME : 
@@ -46,6 +46,7 @@ signal setup_pages(_total_items : int, max :int ,_current_page :int)
 
 @export var context_menu_card : Control
 @export var context_menu_folder : Control
+@export var context_menu_rename : AcceptDialog
 
 
 @export var res: MyRes
@@ -294,7 +295,7 @@ func _render_current_page_from_cache() -> void:
 
 
 func _get_visible_items_from_sorted_cache() -> Array:
-	var visible: Array = []
+	var _visible: Array = []
 	for item in sorted_items:
 		if not (item is Dictionary):
 			continue
@@ -310,9 +311,9 @@ func _get_visible_items_from_sorted_cache() -> Array:
 		if not _is_item_match_search(info):
 			continue
 
-		visible.append(info)
+		_visible.append(info)
 
-	return visible
+	return _visible
 
 
 func _is_item_match_search(info: Dictionary) -> bool:
@@ -355,7 +356,7 @@ func _get_visible_custom_folder_infos() -> Array:
 	if not is_show_local:
 		return []
 
-	var visible: Array = []
+	var _visible: Array = []
 	for folder_entry in custom_folders:
 		if not (folder_entry is Dictionary):
 			continue
@@ -368,12 +369,12 @@ func _get_visible_custom_folder_infos() -> Array:
 		if not _is_item_match_search(card_info):
 			continue
 
-		visible.append(card_info)
+		_visible.append(card_info)
 
-	visible.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+	_visible.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
 		return int(a.get("created_at", 0)) > int(b.get("created_at", 0))
 	)
-	return visible
+	return _visible
 
 
 func _is_custom_folder_info(info: Dictionary) -> bool:
@@ -425,7 +426,7 @@ func _add_card(card_info: Dictionary, title: String) -> void:
 	# 注入 context_menu 实例到卡片，降低对单例的直接依赖
 
 	if card.has_method("set_context_menu"):
-		card.call("set_context_menu", context_menu_card)
+		card.call("set_context_menu", context_menu_card,context_menu_rename)
 	if card.has_method("set_card_info"):
 		card.call("set_card_info", card_info, is_show_pic)
 	if card.has_signal("card_left_clicked"):
@@ -441,7 +442,7 @@ func _add_custom_folder_card(card_info: Dictionary, title: String) -> void:
 	var folder_card := folder_scene.instantiate()
 	card_container.add_child(folder_card)
 	if folder_card.has_method("set_context_menu"):
-		folder_card.call("set_context_menu", context_menu_folder)
+		folder_card.call("set_context_menu", context_menu_folder , context_menu_rename)
 	if folder_card.has_method("set_card_info"):
 		folder_card.call("set_card_info", card_info)
 	_set_card_label(folder_card, title)
@@ -468,6 +469,57 @@ func delete_custom_folder(info: Dictionary) -> bool:
 
 	return false
 
+func rename_item(info: Dictionary, new_title: String) -> void:
+	if info.is_empty() or new_title.is_empty():
+		return
+
+	# 处理自定义文件夹
+	if _is_custom_folder_info(info):
+		var target_name := str(info.get("folder_name", "")).strip_edges()
+		for i in range(custom_folders.size()):
+			if str(custom_folders[i].get("name", "")).strip_edges() == target_name:
+				custom_folders[i]["name"] = new_title
+				_save_custom_folders_to_local()
+				_render_current_page_from_cache()
+				return
+		return
+
+	# 1. 查找缓存中的项
+	var item_key := _make_item_key(info)
+	var found_in_cache := false
+	
+	for i in range(cached_items.size()):
+		var item = cached_items[i]
+		if _make_item_key(item) == item_key:
+			cached_items[i]["title"] = new_title
+			found_in_cache = true
+			break
+	
+	if not found_in_cache:
+		push_warning("在缓存中未找到要重命名的项目: %s" % item_key)
+		return
+
+	# 2. 如果存在 project.json 路径，则物理写入文件
+	var json_path = info.get("project_json_path", "")
+	if not str(json_path).is_empty() and FileAccess.file_exists(json_path):
+		var file = FileAccess.open(json_path, FileAccess.READ)
+		if file:
+			var content = file.get_as_text()
+			var parsed = JSON.parse_string(content)
+			file.close()
+			
+			if parsed is Dictionary:
+				parsed["title"] = new_title
+				var write_file = FileAccess.open(json_path, FileAccess.WRITE)
+				if write_file:
+					write_file.store_string(JSON.stringify(parsed, "\t"))
+					write_file.close()
+					print("已更新项目文件: %s" % json_path)
+
+	# 3. 持久化缓存到磁盘并刷新 UI
+	_save_cache_to_local(cached_items)
+	_apply_sort_on_cached_items()
+	_render_current_page_from_cache()
 
 func _set_card_label(card: Node, title: String) -> void:
 	var title_label := card.get_node_or_null(res.CARD_LABEL_PATH)
@@ -849,12 +901,12 @@ func _load_custom_folders_from_local() -> void:
 		if not (entry is Dictionary):
 			continue
 
-		var name := str((entry as Dictionary).get("name", "")).strip_edges()
-		if name.is_empty():
+		var _name := str((entry as Dictionary).get("name", "")).strip_edges()
+		if _name.is_empty():
 			continue
 
 		custom_folders.append({
-			"name": name,
+			"name": _name,
 			"created_at": int((entry as Dictionary).get("created_at", 0)),
 		})
 
@@ -935,3 +987,7 @@ func _on_unsubscribe_request_completed(result: int, response_code: int, headers:
 
 
 
+
+
+func _on_rename_win_rename_confirmed(new_name: String, target_info: Dictionary) -> void:
+	rename_item(target_info, new_name)

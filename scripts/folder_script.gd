@@ -19,8 +19,9 @@ var normal_alpha := 1.0
 var tw: Tween
 const DEBUG_PREVIEW := true
 
-func set_context_menu(cm: Control) -> void:
+func set_context_menu(cm: Control , cm_rename :AcceptDialog) -> void:
 	context_menu = cm
+	cm.call("set_context_menu_rename", cm_rename)
 
 func _ready() -> void:
 	tex.texture = defalt_tex

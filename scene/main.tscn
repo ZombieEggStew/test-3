@@ -14,6 +14,9 @@
 [ext_resource type="PackedScene" uid="uid://5poiej2aowo" path="res://scene/page_1.tscn" id="7_k65ib"]
 [ext_resource type="Script" uid="uid://fsqo2uyiubyg" path="res://scripts/converter.gd" id="7_of57s"]
 [ext_resource type="Script" uid="uid://cxutw5bxqcjtd" path="res://scripts/main.gd" id="8_main"]
+[ext_resource type="Script" uid="uid://cf8xhutpjenkg" path="res://scripts/open_local_button.gd" id="8_smf0o"]
+[ext_resource type="Script" uid="uid://nw8l0ivwo1hh" path="res://scripts/option_button.gd" id="9_0vlqb"]
+[ext_resource type="Script" uid="uid://ycn0c8k5v0cr" path="res://scripts/open_res_button.gd" id="9_tv8i1"]
 [ext_resource type="PackedScene" uid="uid://besmajj3fj03t" path="res://scene/folder_context_menu.tscn" id="13_mswub"]
 [ext_resource type="PackedScene" uid="uid://dbxt26px8q0m3" path="res://scene/rename_win.tscn" id="14_hybxs"]
 
@@ -50,7 +53,7 @@ bg_color = Color(0.25490198, 0.5137255, 0.9607843, 1)
 border_color = Color(1, 1, 1, 0.75)
 corner_detail = 1
 
-[sub_resource type="ButtonGroup" id="ButtonGroup_jcbur"]
+[sub_resource type="ButtonGroup" id="ButtonGroup_smf0o"]
 allow_unpress = true
 
 [sub_resource type="Theme" id="Theme_tqoya"]
@@ -83,13 +86,14 @@ events = [SubResource("InputEventAction_wp4xf")]
 [node name="Node2D" type="Node2D" unique_id=1929871842]
 script = ExtResource("8_main")
 
-[node name="main_ui" type="CanvasLayer" parent="." unique_id=1938298878 node_paths=PackedStringArray("card_container", "context_menu_card", "context_menu_folder", "http", "accept_dialog")]
+[node name="main_ui" type="CanvasLayer" parent="." unique_id=1938298878 node_paths=PackedStringArray("card_container", "context_menu_card", "context_menu_folder", "context_menu_rename", "http", "accept_dialog")]
 script = ExtResource("1_v0l8b")
 card_container = NodePath("HBoxContainer/MarginContainer/VBoxContainer/ScrollContainer2/MarginContainer/Card_container")
 card_scene = ExtResource("3_4j5ol")
 folder_scene = ExtResource("4_k65ib")
 context_menu_card = NodePath("Control")
 context_menu_folder = NodePath("folder_context_menu")
+context_menu_rename = NodePath("rename_win")
 res = ExtResource("5_v2gmf")
 http = NodePath("HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/test_button/HTTPRequest")
 accept_dialog = NodePath("AcceptDialog")
@@ -161,10 +165,19 @@ layout_mode = 2
 button_pressed = true
 text = "显示本地 "
 
-[node name="delete_button" type="Button" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer" unique_id=1966308821]
+[node name="VBoxContainer2" type="VBoxContainer" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer" unique_id=1480534648]
+layout_mode = 2
+
+[node name="delete_button" type="Button" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer2" unique_id=1966308821]
 layout_mode = 2
 text = "删除本地空文件"
 script = ExtResource("7_jcbur")
+res = ExtResource("5_v2gmf")
+
+[node name="open_local_button" type="Button" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer2" unique_id=1767143470]
+layout_mode = 2
+text = "打开本地目录"
+script = ExtResource("8_smf0o")
 res = ExtResource("5_v2gmf")
 
 [node name="VBoxContainer" type="VBoxContainer" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer" unique_id=589486457]
@@ -178,7 +191,10 @@ text = "刷新"
 layout_mode = 2
 text = "强制刷新"
 
-[node name="OptionButton" type="OptionButton" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer" unique_id=1097904006]
+[node name="VBoxContainer3" type="VBoxContainer" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer" unique_id=1206374599]
+layout_mode = 2
+
+[node name="OptionButton" type="OptionButton" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer3" unique_id=1097904006]
 custom_minimum_size = Vector2(110, 0)
 layout_mode = 2
 size_flags_horizontal = 8
@@ -192,6 +208,12 @@ popup/item_2/text = "  文件大小"
 popup/item_2/id = 2
 popup/item_3/text = "  随机"
 popup/item_3/id = 3
+script = ExtResource("9_0vlqb")
+
+[node name="open_res_button" type="Button" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer3" unique_id=535021144]
+layout_mode = 2
+text = "打开配置目录"
+script = ExtResource("9_tv8i1")
 
 [node name="ScrollContainer2" type="ScrollContainer" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer" unique_id=778066209]
 layout_mode = 2
@@ -244,7 +266,7 @@ page_card = ExtResource("7_k65ib")
 
 [node name="page_1" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/MarginContainer/HBoxContainer/page_num" unique_id=109932289 instance=ExtResource("7_k65ib")]
 layout_mode = 2
-button_group = SubResource("ButtonGroup_jcbur")
+button_group = SubResource("ButtonGroup_smf0o")
 
 [node name="Button2" type="Button" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/MarginContainer/HBoxContainer" unique_id=924454259]
 layout_mode = 2
@@ -299,6 +321,12 @@ theme_override_constants/margin_left = 6
 theme_override_constants/margin_top = 12
 theme_override_constants/margin_right = 15
 theme_override_constants/margin_bottom = 12
+
+[node name="TextEdit" type="TextEdit" parent="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/MarginContainer2" unique_id=1871891483]
+visible = false
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+text = "请问请问"
 
 [node name="title_Label" type="Label" parent="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/MarginContainer2" unique_id=668942518]
 custom_minimum_size = Vector2(100, 0)
@@ -472,6 +500,7 @@ shortcut = SubResource("Shortcut_brvut")
 text = "停止转换"
 
 [node name="test_button" type="Button" parent="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer" unique_id=231714332]
+visible = false
 layout_mode = 2
 text = "test"
 
@@ -486,18 +515,14 @@ offset_right = 210.0
 grow_horizontal = 0
 res = ExtResource("5_v2gmf")
 
-[node name="folder_context_menu" parent="main_ui" unique_id=1028343036 node_paths=PackedStringArray("rename_context_menu") instance=ExtResource("13_mswub")]
+[node name="folder_context_menu" parent="main_ui" unique_id=1028343036 instance=ExtResource("13_mswub")]
 offset_left = 1385.0
 offset_top = 5.0
 offset_right = 1589.0
 offset_bottom = 91.0
-rename_context_menu = NodePath("../rename_win")
 
 [node name="rename_win" parent="main_ui" unique_id=1585673485 instance=ExtResource("14_hybxs")]
-offset_left = 1178.0
-offset_top = 168.0
-offset_right = 1678.0
-offset_bottom = 268.0
+visible = false
 
 [node name="AcceptDialog" type="AcceptDialog" parent="main_ui" unique_id=1252112133]
 oversampling_override = 1.0
@@ -510,12 +535,19 @@ dialog_text = "default"
 [connection signal="text_submitted" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/LineEdit" to="main_ui" method="_on_line_edit_text_submitted"]
 [connection signal="toggled" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/is_show_workshop" to="main_ui" method="_on_is_show_workshop_toggled"]
 [connection signal="toggled" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/is_show_local" to="main_ui" method="_on_is_show_local_toggled"]
-[connection signal="button_up" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/delete_button" to="main_ui" method="_on_delete_button_button_up"]
-[connection signal="button_up" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/delete_button" to="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/delete_button" method="_on_button_up"]
+[connection signal="button_up" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer2/delete_button" to="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer2/delete_button" method="_on_button_up"]
+[connection signal="button_up" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer2/open_local_button" to="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer2/open_local_button" method="_on_button_up"]
 [connection signal="button_up" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer/Button" to="main_ui" method="_on_button_button_up"]
 [connection signal="button_up" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer/Button2" to="main_ui" method="_on_button_2_button_up"]
-[connection signal="item_selected" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/OptionButton" to="main_ui" method="_on_option_button_item_selected"]
+[connection signal="item_selected" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer3/OptionButton" to="main_ui" method="_on_option_button_item_selected"]
+[connection signal="item_selected" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer3/OptionButton" to="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer3/OptionButton" method="_on_item_selected"]
+[connection signal="button_up" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer3/open_res_button" to="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer3/open_res_button" method="_on_button_up"]
 [connection signal="page_selected" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/MarginContainer/HBoxContainer/page_num" to="main_ui" method="_on_page_num_page_selected"]
+[connection signal="item_selected" from="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/HBoxContainer/preset" to="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter" method="_on_preset_item_selected"]
+[connection signal="item_selected" from="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/HBoxContainer/cq" to="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter" method="_on_cq_item_selected"]
+[connection signal="item_selected" from="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/HBoxContainer2/maxrate" to="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter" method="_on_maxrate_item_selected"]
+[connection signal="item_selected" from="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/HBoxContainer2/is_H" to="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter" method="_on_is_h_item_selected"]
 [connection signal="button_up" from="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/start_convert" to="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter" method="_on_start_convert_button_up"]
 [connection signal="button_up" from="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/stop_button" to="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter" method="_on_stop_button_button_up"]
 [connection signal="button_up" from="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/test_button" to="main_ui" method="_on_test_button_button_up"]
+[connection signal="rename_confirmed" from="main_ui/rename_win" to="main_ui" method="_on_rename_win_rename_confirmed"]

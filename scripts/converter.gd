@@ -26,7 +26,7 @@ func _ready() -> void:
 	SignalBus.on_card_selected.connect(_on_main_ui_on_card_selected)
 	_set_convert_ui_state(false)
 	_reset_progress_bar()
-
+	_load_config()
 
 func _process(delta: float) -> void:
 	if not is_converting:
@@ -234,4 +234,22 @@ func _on_stop_button_button_up() -> void:
 func _on_main_ui_on_card_selected(info: Dictionary) -> void:
 	selected_card_info = info
 
+
+func _load_config() -> void:
+	preset.selected = int(MainManager.get_config_value("preset", 2))
+	cq.selected = int(MainManager.get_config_value("cq", 1))
+	maxrate.selected = int(MainManager.get_config_value("maxrate", 2))
+	is_h.selected = int(MainManager.get_config_value("width", 0))
+
+func _on_preset_item_selected(index: int) -> void:
+	SignalBus.save_config.emit("preset", index)
+
+func _on_cq_item_selected(index: int) -> void:
+	SignalBus.save_config.emit("cq", index)
+
+func _on_maxrate_item_selected(index: int) -> void:
+	SignalBus.save_config.emit("maxrate", index)
+
+func _on_is_h_item_selected(index: int) -> void:
+	SignalBus.save_config.emit("width", index)
 

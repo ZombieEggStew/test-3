@@ -32,14 +32,12 @@ theme_override_constants/margin_bottom = 10
 layout_mode = 2
 
 [node name="rename" type="Button" parent="MarginContainer/VBoxContainer" unique_id=1148800396]
-z_index = 14
 layout_mode = 2
 theme = ExtResource("4_xo2mf")
 text = "  重命名"
 alignment = 0
 
 [node name="delete" type="Button" parent="MarginContainer/VBoxContainer" unique_id=860491599]
-z_index = 14
 layout_mode = 2
 theme = ExtResource("4_xo2mf")
 text = "  删除文件夹"

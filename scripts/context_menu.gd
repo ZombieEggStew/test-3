@@ -4,6 +4,7 @@ extends PanelContainer
 
 var target_card_info: Dictionary = {}
 
+var context_menu : AcceptDialog
 
 func _ready() -> void: 
     hide()
@@ -17,6 +18,8 @@ func _input(event: InputEvent) -> void:
         if not get_global_rect().has_point(event.position):
             hide()
 
+func set_context_menu_rename(cm: AcceptDialog) -> void:
+    context_menu = cm
 
 func set_target_card_info(info: Dictionary) -> void:
     target_card_info = info.duplicate(true)
@@ -186,3 +189,17 @@ func _submit_unsubscribe_request() -> void:
         return
 
     _request_main_ui_reload()
+
+func _on_rename_button_up() -> void:
+    if target_card_info.get("is_workshop", false):
+        push_warning("工坊项目不支持重命名")
+        hide()
+        return
+    if context_menu == null:
+        push_warning("注入rename_context_menu失败，无法显示重命名菜单")
+        hide()
+        return
+    context_menu.call("set_default_name", target_card_info.get("title", ""))
+    context_menu.call("set_target_info", target_card_info)
+    context_menu.popup_centered()
+    hide()

@@ -1,6 +1,6 @@
 extends PanelContainer
 
-@export var rename_context_menu : PanelContainer
+var context_menu : AcceptDialog
 
 var target_card_info: Dictionary = {}
 
@@ -20,8 +20,9 @@ func _input(event: InputEvent) -> void:
 func set_target_card_info(info: Dictionary) -> void:
     target_card_info = info.duplicate(true)
 
-
-
+func set_context_menu_rename(cm: AcceptDialog) -> void:
+    context_menu = cm
+ 
 func _on_delete_button_up() -> void:
     if target_card_info.is_empty():
         push_warning("未选择可删除的文件夹")
@@ -52,11 +53,10 @@ func _on_delete_button_up() -> void:
 
 
 func _on_rename_button_up() -> void:
-
-    if rename_context_menu == null:
-        push_warning("context_menu 未就绪，无法显示右键菜单")
+    if context_menu == null:
+        push_warning("注入rename_context_menu失败，无法显示重命名菜单")
         return
-    rename_context_menu.position = get_viewport().get_mouse_position()
-    rename_context_menu.show()
-    accept_event()
+    context_menu.call("set_default_name", target_card_info.get("title", ""))
+    context_menu.call("set_target_info", target_card_info)
+    context_menu.popup_centered()
     hide()

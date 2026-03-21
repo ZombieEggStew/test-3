@@ -1,0 +1,11 @@
+extends OptionButton
+
+
+func _ready() -> void:
+	_load_config()
+
+func _load_config() -> void:
+	selected = int(MainManager.get_config_value("sort", 1))
+
+func _on_item_selected(index: int) -> void:
+	SignalBus.save_config.emit("sort", index)

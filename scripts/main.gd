@@ -1,4 +1,4 @@
-extends Node
+﻿extends Node
 class_name MainManager
 
 static var instance: MainManager 
@@ -360,18 +360,20 @@ static func remove_dir_recursive(path: String) -> Error:
     var dir := DirAccess.open(path)
     if dir == null:
         return DirAccess.get_open_error()
+
+    var err := OK as Error
         
     # 先处理子目录
     for dir_name in dir.get_directories():
         var sub_path := path.path_join(dir_name)
-        var err := remove_dir_recursive(sub_path)
+        err = remove_dir_recursive(sub_path)
         if err != OK:
             return err
             
     # 再处理文件
     for file_name in dir.get_files():
         var file_path := path.path_join(file_name)
-        var err := dir.remove(file_path)
+        err = dir.remove(file_path)
         if err != OK:
             push_error("无法删除文件: %s, err=%d" % [file_path, err])
             return err
@@ -383,10 +385,11 @@ static func remove_dir_recursive(path: String) -> Error:
     if parent_dir == null:
         return DirAccess.get_open_error()
         
-    var err := parent_dir.remove(target_dir_name)
+    err = parent_dir.remove(target_dir_name)
     if err != OK:
         push_error("无法删除目录: %s, err=%d" % [path, err])
     return err
+
 
 
 func _enter_tree() -> void:
@@ -394,8 +397,28 @@ func _enter_tree() -> void:
         queue_free()
         return
     instance = self
-
+    SignalBus.save_config.connect(_on_save_config)
 
 func _exit_tree() -> void:
     if instance == self:
         instance = null
+
+
+func _on_save_config(key: String, value: int) -> void:
+    var config := read_json_file(MyRes.CONFIG_PATH)
+    config[key] = int(value)
+    
+    var file := FileAccess.open(MyRes.CONFIG_PATH, FileAccess.WRITE)
+    if file:
+        file.store_string(JSON.stringify(config, "  "))
+        file.close()
+
+
+static func get_config_value(key: String, default_value: int = 0) -> int:
+    var config := read_json_file(MyRes.CONFIG_PATH)
+    return int(config.get(key, default_value))
+
+
+
+
+
