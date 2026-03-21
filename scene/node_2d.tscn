@@ -53,6 +53,7 @@ offset_bottom = 202.0
 theme_override_styles/panel = SubResource("StyleBoxFlat_drhme")
 script = ExtResource("1_guiot")
 tex = NodePath("TextureRect")
+hover_duration = null
 inside_panel = NodePath("Panel")
 inside_panel2 = NodePath("Panel2")
 defalt_tex = ExtResource("2_guiot")

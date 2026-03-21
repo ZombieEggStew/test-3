@@ -167,9 +167,16 @@ text = "删除本地空文件"
 script = ExtResource("7_jcbur")
 res = ExtResource("5_v2gmf")
 
-[node name="Button" type="Button" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer" unique_id=127346375]
+[node name="VBoxContainer" type="VBoxContainer" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer" unique_id=589486457]
+layout_mode = 2
+
+[node name="Button" type="Button" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer" unique_id=127346375]
 layout_mode = 2
 text = "刷新"
+
+[node name="Button2" type="Button" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer" unique_id=1838690579]
+layout_mode = 2
+text = "强制刷新"
 
 [node name="OptionButton" type="OptionButton" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer" unique_id=1097904006]
 custom_minimum_size = Vector2(110, 0)
@@ -201,6 +208,8 @@ layout_mode = 2
 
 [node name="Node2D" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/ScrollContainer2/MarginContainer/Card_container" unique_id=747637982 instance=ExtResource("3_4j5ol")]
 layout_mode = 2
+hover_duration = 0.15
+res = ExtResource("5_v2gmf")
 
 [node name="PanelContainer" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/ScrollContainer2/MarginContainer/Card_container" unique_id=1147595711 instance=ExtResource("4_k65ib")]
 layout_mode = 2
@@ -503,7 +512,8 @@ dialog_text = "default"
 [connection signal="toggled" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/is_show_local" to="main_ui" method="_on_is_show_local_toggled"]
 [connection signal="button_up" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/delete_button" to="main_ui" method="_on_delete_button_button_up"]
 [connection signal="button_up" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/delete_button" to="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/delete_button" method="_on_button_up"]
-[connection signal="button_up" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/Button" to="main_ui" method="_on_button_button_up"]
+[connection signal="button_up" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer/Button" to="main_ui" method="_on_button_button_up"]
+[connection signal="button_up" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer/Button2" to="main_ui" method="_on_button_2_button_up"]
 [connection signal="item_selected" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/OptionButton" to="main_ui" method="_on_option_button_item_selected"]
 [connection signal="page_selected" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/MarginContainer/HBoxContainer/page_num" to="main_ui" method="_on_page_num_page_selected"]
 [connection signal="button_up" from="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/start_convert" to="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter" method="_on_start_convert_button_up"]

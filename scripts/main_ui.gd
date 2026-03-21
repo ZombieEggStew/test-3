@@ -1,18 +1,18 @@
-#TO DO : 选项卡右键菜单 ： 删除（解除订阅 userdata）（危险，可能触发验证） 播放（potplayer） 一键备份到本地 
-#TO DO : 转换完成 弹窗
+#TO DO : 
+#TO DO : 
 #TO DO : 显示待转换列表 跳转到对应选项卡
 #TO DO : 
 #TO DO : 
 #TO DO : 过滤显示（tag）
 #TO DO : 添加本地标识
 #TO DO : 显示steam连接状态
-#TO DO : 配置文件记录配置
+#TO DO : 配置文件记录配置 ProjectSettings
 #TO DO : 创建快捷打开本地目录入口
-#TO DO : 
-#TO DO : 
-#TO DO : 
-#TO DO : 
-#TO DO : 
+#TO DO : 转换本地，project,json，与一些东西未更新
+#TO DO : 本地文件计数。。。
+#TO DO : （文件名与壁纸名）改名功能
+#TO DO : 修改gif——loader的python环境
+#TO DO : 开关gif显示，一键删除gif缓存
 #TO DO : 
 #TO DO : 
 
@@ -627,6 +627,7 @@ func _build_card_info_for_item(item: Dictionary) -> Dictionary:
 	# root_path 必须保持为根目录路径（LOCAL/WORKSHOP），筛选逻辑依赖该语义
 	card_info["root_path"] = item_root
 	card_info["is_workshop"] = bool(item.get("is_workshop", item_root == res.WORKSHOP_ROOT))
+	card_info["folder_name"] = folder_name
 	return card_info
 
 
@@ -730,7 +731,21 @@ func _clear_detail_labels() -> void:
 func _on_button_button_up() -> void:
 	_load_workshop_cards(true)
 
-
+func _on_button_2_button_up() -> void:
+	print("开始强制刷新：删除并重新建立缓存...")
+	# 1. 如果缓存文件存在，则物理删除它
+	if FileAccess.file_exists(res.WORKSHOP_CACHE_PATH):
+		var err = DirAccess.remove_absolute(res.WORKSHOP_CACHE_PATH)
+		if err == OK:
+			print("本地缓存文件已删除: ", res.WORKSHOP_CACHE_PATH)
+		else:
+			push_error("删除缓存文件失败: ", err)
+	
+	# 2. 调用加载函数并传入 force_reload = true
+	# 这将触发 _preload_workshop_items_once() 重新扫描所有文件夹
+	_load_workshop_cards(true)
+	
+	print("强制刷新完成。")
 
 func _prepare_convert_output_dir(input_file: String) -> String:
 	var input_file_name := input_file.get_file().get_basename().strip_edges()
@@ -917,3 +932,6 @@ func _on_unsubscribe_request_completed(result: int, response_code: int, headers:
 		print("成功取消订阅项目 3647375769")
 	else:
 		push_warning("取消订阅失败: %s" % str(json))
+
+
+

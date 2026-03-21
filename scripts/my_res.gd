@@ -15,6 +15,7 @@ const PYTHON_EXE_PATH := "D:/AGodotProjects/test-3/py/.venv/Scripts/python.exe"
 const CONVERTER_SCRIPT_PATH := "D:/AGodotProjects/test-3/py/converter.py"
 const CONVERTER_PROGRESS_PATH := "D:/AGodotProjects/test-3/py/convert_progress.txt"
 const WORKSHOP_CACHE_PATH := "user://workshop_video_cache.json"
+const GIF_CACHE_DIR_PATH := "user://gif_cache/"
  
 const CUSTOM_FOLDER_STORE_PATH := "user://custom_folders.json"
 

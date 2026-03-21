@@ -9,7 +9,7 @@ signal card_left_clicked(card: Node, info: Dictionary)
 @export var inside_panel2 : Panel
 
 @export var defalt_tex : Texture2D
-
+@export var res : MyRes
 
 var context_menu : Control
 var card_info: Dictionary = {}
@@ -124,11 +124,13 @@ func _apply_card_texture(show_pic: bool) -> void:
 			push_warning("[card_preview] 未找到 preview.*，使用默认图: %s" % str(card_info.get("folder_name", "")))
 		return
 
-	var loaded := _load_texture_from_path(preview_path)
+	var loaded := _load_texture_from_path(preview_path,card_info.get("folder_name", "error"))
 	if loaded is Texture2D:
 		tex.texture = loaded as Texture2D
-		if DEBUG_PREVIEW:
-			print("[card_preview] 加载成功: %s" % preview_path)
+		# if DEBUG_PREVIEW:
+		# 	print("[card_preview] 加载成功: %s" % preview_path)
+		# print("[card_preview] item_path: %s" % card_info.get("item_path", "error"))
+		# print("[card_preview] folder_name: %s" % card_info.get("folder_name", "error"))
 	else:
 		tex.texture = defalt_tex
 		if DEBUG_PREVIEW:
@@ -156,11 +158,37 @@ func _find_preview_file_path() -> String:
 	return ""
 
 
-func _load_texture_from_path(file_path: String) -> Texture2D:
-	# 先尝试资源加载（res:// / user:// 等）
-	var loaded := ResourceLoader.load(file_path)
-	if loaded is Texture2D:
-		return loaded as Texture2D
+func _load_texture_from_path(file_path: String , _name:String) -> Texture2D:
+	# var loader = GIFToAnimatedTexture.new()
+	# var cache_dir = "user://gif_cache/" + "test"
+	# var at = loader.convert_gif_to_animated_texture("D:/AGodotProjects/test-3/tex/preview.gif", cache_dir)
+	# if at:
+	# 	return at
+
+	# return null
+
+
+
+	# 如果是 GIF 文件，使用 GIFToAnimatedTexture 进行转换加载
+	if file_path.to_lower().ends_with(".gif"):
+		var loader = GIFToAnimatedTexture.new()
+		# 缓存目录：使用 base_name 区分不同的 GIF
+		var cache_dir = res.GIF_CACHE_DIR_PATH + _name
+		var at = loader.convert_gif_to_animated_texture(file_path, cache_dir)
+		if at:
+			return at
+
+
+
+
+
+	# 先尝试资源加载（仅限项目内的 res:// 或 user:// 资源）
+	if file_path.begins_with("res://") or file_path.begins_with("user://"):
+		var loaded := ResourceLoader.load(file_path)
+		if loaded is Texture2D:
+			return loaded as Texture2D
+	
+
 
 	# 再尝试从本地绝对路径读取图片文件
 	var image := Image.new()
