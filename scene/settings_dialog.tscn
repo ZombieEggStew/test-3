@@ -1,0 +1,72 @@
+[gd_scene format=3 uid="uid://bhbw5k2mfc2jp"]
+
+[ext_resource type="Script" uid="uid://df6h4l2l22kuf" path="res://scripts/settings_dialog.gd" id="1_6axaj"]
+[ext_resource type="Resource" uid="uid://85tjdggbyiv0" path="res://resources/my_res.tres" id="2_ltnwf"]
+
+[node name="settings_dialog" type="AcceptDialog" unique_id=714392010 node_paths=PackedStringArray("wallpaper_dialog", "workshop_dialog", "wallpaper_line_edit", "workshop_line_edit")]
+oversampling_override = 1.0
+title = "项目设置"
+position = Vector2i(0, 36)
+size = Vector2i(717, 143)
+visible = true
+ok_button_text = "保存"
+script = ExtResource("1_6axaj")
+res = ExtResource("2_ltnwf")
+wallpaper_dialog = NodePath("wallpaper_dia")
+workshop_dialog = NodePath("workshop_dia")
+wallpaper_line_edit = NodePath("VBoxContainer/HBoxContainer2/wallpaper_line")
+workshop_line_edit = NodePath("VBoxContainer/HBoxContainer/workshop_line")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="." unique_id=400058463]
+custom_minimum_size = Vector2(200, 0)
+offset_left = 8.0
+offset_top = 8.0
+offset_right = 709.0
+offset_bottom = 94.0
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="VBoxContainer" unique_id=1875096646]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="VBoxContainer/HBoxContainer2" unique_id=192305864]
+layout_mode = 2
+text = "壁纸引擎地址："
+
+[node name="wallpaper_line" type="LineEdit" parent="VBoxContainer/HBoxContainer2" unique_id=1035240138]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="wallpaper" type="Button" parent="VBoxContainer/HBoxContainer2" unique_id=26558505]
+layout_mode = 2
+text = "浏览文件"
+
+[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer" unique_id=719534591]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="VBoxContainer/HBoxContainer" unique_id=1040414082]
+layout_mode = 2
+text = "创意工坊地址："
+
+[node name="workshop_line" type="LineEdit" parent="VBoxContainer/HBoxContainer" unique_id=478120977]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="workshop" type="Button" parent="VBoxContainer/HBoxContainer" unique_id=1066827160]
+layout_mode = 2
+text = "浏览文件"
+
+[node name="wallpaper_dia" type="FileDialog" parent="." unique_id=1030082400]
+oversampling_override = 1.0
+title = "Open a Directory"
+file_mode = 2
+access = 2
+
+[node name="workshop_dia" type="FileDialog" parent="." unique_id=420963970]
+title = "Open a Directory"
+file_mode = 2
+access = 2
+
+[connection signal="confirmed" from="." to="." method="_on_confirmed"]
+[connection signal="button_up" from="VBoxContainer/HBoxContainer2/wallpaper" to="." method="_on_wallpaper_button_up"]
+[connection signal="button_up" from="VBoxContainer/HBoxContainer/workshop" to="." method="_on_workshop_button_up"]
+[connection signal="dir_selected" from="wallpaper_dia" to="." method="_on_wallpaper_dia_dir_selected"]
+[connection signal="dir_selected" from="workshop_dia" to="." method="_on_workshop_dia_dir_selected"]

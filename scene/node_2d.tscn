@@ -46,7 +46,7 @@ border_width_right = 2
 border_width_bottom = 2
 border_color = Color(0.76486766, 0.00033778162, 0.7366943, 1)
 
-[node name="PanelContainer" type="PanelContainer" unique_id=747637982 node_paths=PackedStringArray("tex", "inside_panel", "inside_panel2")]
+[node name="PanelContainer" type="PanelContainer" unique_id=747637982 node_paths=PackedStringArray("tex", "inside_panel", "inside_panel2", "label")]
 custom_minimum_size = Vector2(100, 100)
 offset_right = 202.0
 offset_bottom = 202.0
@@ -56,6 +56,7 @@ tex = NodePath("TextureRect")
 hover_duration = null
 inside_panel = NodePath("Panel")
 inside_panel2 = NodePath("Panel2")
+label = NodePath("PanelContainer/MarginContainer/Label")
 defalt_tex = ExtResource("2_guiot")
 
 [node name="TextureRect" type="TextureRect" parent="." unique_id=501766723]

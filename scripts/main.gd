@@ -4,6 +4,29 @@ class_name MainManager
 static var instance: MainManager 
 
 
+
+func _enter_tree() -> void:
+    if instance and instance != self:
+        queue_free()
+        return
+    instance = self
+    SignalBus.save_config.connect(_on_save_config)
+
+func _exit_tree() -> void:
+    if instance == self:
+        instance = null
+
+
+func _on_save_config(key: String, value: Variant) -> void:
+    var config := read_json_file(MyRes.CONFIG_PATH)
+    config[key] = value
+    
+    var file := FileAccess.open(MyRes.CONFIG_PATH, FileAccess.WRITE)
+    if file:
+        file.store_string(JSON.stringify(config, "  "))
+        file.close()
+
+
 # ============ 工具函数 ============
 static func is_local_project(card_info: Dictionary) -> bool:
     return not card_info.get("is_workshop", false)
@@ -391,32 +414,9 @@ static func remove_dir_recursive(path: String) -> Error:
     return err
 
 
-
-func _enter_tree() -> void:
-    if instance and instance != self:
-        queue_free()
-        return
-    instance = self
-    SignalBus.save_config.connect(_on_save_config)
-
-func _exit_tree() -> void:
-    if instance == self:
-        instance = null
-
-
-func _on_save_config(key: String, value: int) -> void:
+static func get_config_value(key: String, default_value: Variant = 0) -> Variant:
     var config := read_json_file(MyRes.CONFIG_PATH)
-    config[key] = int(value)
-    
-    var file := FileAccess.open(MyRes.CONFIG_PATH, FileAccess.WRITE)
-    if file:
-        file.store_string(JSON.stringify(config, "  "))
-        file.close()
-
-
-static func get_config_value(key: String, default_value: int = 0) -> int:
-    var config := read_json_file(MyRes.CONFIG_PATH)
-    return int(config.get(key, default_value))
+    return config.get(key, default_value)
 
 
 

@@ -6,4 +6,6 @@ signal on_card_selected(card_info: Dictionary)
 
 signal conversion_finished(success: bool, message: String)
 
-signal save_config(key: String, value: int)
+signal save_config(key: String, value: Variant)
+
+signal request_file_dialog()

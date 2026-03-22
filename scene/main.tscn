@@ -10,15 +10,17 @@
 [ext_resource type="Theme" uid="uid://dnhnt8qo2nlyy" path="res://new_theme.tres" id="5_tqoya"]
 [ext_resource type="Resource" uid="uid://85tjdggbyiv0" path="res://resources/my_res.tres" id="5_v2gmf"]
 [ext_resource type="Script" uid="uid://r1o1erk3r2qn" path="res://scripts/page_num.gd" id="6_k65ib"]
-[ext_resource type="Script" uid="uid://62ylmd3dfmj7" path="res://scripts/delete_button.gd" id="7_jcbur"]
+[ext_resource type="Script" uid="uid://calgnn76b14px" path="res://scripts/settings_button.gd" id="7_gjnwh"]
 [ext_resource type="PackedScene" uid="uid://5poiej2aowo" path="res://scene/page_1.tscn" id="7_k65ib"]
 [ext_resource type="Script" uid="uid://fsqo2uyiubyg" path="res://scripts/converter.gd" id="7_of57s"]
 [ext_resource type="Script" uid="uid://cxutw5bxqcjtd" path="res://scripts/main.gd" id="8_main"]
 [ext_resource type="Script" uid="uid://cf8xhutpjenkg" path="res://scripts/open_local_button.gd" id="8_smf0o"]
 [ext_resource type="Script" uid="uid://nw8l0ivwo1hh" path="res://scripts/option_button.gd" id="9_0vlqb"]
+[ext_resource type="Script" uid="uid://dnqxwnlou5dph" path="res://scripts/refresh.gd" id="9_gjnwh"]
 [ext_resource type="Script" uid="uid://ycn0c8k5v0cr" path="res://scripts/open_res_button.gd" id="9_tv8i1"]
 [ext_resource type="PackedScene" uid="uid://besmajj3fj03t" path="res://scene/folder_context_menu.tscn" id="13_mswub"]
 [ext_resource type="PackedScene" uid="uid://dbxt26px8q0m3" path="res://scene/rename_win.tscn" id="14_hybxs"]
+[ext_resource type="PackedScene" uid="uid://bhbw5k2mfc2jp" path="res://scene/settings_dialog.tscn" id="21_fdqew"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_wp4xf"]
 content_margin_left = 10.0
@@ -53,7 +55,7 @@ bg_color = Color(0.25490198, 0.5137255, 0.9607843, 1)
 border_color = Color(1, 1, 1, 0.75)
 corner_detail = 1
 
-[sub_resource type="ButtonGroup" id="ButtonGroup_smf0o"]
+[sub_resource type="ButtonGroup" id="ButtonGroup_fdqew"]
 allow_unpress = true
 
 [sub_resource type="Theme" id="Theme_tqoya"]
@@ -86,7 +88,7 @@ events = [SubResource("InputEventAction_wp4xf")]
 [node name="Node2D" type="Node2D" unique_id=1929871842]
 script = ExtResource("8_main")
 
-[node name="main_ui" type="CanvasLayer" parent="." unique_id=1938298878 node_paths=PackedStringArray("card_container", "context_menu_card", "context_menu_folder", "context_menu_rename", "http", "accept_dialog")]
+[node name="main_ui" type="CanvasLayer" parent="." unique_id=1938298878 node_paths=PackedStringArray("card_container", "context_menu_card", "context_menu_folder", "context_menu_rename", "folder_selection_dialog", "accept_dialog")]
 script = ExtResource("1_v0l8b")
 card_container = NodePath("HBoxContainer/MarginContainer/VBoxContainer/ScrollContainer2/MarginContainer/Card_container")
 card_scene = ExtResource("3_4j5ol")
@@ -94,8 +96,8 @@ folder_scene = ExtResource("4_k65ib")
 context_menu_card = NodePath("Control")
 context_menu_folder = NodePath("folder_context_menu")
 context_menu_rename = NodePath("rename_win")
+folder_selection_dialog = NodePath("settings_dialog")
 res = ExtResource("5_v2gmf")
-http = NodePath("HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/test_button/HTTPRequest")
 accept_dialog = NodePath("AcceptDialog")
 
 [node name="ColorRect" type="ColorRect" parent="main_ui" unique_id=98198692]
@@ -146,33 +148,20 @@ tab_0/title = "tab_1"
 tab_1/title = "tab_2"
 script = ExtResource("2_0ha60")
 
-[node name="create_new_folder" type="Button" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer" unique_id=1142434020]
+[node name="VBoxContainer4" type="VBoxContainer" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer" unique_id=1833594549]
+layout_mode = 2
+
+[node name="create_new_folder" type="Button" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer4" unique_id=1142434020]
 layout_mode = 2
 text = "新文件夹"
 
-[node name="LineEdit" type="LineEdit" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer" unique_id=1950790850]
-custom_minimum_size = Vector2(100, 0)
+[node name="settings_button" type="Button" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer4" unique_id=1621929074]
 layout_mode = 2
-placeholder_text = "搜索(按回车)"
-
-[node name="is_show_workshop" type="CheckButton" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer" unique_id=1258397633]
-layout_mode = 2
-button_pressed = true
-text = "显示工坊 "
-
-[node name="is_show_local" type="CheckButton" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer" unique_id=1481386004]
-layout_mode = 2
-button_pressed = true
-text = "显示本地 "
+text = "项目设置"
+script = ExtResource("7_gjnwh")
 
 [node name="VBoxContainer2" type="VBoxContainer" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer" unique_id=1480534648]
 layout_mode = 2
-
-[node name="delete_button" type="Button" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer2" unique_id=1966308821]
-layout_mode = 2
-text = "删除本地空文件"
-script = ExtResource("7_jcbur")
-res = ExtResource("5_v2gmf")
 
 [node name="open_local_button" type="Button" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer2" unique_id=1767143470]
 layout_mode = 2
@@ -180,14 +169,21 @@ text = "打开本地目录"
 script = ExtResource("8_smf0o")
 res = ExtResource("5_v2gmf")
 
+[node name="open_res_button" type="Button" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer2" unique_id=535021144]
+layout_mode = 2
+text = "打开配置目录"
+script = ExtResource("9_tv8i1")
+
 [node name="VBoxContainer" type="VBoxContainer" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer" unique_id=589486457]
 layout_mode = 2
 
-[node name="Button" type="Button" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer" unique_id=127346375]
+[node name="refresh" type="Button" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer" unique_id=127346375]
 layout_mode = 2
 text = "刷新"
+script = ExtResource("9_gjnwh")
+res = ExtResource("5_v2gmf")
 
-[node name="Button2" type="Button" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer" unique_id=1838690579]
+[node name="refresh2" type="Button" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer" unique_id=1838690579]
 layout_mode = 2
 text = "强制刷新"
 
@@ -197,23 +193,37 @@ layout_mode = 2
 [node name="OptionButton" type="OptionButton" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer3" unique_id=1097904006]
 custom_minimum_size = Vector2(110, 0)
 layout_mode = 2
-size_flags_horizontal = 8
+alignment = 1
 selected = 1
 item_count = 4
-popup/item_0/text = "  发布日期"
+popup/item_0/text = "发布日期"
 popup/item_0/id = 0
-popup/item_1/text = "  订阅日期"
+popup/item_1/text = "订阅日期"
 popup/item_1/id = 1
-popup/item_2/text = "  文件大小"
+popup/item_2/text = "文件大小"
 popup/item_2/id = 2
-popup/item_3/text = "  随机"
+popup/item_3/text = "随机"
 popup/item_3/id = 3
 script = ExtResource("9_0vlqb")
 
-[node name="open_res_button" type="Button" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer3" unique_id=535021144]
+[node name="Button" type="Button" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer3" unique_id=578046758]
 layout_mode = 2
-text = "打开配置目录"
-script = ExtResource("9_tv8i1")
+text = "button"
+
+[node name="is_show_local" type="CheckButton" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer" unique_id=1481386004]
+layout_mode = 2
+button_pressed = true
+text = "显示本地 "
+
+[node name="is_show_workshop" type="CheckButton" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer" unique_id=1258397633]
+layout_mode = 2
+button_pressed = true
+text = "显示工坊 "
+
+[node name="LineEdit" type="LineEdit" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer" unique_id=1950790850]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+placeholder_text = "搜索(按回车)"
 
 [node name="ScrollContainer2" type="ScrollContainer" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer" unique_id=778066209]
 layout_mode = 2
@@ -266,7 +276,7 @@ page_card = ExtResource("7_k65ib")
 
 [node name="page_1" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/MarginContainer/HBoxContainer/page_num" unique_id=109932289 instance=ExtResource("7_k65ib")]
 layout_mode = 2
-button_group = SubResource("ButtonGroup_smf0o")
+button_group = SubResource("ButtonGroup_fdqew")
 
 [node name="Button2" type="Button" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/MarginContainer/HBoxContainer" unique_id=924454259]
 layout_mode = 2
@@ -504,8 +514,6 @@ visible = false
 layout_mode = 2
 text = "test"
 
-[node name="HTTPRequest" type="HTTPRequest" parent="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/test_button" unique_id=1163498665]
-
 [node name="Control" parent="main_ui" unique_id=1524407716 instance=ExtResource("4_brvut")]
 z_index = 1
 anchors_preset = 1
@@ -530,18 +538,21 @@ title = "弹窗"
 position = Vector2i(0, 36)
 dialog_text = "default"
 
+[node name="settings_dialog" parent="main_ui" unique_id=714392010 instance=ExtResource("21_fdqew")]
+visible = false
+
 [connection signal="setup_pages" from="main_ui" to="main_ui/HBoxContainer/MarginContainer/VBoxContainer/MarginContainer/HBoxContainer/page_num" method="_on_main_ui_setup_pages"]
-[connection signal="button_up" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/create_new_folder" to="main_ui" method="_on_create_new_folder_button_up"]
-[connection signal="text_submitted" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/LineEdit" to="main_ui" method="_on_line_edit_text_submitted"]
-[connection signal="toggled" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/is_show_workshop" to="main_ui" method="_on_is_show_workshop_toggled"]
-[connection signal="toggled" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/is_show_local" to="main_ui" method="_on_is_show_local_toggled"]
-[connection signal="button_up" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer2/delete_button" to="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer2/delete_button" method="_on_button_up"]
+[connection signal="button_up" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer4/create_new_folder" to="main_ui" method="_on_create_new_folder_button_up"]
+[connection signal="button_up" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer4/settings_button" to="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer4/settings_button" method="_on_button_up"]
 [connection signal="button_up" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer2/open_local_button" to="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer2/open_local_button" method="_on_button_up"]
-[connection signal="button_up" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer/Button" to="main_ui" method="_on_button_button_up"]
-[connection signal="button_up" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer/Button2" to="main_ui" method="_on_button_2_button_up"]
+[connection signal="button_up" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer2/open_res_button" to="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer2/open_res_button" method="_on_button_up"]
+[connection signal="button_up" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer/refresh" to="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer/refresh" method="_on_button_up"]
+[connection signal="button_up" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer/refresh2" to="main_ui" method="_on_button_2_button_up"]
 [connection signal="item_selected" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer3/OptionButton" to="main_ui" method="_on_option_button_item_selected"]
 [connection signal="item_selected" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer3/OptionButton" to="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer3/OptionButton" method="_on_item_selected"]
-[connection signal="button_up" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer3/open_res_button" to="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer3/open_res_button" method="_on_button_up"]
+[connection signal="toggled" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/is_show_local" to="main_ui" method="_on_is_show_local_toggled"]
+[connection signal="toggled" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/is_show_workshop" to="main_ui" method="_on_is_show_workshop_toggled"]
+[connection signal="text_submitted" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/LineEdit" to="main_ui" method="_on_line_edit_text_submitted"]
 [connection signal="page_selected" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/MarginContainer/HBoxContainer/page_num" to="main_ui" method="_on_page_num_page_selected"]
 [connection signal="item_selected" from="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/HBoxContainer/preset" to="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter" method="_on_preset_item_selected"]
 [connection signal="item_selected" from="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/HBoxContainer/cq" to="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter" method="_on_cq_item_selected"]

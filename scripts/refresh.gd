@@ -1,7 +1,13 @@
 extends Button
+
 @export var res: MyRes
 
+
+
 func _on_button_up() -> void:
+	SignalBus.load_workshop_cards.emit(true)
+
+	# 2. 删除空文件夹
 	var removed_total := 0
 	removed_total += MainManager.remove_empty_folders_in_root(res.WORKSHOP_ROOT)
 	removed_total += MainManager.remove_empty_folders_in_root(res.LOCAL_PROJECTS_ROOT)

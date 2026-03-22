@@ -7,6 +7,7 @@ signal card_left_clicked(card: Node, info: Dictionary)
 @export var hover_duration := 0.15
 @export var inside_panel : Panel
 @export var inside_panel2 : Panel
+@export var label : Label
 
 @export var defalt_tex : Texture2D
 @export var res : MyRes
@@ -36,6 +37,9 @@ func _ready() -> void:
 
 	normal_alpha = panel_style.border_color.a
 
+func set_label_text(text: String) -> void:
+	if label:
+		label.text = text
 
 func _on_mouse_entered() -> void:
 	_tween_border_alpha(1.0)  # 255 对应 1.0

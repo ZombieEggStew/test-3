@@ -34,13 +34,14 @@ border_width_right = 2
 border_width_bottom = 2
 border_color = Color(0.25490198, 0.5137255, 0.9607843, 1)
 
-[node name="PanelContainer" type="PanelContainer" unique_id=747637982 node_paths=PackedStringArray("tex")]
+[node name="PanelContainer" type="PanelContainer" unique_id=747637982 node_paths=PackedStringArray("tex", "label")]
 custom_minimum_size = Vector2(100, 100)
 offset_right = 202.0
 offset_bottom = 202.0
 theme_override_styles/panel = SubResource("StyleBoxFlat_drhme")
 script = ExtResource("1_7pe7h")
 tex = NodePath("TextureRect")
+label = NodePath("PanelContainer/MarginContainer/Label")
 defalt_tex = ExtResource("2_7pe7h")
 
 [node name="TextureRect" type="TextureRect" parent="." unique_id=501766723]

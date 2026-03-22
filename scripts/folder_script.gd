@@ -5,7 +5,7 @@ signal folder_left_clicked(card: Node, info: Dictionary)
 
 @export var tex : TextureRect
 @export var hover_duration := 0.15
-
+@export var label : Label
 
 @export var defalt_tex : Texture2D
 
@@ -18,6 +18,10 @@ var panel_style: StyleBoxFlat
 var normal_alpha := 1.0
 var tw: Tween
 const DEBUG_PREVIEW := true
+
+func set_label_text(text: String) -> void:
+	if label:
+		label.text = text
 
 func set_context_menu(cm: Control , cm_rename :AcceptDialog) -> void:
 	context_menu = cm
