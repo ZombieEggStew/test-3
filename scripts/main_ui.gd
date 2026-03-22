@@ -1,20 +1,22 @@
-#TO DO : 
-#TO DO : 
 #TO DO : 显示待转换列表 跳转到对应选项卡
-#TO DO : 
-#TO DO : 
 #TO DO : 过滤显示（tag）
 #TO DO : 添加本地标识
 #TO DO : 显示steam连接状态
-#TO DO : 
-#TO DO : 
 #TO DO : 转换本地，project,json，与一些东西未更新
 #TO DO : 本地文件计数,与各项信息计数
-#TO DO : 增加工坊无法重命名的提示
-#TO DO : 修改gif——loader的python环境
 #TO DO : 开关gif显示，一键删除gif缓存，显示目前gif缓存大小
 #TO DO : 解决调试器中的warning
-#TO DO : 解决硬编码路径问题
+#TO DO : 异步加载（图片，统计信息），一开始加载基本信息，点击后加载完整信息（或许可以替代缓存）
+#TO DO : 只显示未转换的本地文件
+#TO DO : rightPanel显示时长
+#TO DO : 
+#TO DO : 
+#TO DO : 
+#TO DO : 
+#TO DO : 
+#TO DO : 
+#TO DO : 
+
 
 #FIX ME : 
 #FIX ME : 
@@ -96,6 +98,7 @@ func _on_conversion_finished(success: bool, message: String) -> void:
 	# 还原最小化的窗口并带到前台
 	DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
 	DisplayServer.window_move_to_foreground()
+	_load_workshop_cards(false)
 
 	accept_dialog.title = "转换成功" if success else "转换失败"
 	accept_dialog.dialog_text = message
@@ -748,12 +751,11 @@ func _compare_publish_date_with_local_last(a: Dictionary, b: Dictionary) -> bool
 	return int(a.get("published_id", 0)) > int(b.get("published_id", 0))
 
 
-func _on_option_button_item_selected(index: int) -> void:
-	current_sort_index = index
+func _on_option_button_request_sort_change(new_sort: int) -> void:
+	current_sort_index = new_sort
 	current_page = 1
 	_apply_sort_on_cached_items()
 	_render_current_page_from_cache()
-
 
 func _on_card_left_clicked(card: Node, info: Dictionary) -> void:
 	if selected_card_node and selected_card_node != card and selected_card_node.has_method("set_selected"):
@@ -935,3 +937,6 @@ func _on_rename_win_rename_confirmed(new_name: String, target_info: Dictionary) 
 
 func _on_request_file_dialog() -> void:
 	folder_selection_dialog.popup_centered()
+
+
+

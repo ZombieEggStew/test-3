@@ -17,12 +17,14 @@ func convert_gif_to_animated_texture(gif_path: String, output_dir_path: String) 
 
 	var output_dir = ProjectSettings.globalize_path(output_dir_path)
 	var abs_gif_path = ProjectSettings.globalize_path(gif_path)
-	var python_path = "D:/python/python.exe" # 建议从配置中获取
-	var script_path = ProjectSettings.globalize_path("res://py/split_gif.py")
+	# 从资源脚本读取路径配置，确保脚本已被加载
+	var res = preload("res://resources/my_res.tres")
+	var python_path = res.PYTHON_EXE_PATH
+	var script_path = res.SPLIT_GIF_SCRIPT_PATH
 	
-	# 确保输出目录存在
-	if not DirAccess.dir_exists_absolute(output_dir_path):
-		var err = DirAccess.make_dir_recursive_absolute(output_dir_path)
+	# 确保输出目录存在（使用全路径）
+	if not DirAccess.dir_exists_absolute(output_dir):
+		var err = DirAccess.make_dir_recursive_absolute(output_dir)
 		if err != OK:
 			push_error("无法创建目录: " + output_dir_path + " 错误码: " + str(err))
 			return null

@@ -15,9 +15,14 @@ var LOCAL_PROJECTS_ROOT := ""
 
 
 # python相关路径
-const PYTHON_EXE_PATH := "D:/AGodotProjects/test-3/py/.venv/Scripts/python.exe"
-const CONVERTER_SCRIPT_PATH := "D:/AGodotProjects/test-3/py/converter.py"
-const CONVERTER_PROGRESS_PATH := "D:/AGodotProjects/test-3/py/convert_progress.txt"
+# const PYTHON_EXE_PATH := "D:/AGodotProjects/test-3/py/.venv/Scripts/python.exe"
+# const CONVERTER_SCRIPT_PATH := "D:/AGodotProjects/test-3/py/converter.py"
+# const SPLIT_GIF_SCRIPT_PATH := "res://py/split_gif.py"
+# const CONVERTER_PROGRESS_PATH := "D:/AGodotProjects/test-3/py/convert_progress.txt"
+var PYTHON_EXE_PATH := ProjectSettings.globalize_path("res://py/.venv/Scripts/python.exe")
+var CONVERTER_SCRIPT_PATH := ProjectSettings.globalize_path("res://py/converter.py")
+var SPLIT_GIF_SCRIPT_PATH := ProjectSettings.globalize_path("res://py/split_gif.py")
+var CONVERTER_PROGRESS_PATH := ProjectSettings.globalize_path("res://py/convert_progress.txt")
 
 # 缓存和配置文件路径
 const GIF_CACHE_DIR_PATH := "user://gif_cache/"
@@ -27,3 +32,6 @@ const CONFIG_PATH := "user://config.json"
 
 #deprecated
 const SUBSCRIPTIONS_VDF_PATH := "D:/Steam/userdata/213406194/ugc/431960_subscriptions.vdf"
+
+func _init() -> void:
+    pass
