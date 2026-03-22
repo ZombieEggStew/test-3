@@ -11,6 +11,8 @@ signal card_left_clicked(card: Node, info: Dictionary)
 
 @export var defalt_tex : Texture2D
 @export var res : MyRes
+@export var local_label: PanelContainer
+
 
 var context_menu : Control
 var card_info: Dictionary = {}
@@ -36,6 +38,8 @@ func _ready() -> void:
 	add_theme_stylebox_override("panel", panel_style)
 
 	normal_alpha = panel_style.border_color.a
+
+	local_label.visible = card_info.get("is_local", false)
 
 func set_label_text(text: String) -> void:
 	if label:

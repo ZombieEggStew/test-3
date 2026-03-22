@@ -8,7 +8,7 @@
 #TO DO : 解决调试器中的warning
 #TO DO : 
 #TO DO : 只显示未转换的本地文件
-#TO DO : 根据时长排序
+#TO DO : 每次重新加载区分出新加入的card
 #TO DO : 
 #TO DO : 
 #TO DO : 

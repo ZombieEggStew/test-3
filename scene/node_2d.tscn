@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" uid="uid://d2847h7wpjx85" path="res://scripts/node_2d.gd" id="1_guiot"]
 [ext_resource type="Texture2D" uid="uid://bacarg6uviypr" path="res://tex/preview_3.jpg" id="2_guiot"]
+[ext_resource type="Script" uid="uid://um35xx1vq1a" path="res://scripts/my_res.gd" id="3_ppd22"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_drhme"]
 bg_color = Color(0.43137255, 0.68235296, 0.7137255, 0)
@@ -11,6 +12,10 @@ border_width_right = 1
 border_width_bottom = 1
 border_color = Color(0.25490198, 0.5137255, 0.9607843, 0)
 corner_detail = 1
+
+[sub_resource type="Resource" id="Resource_3cebx"]
+script = ExtResource("3_ppd22")
+metadata/_custom_type_script = "uid://um35xx1vq1a"
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ppd22"]
 content_margin_left = 0.0
@@ -46,18 +51,31 @@ border_width_right = 2
 border_width_bottom = 2
 border_color = Color(0.76486766, 0.00033778162, 0.7366943, 1)
 
-[node name="PanelContainer" type="PanelContainer" unique_id=747637982 node_paths=PackedStringArray("tex", "inside_panel", "inside_panel2", "label")]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_tytcy"]
+content_margin_left = 0.0
+content_margin_top = 0.0
+content_margin_right = 0.0
+content_margin_bottom = 0.0
+bg_color = Color(0.101960786, 1, 0.101960786, 0.2)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+corner_detail = 5
+
+[node name="PanelContainer" type="PanelContainer" unique_id=747637982 node_paths=PackedStringArray("tex", "inside_panel", "inside_panel2", "label", "local_label")]
 custom_minimum_size = Vector2(100, 100)
 offset_right = 202.0
 offset_bottom = 202.0
 theme_override_styles/panel = SubResource("StyleBoxFlat_drhme")
 script = ExtResource("1_guiot")
 tex = NodePath("TextureRect")
-hover_duration = null
 inside_panel = NodePath("Panel")
 inside_panel2 = NodePath("Panel2")
 label = NodePath("PanelContainer/MarginContainer/Label")
 defalt_tex = ExtResource("2_guiot")
+res = SubResource("Resource_3cebx")
+local_label = NodePath("local")
 
 [node name="TextureRect" type="TextureRect" parent="." unique_id=501766723]
 custom_minimum_size = Vector2(200, 200)
@@ -96,10 +114,42 @@ mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_guiot")
 
 [node name="Panel2" type="Panel" parent="." unique_id=1258984499]
+visible = false
 z_index = 1
 layout_mode = 2
 mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_3cebx")
+
+[node name="local" type="PanelContainer" parent="." unique_id=575508223]
+layout_mode = 2
+size_flags_horizontal = 8
+size_flags_vertical = 0
+
+[node name="MarginContainer" type="MarginContainer" parent="local" unique_id=194200917]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_right = 10
+
+[node name="Label" type="Label" parent="local/MarginContainer" unique_id=994574117]
+layout_mode = 2
+text = "本地"
+horizontal_alignment = 1
+
+[node name="is_converting" type="PanelContainer" parent="." unique_id=1762149736]
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 0
+theme_override_styles/panel = SubResource("StyleBoxFlat_tytcy")
+
+[node name="MarginContainer" type="MarginContainer" parent="is_converting" unique_id=700476640]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_right = 10
+
+[node name="Label" type="Label" parent="is_converting/MarginContainer" unique_id=1642285482]
+layout_mode = 2
+text = "转换中"
+horizontal_alignment = 1
 
 [connection signal="gui_input" from="." to="." method="_on_gui_input"]
 [connection signal="mouse_entered" from="." to="." method="_on_mouse_entered"]
