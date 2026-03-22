@@ -5,7 +5,7 @@ extends Button
 
 
 func _on_button_up() -> void:
-	SignalBus.load_workshop_cards.emit(true)
+	SignalBus.load_workshop_cards.emit()
 
 	# 2. 删除空文件夹
 	var removed_total := 0
@@ -14,6 +14,6 @@ func _on_button_up() -> void:
 
 	if removed_total > 0:
 		print("已删除空文件夹: %d 个" % removed_total)
-		SignalBus.load_workshop_cards.emit(true)
+		SignalBus.load_workshop_cards.emit()
 	else:
 		print("未发现可删除的空文件夹")

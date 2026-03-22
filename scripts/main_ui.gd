@@ -2,7 +2,7 @@
 #TO DO : 过滤显示（tag）
 #TO DO : 添加本地标识
 #TO DO : 显示steam连接状态
-#TO DO : 转换本地，project,json，与一些东西未更新
+#TO DO : 
 #TO DO : 本地文件计数,与各项信息计数
 #TO DO : 开关gif显示，一键删除gif缓存，显示目前gif缓存大小
 #TO DO : 解决调试器中的warning
@@ -71,8 +71,7 @@ var selected_card_node: Node = null
 
 
 ##关键参数
-var is_force_reload := false
-const MAX_TEST_FOLDER_COUNT := 10000
+const MAX_TEST_FOLDER_COUNT := 100
 var is_show_pic = false
 
 
@@ -92,19 +91,19 @@ func _ready() -> void:
 
 	_load_custom_folders_from_local()
 
-	_load_workshop_cards(is_force_reload)
+	_load_workshop_cards()
 
 func _on_conversion_finished(success: bool, message: String) -> void:
 	# 还原最小化的窗口并带到前台
 	DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
 	DisplayServer.window_move_to_foreground()
-	_load_workshop_cards(false)
+	_load_workshop_cards()
 
 	accept_dialog.title = "转换成功" if success else "转换失败"
 	accept_dialog.dialog_text = message
 	accept_dialog.popup_centered()
 
-func _load_workshop_cards(force_reload: bool = false) -> void:
+func _load_workshop_cards() -> void:
 	if card_container == null:
 		push_error("card_container 未绑定")
 		return
@@ -112,16 +111,7 @@ func _load_workshop_cards(force_reload: bool = false) -> void:
 		push_error("card_scene 未绑定")
 		return
 
-	if cached_items.is_empty():
-		if not _load_cache_from_local():
-			if not _preload_workshop_items_once():
-				_clear_cards()
-				_update_page_num(0)
-				return
-		else:
-			_incremental_update_cached_items()
-	elif force_reload:
-		_incremental_update_cached_items()
+	_preload_workshop_items_once()
 
 	_apply_sort_on_cached_items()
 	_render_current_page_from_cache()
@@ -146,121 +136,7 @@ func _preload_workshop_items_once() -> bool:
 			continue
 		cached_items.append(card_info)
 
-	_save_cache_to_local(cached_items)
 	return true
-
-
-func _load_cache_from_local() -> bool:
-	if not FileAccess.file_exists(res.WORKSHOP_CACHE_PATH):
-		return false
-
-	var file := FileAccess.open(res.WORKSHOP_CACHE_PATH, FileAccess.READ)
-	if file == null:
-		return false
-
-	var raw := file.get_as_text().strip_edges()
-	if raw.is_empty():
-		return false
-
-	var parsed := JSON.parse_string(raw) as Dictionary
-	if typeof(parsed) != TYPE_DICTIONARY:
-		return false
-
-	var cache_data := parsed as Dictionary
-	if int(cache_data.get("cache_version", 0)) != res.WORKSHOP_CACHE_VERSION:
-		return false
-
-	var cache_items := cache_data.get("items", []) as Array
-	if cache_items.is_empty():
-		cached_items.clear()
-		sorted_items.clear()
-		return true
-
-	var rebuilt_items: Array = []
-	for entry in cache_items:
-		if entry is Dictionary:
-			rebuilt_items.append((entry as Dictionary).duplicate(true))
-
-	if rebuilt_items.is_empty():
-		return false
-
-	cached_items = rebuilt_items
-	sorted_items.clear()
-	print("已加载本地缓存: %d 条" % cached_items.size())
-	return true
-
-
-func _save_cache_to_local(items: Array) -> void:
-	var payload := {
-		"cache_version": res.WORKSHOP_CACHE_VERSION,
-		"saved_at": Time.get_unix_time_from_system(),
-		"items": items,
-	}
-
-	var file := FileAccess.open(res.WORKSHOP_CACHE_PATH, FileAccess.WRITE)
-	if file == null:
-		push_warning("无法写入本地缓存: %s" % res.WORKSHOP_CACHE_PATH)
-		return
-
-	file.store_string(JSON.stringify(payload))
-	print("已更新本地缓存: %d 条" % items.size())
-
-
-func _incremental_update_cached_items() -> void:
-	var current_items := _scan_root_for_item_headers(res.LOCAL_PROJECTS_ROOT, false)
-	current_items.append_array(_scan_root_for_item_headers(res.WORKSHOP_ROOT, true))
-
-	if MAX_TEST_FOLDER_COUNT > 0 and current_items.size() > MAX_TEST_FOLDER_COUNT:
-		current_items = current_items.slice(0, MAX_TEST_FOLDER_COUNT)
-
-	var cached_map := _build_item_map(cached_items)
-	var next_items: Array = []
-	var seen_keys: Dictionary = {}
-	var added_count := 0
-	var changed_count := 0
-	var removed_count := 0
-
-	for item in current_items:
-		var item_dict := item as Dictionary
-		var item_key := _make_item_key(item_dict)
-		if item_key.is_empty():
-			continue
-
-		seen_keys[item_key] = true
-		if cached_map.has(item_key):
-			var cached_item := cached_map.get(item_key, {}) as Dictionary
-			if _is_cached_item_stale(cached_item, item_dict):
-				var rebuilt := _build_card_info_for_item(item_dict)
-				if not rebuilt.is_empty():
-					next_items.append(rebuilt)
-					changed_count += 1
-				else:
-					removed_count += 1
-			else:
-				next_items.append(cached_item)
-		else:
-			var created := _build_card_info_for_item(item_dict)
-			if not created.is_empty():
-				next_items.append(created)
-				added_count += 1
-
-	for old_key in cached_map.keys():
-		if not seen_keys.has(old_key):
-			removed_count += 1
-
-	cached_items = next_items
-	sorted_items.clear()
-
-	if added_count > 0 or changed_count > 0 or removed_count > 0:
-		_save_cache_to_local(cached_items)
-		print("增量更新完成: 新增=%d, 变更=%d, 删除=%d" % [added_count, changed_count, removed_count])
-	else:
-		print("增量更新完成: 无变化")
-
-
-
-
-
 
 
 func _apply_sort_on_cached_items() -> void:
@@ -493,21 +369,6 @@ func rename_item(info: Dictionary, new_title: String) -> void:
 				return
 		return
 
-	# 1. 查找缓存中的项
-	var item_key := _make_item_key(info)
-	var found_in_cache := false
-	
-	for i in range(cached_items.size()):
-		var item = cached_items[i]
-		if _make_item_key(item) == item_key:
-			cached_items[i]["title"] = new_title
-			found_in_cache = true
-			break
-	
-	if not found_in_cache:
-		push_warning("在缓存中未找到要重命名的项目: %s" % item_key)
-		return
-
 	# 2. 如果存在 project.json 路径，则物理写入文件
 	var json_path = info.get("project_json_path", "")
 	if not str(json_path).is_empty() and FileAccess.file_exists(json_path):
@@ -526,7 +387,6 @@ func rename_item(info: Dictionary, new_title: String) -> void:
 					print("已更新项目文件: %s" % json_path)
 
 	# 3. 持久化缓存到磁盘并刷新 UI
-	_save_cache_to_local(cached_items)
 	_apply_sort_on_cached_items()
 	_render_current_page_from_cache()
 
@@ -571,62 +431,6 @@ func _scan_root_for_items(root_path: String , is_wrokshop:bool) -> Array:
 	return items
 
 
-func _scan_root_for_item_headers(root_path: String, is_workshop: bool) -> Array:
-	var items: Array = []
-	var dir := DirAccess.open(root_path)
-	if dir == null:
-		return items
-
-	var folders := dir.get_directories() as Array
-	for folder_name in folders:
-		var folder_id_str := str(folder_name)
-		var published_id := int(folder_id_str) if folder_id_str.is_valid_int() else 0
-		var subscribe_time := _resolve_item_create_time(root_path, folder_id_str)
-		items.append({
-			"folder_name": folder_id_str,
-			"published_id": published_id,
-			"subscribe_time": subscribe_time,
-			"root_path": root_path,
-			"is_workshop": is_workshop,
-		})
-	return items
-
-
-func _make_item_key(item: Dictionary) -> String:
-	var root_path := str(item.get("root_path", "")).strip_edges()
-	var folder_name := str(item.get("folder_name", "")).strip_edges()
-	if root_path.is_empty() or folder_name.is_empty():
-		return ""
-	return "%s|%s" % [root_path, folder_name]
-
-
-func _build_item_map(items: Array) -> Dictionary:
-	var mapped := {}
-	for item in items:
-		if not (item is Dictionary):
-			continue
-		var item_dict := item as Dictionary
-		var item_key := _make_item_key(item_dict)
-		if item_key.is_empty():
-			continue
-		mapped[item_key] = item_dict
-	return mapped
-
-
-func _is_cached_item_stale(cached_item: Dictionary, current_item: Dictionary) -> bool:
-	if int(cached_item.get("subscribe_time", 0)) != int(current_item.get("subscribe_time", 0)):
-		return true
-
-	if int(cached_item.get("published_id", 0)) != int(current_item.get("published_id", 0)):
-		return true
-
-	var media_file_path := str(cached_item.get("media_file_path", "")).strip_edges()
-	if media_file_path.is_empty() or not FileAccess.file_exists(media_file_path):
-		return true
-
-	return false
-
-
 func _build_card_info_for_item(item: Dictionary) -> Dictionary:
 	var folder_name := str(item.get("folder_name", "")).strip_edges()
 	var item_root := str(item.get("root_path", res.WORKSHOP_ROOT)).strip_edges()
@@ -660,10 +464,11 @@ func _build_card_info_for_item(item: Dictionary) -> Dictionary:
 
 	var video_resolution := ""
 	var video_bitrate_kbps := 0
-	if media_file_name.to_lower().ends_with(".mp4"):
-		var meta := MainManager.read_mp4_metadata(media_file_path)
-		video_resolution = str(meta.get("resolution", ""))
-		video_bitrate_kbps = int(meta.get("bitrate_kbps", 0))
+	# 移除这里的元数据读取，改为在点击卡片时按需获取
+	# if media_file_name.to_lower().ends_with(".mp4"):
+	# 	var meta := MainManager.read_mp4_metadata(media_file_path)
+	# 	video_resolution = str(meta.get("resolution", ""))
+	# 	video_bitrate_kbps = int(meta.get("bitrate_kbps", 0))
 
 	var card_info := item.duplicate(true) as Dictionary
 	card_info["project_json_path"] = project_json_path
@@ -767,6 +572,13 @@ func _on_card_left_clicked(card: Node, info: Dictionary) -> void:
 
 	var selected_card_info = info.duplicate(true)
 
+	# 在这里动态获取 MP4 元数据，避免启动卡顿
+	var media_file_path = selected_card_info.get("media_file_path", "")
+	if not str(media_file_path).is_empty() and str(media_file_path).to_lower().ends_with(".mp4"):
+		var meta := MainManager.read_mp4_metadata(media_file_path)
+		selected_card_info["video_resolution"] = str(meta.get("resolution", ""))
+		selected_card_info["video_bitrate_kbps"] = int(meta.get("bitrate_kbps", 0))
+
 	SignalBus.on_card_selected.emit(selected_card_info)
 
 
@@ -777,22 +589,6 @@ func _clear_detail_labels() -> void:
 		selected_card_node.call("set_selected", false)
 	selected_card_node = null
 
-
-func _on_button_2_button_up() -> void:
-	print("开始强制刷新：删除并重新建立缓存...")
-	# 1. 如果缓存文件存在，则物理删除它
-	if FileAccess.file_exists(res.WORKSHOP_CACHE_PATH):
-		var err = DirAccess.remove_absolute(res.WORKSHOP_CACHE_PATH)
-		if err == OK:
-			print("本地缓存文件已删除: ", res.WORKSHOP_CACHE_PATH)
-		else:
-			push_error("删除缓存文件失败: ", err)
-	
-	# 2. 调用加载函数并传入 force_reload = true
-	# 这将触发 _preload_workshop_items_once() 重新扫描所有文件夹
-	_load_workshop_cards(true)
-	
-	print("强制刷新完成。")
 
 func _prepare_convert_output_dir(input_file: String) -> String:
 	var input_file_name := input_file.get_file().get_basename().strip_edges()
@@ -923,7 +719,7 @@ func _save_custom_folders_to_local() -> void:
 
 func _on_request_load_workshop_cards(force: bool) -> void:
 	print("收到刷新工作坊卡片的信号，force=%s" % str(force))
-	_load_workshop_cards(force)
+	_load_workshop_cards()
 
 
 func _on_page_num_page_selected(page_index: int) -> void:

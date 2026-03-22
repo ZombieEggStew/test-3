@@ -1,6 +1,6 @@
 ﻿extends Node
 
-signal load_workshop_cards(force: bool)
+signal load_workshop_cards()
 
 signal on_card_selected(card_info: Dictionary)
 

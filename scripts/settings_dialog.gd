@@ -45,6 +45,6 @@ func _on_confirmed() -> void:
         SignalBus.save_config.emit("wallpaper_root", wallpaper_line_edit.text)
         res.LOCAL_PROJECTS_ROOT = wallpaper_line_edit.text + "/projects/myprojects"
 
-    SignalBus.load_workshop_cards.emit(true)  # 强制重新加载工坊卡片
+    SignalBus.load_workshop_cards.emit()  # 强制重新加载工坊卡片
     
     print("配置已保存")

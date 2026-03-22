@@ -136,7 +136,7 @@ func _on_delete_button_up() -> void:
 
 
 func _request_main_ui_reload() -> void:
-    SignalBus.load_workshop_cards.emit(true)
+    SignalBus.load_workshop_cards.emit()
 
 
 func _on_backup_button_up() -> void:

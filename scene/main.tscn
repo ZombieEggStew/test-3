@@ -185,7 +185,7 @@ res = ExtResource("5_v2gmf")
 
 [node name="refresh2" type="Button" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer" unique_id=1838690579]
 layout_mode = 2
-text = "强制刷新"
+text = "备用按钮"
 
 [node name="VBoxContainer3" type="VBoxContainer" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer" unique_id=1206374599]
 layout_mode = 2
@@ -547,7 +547,6 @@ visible = false
 [connection signal="button_up" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer2/open_local_button" to="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer2/open_local_button" method="_on_button_up"]
 [connection signal="button_up" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer2/open_res_button" to="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer2/open_res_button" method="_on_button_up"]
 [connection signal="button_up" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer/refresh" to="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer/refresh" method="_on_button_up"]
-[connection signal="button_up" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer/refresh2" to="main_ui" method="_on_button_2_button_up"]
 [connection signal="item_selected" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer3/OptionButton" to="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer3/OptionButton" method="_on_item_selected"]
 [connection signal="request_sort_change" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer3/OptionButton" to="main_ui" method="_on_option_button_request_sort_change"]
 [connection signal="toggled" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/is_show_local" to="main_ui" method="_on_is_show_local_toggled"]
