@@ -25,13 +25,13 @@ var SPLIT_GIF_SCRIPT_PATH := ProjectSettings.globalize_path("res://py/split_gif.
 var CONVERTER_PROGRESS_PATH := ProjectSettings.globalize_path("res://py/convert_progress.txt")
 
 # 缓存和配置文件路径
-const GIF_CACHE_DIR_PATH := "user://gif_cache/"
-const WORKSHOP_CACHE_PATH := "user://workshop_video_cache.json"
+const GIF_CACHE_DIR_PATH := "res://gif_cache/"
 const CUSTOM_FOLDER_STORE_PATH := "user://custom_folders.json"
 const CONFIG_PATH := "user://config.json"
 
 #deprecated
 const SUBSCRIPTIONS_VDF_PATH := "D:/Steam/userdata/213406194/ugc/431960_subscriptions.vdf"
+const WORKSHOP_CACHE_PATH := "user://workshop_video_cache.json"
 
 func _init() -> void:
     pass

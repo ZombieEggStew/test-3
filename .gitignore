@@ -2,3 +2,4 @@
 .godot/
 /android/
 py/convert_progress.txt
+gif_cache/

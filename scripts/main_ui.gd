@@ -4,11 +4,11 @@
 #TO DO : 显示steam连接状态
 #TO DO : 
 #TO DO : 本地文件计数,与各项信息计数
-#TO DO : 开关gif显示，一键删除gif缓存，显示目前gif缓存大小
+#TO DO : 开关gif显示，一键删除gif缓存，显示目前gif缓存大小 ，关闭后只显示gif的第一帧
 #TO DO : 解决调试器中的warning
-#TO DO : 异步加载（图片，统计信息），一开始加载基本信息，点击后加载完整信息（或许可以替代缓存）
+#TO DO : 
 #TO DO : 只显示未转换的本地文件
-#TO DO : rightPanel显示时长
+#TO DO : 根据时长排序
 #TO DO : 
 #TO DO : 
 #TO DO : 
@@ -71,7 +71,7 @@ var selected_card_node: Node = null
 
 
 ##关键参数
-const MAX_TEST_FOLDER_COUNT := 100
+const MAX_TEST_FOLDER_COUNT := 10000
 var is_show_pic = false
 
 
@@ -578,6 +578,8 @@ func _on_card_left_clicked(card: Node, info: Dictionary) -> void:
 		var meta := MainManager.read_mp4_metadata(media_file_path)
 		selected_card_info["video_resolution"] = str(meta.get("resolution", ""))
 		selected_card_info["video_bitrate_kbps"] = int(meta.get("bitrate_kbps", 0))
+		selected_card_info["video_duration"] = float(meta.get("duration", 0.0))
+		selected_card_info["video_file_size"] = int(meta.get("size_bytes", 0))
 
 	SignalBus.on_card_selected.emit(selected_card_info)
 

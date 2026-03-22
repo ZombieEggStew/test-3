@@ -54,7 +54,7 @@ func _on_open_folder_button_up() -> void:
 
 
 func _open_target_folder() -> void:
-    var folder_path := _resolve_target_folder_path()
+    var folder_path := MainManager.resolve_target_folder_path(target_card_info)
     if folder_path.is_empty():
         push_warning("未找到可打开的目录路径")
         return
@@ -69,23 +69,7 @@ func _open_target_folder() -> void:
     hide()
 
 
-func _resolve_target_folder_path() -> String:
-    var item_path := str(target_card_info.get("item_path", "")).strip_edges()
-    if not item_path.is_empty() and DirAccess.dir_exists_absolute(item_path):
-        return item_path
 
-    var root_path := str(target_card_info.get("root_path", "")).strip_edges()
-    var folder_name := str(target_card_info.get("folder_name", "")).strip_edges()
-    if not root_path.is_empty() and not folder_name.is_empty():
-        var folder_path := "%s/%s" % [root_path, folder_name]
-        if DirAccess.dir_exists_absolute(folder_path):
-            return folder_path
-
-    if not root_path.is_empty() and DirAccess.dir_exists_absolute(root_path):
-        return root_path
-
-
-    return ""
 
 
 func _resolve_media_file_path() -> String:
@@ -97,7 +81,7 @@ func _resolve_media_file_path() -> String:
     if media_file_name.is_empty():
         return ""
 
-    var folder_path := _resolve_target_folder_path()
+    var folder_path := MainManager.resolve_target_folder_path(target_card_info)
     if folder_path.is_empty():
         return ""
 
@@ -109,34 +93,7 @@ func _resolve_media_file_path() -> String:
 
 
 func _on_delete_button_up() -> void:
-    if target_card_info.is_empty():
-        push_warning("未选择可删除的项目")
-        hide()
-        return
-
-    var item_path := _resolve_target_folder_path()
-    if item_path.is_empty():
-        push_warning("未找到项目路径")
-        hide()
-        return
-
-    # 首先删除目标文件夹及其内容
-    var err := MainManager.remove_dir_recursive(item_path)
-    if err != OK:
-        push_error("删除项目文件夹失败: %s, err=%d" % [item_path, err])
-    else:
-        print("已物理删除项目内容: %s" % item_path)
-
-    # 接着如果是工坊项，提交取消订阅请求
-    if MainManager.is_workshop_item(target_card_info):
-        _submit_unsubscribe_request()
-        
-    _request_main_ui_reload()
-    hide()
-
-
-func _request_main_ui_reload() -> void:
-    SignalBus.load_workshop_cards.emit()
+    MainManager.delete_and_unsubscribe(target_card_info)
 
 
 func _on_backup_button_up() -> void:
@@ -166,29 +123,22 @@ func _on_backup_button_up() -> void:
             push_warning("创建目录失败: %s" % dest_folder)
             hide()
             return
-    var item_path := _resolve_target_folder_path()
+    var item_path := MainManager.resolve_target_folder_path(target_card_info)
     if not item_path.is_empty():
         print(MainManager.read_project_data(item_path))
         # 剪切所有文件到备份文件夹
         MainManager.move_folder_contents(item_path, dest_folder)
         # 备份完成后刷新 UI
-        _request_main_ui_reload()
+        SignalBus.load_workshop_cards.emit()
 
     print("已备份并移动文件到: %s" % dest_folder)
 
-    _submit_unsubscribe_request()
+    MainManager.unsubscribe_workshop_item_2(target_card_info)
     
     hide()
 
 
-func _submit_unsubscribe_request() -> void:
-    var submit_ok = MainManager.unsubscribe_workshop_item_2(target_card_info)
-    if not submit_ok:
-        push_warning("取消订阅请求提交失败: %s" % str(target_card_info.get("published_id", 0)))
-        hide()
-        return
 
-    _request_main_ui_reload()
 
 func _on_rename_button_up() -> void:
     if target_card_info.get("is_workshop", false):

@@ -287,7 +287,7 @@ theme_type_variation = &"button_page"
 theme_override_font_sizes/font_size = 18
 text = "  >>  "
 
-[node name="right_panel" type="MarginContainer" parent="main_ui/HBoxContainer" unique_id=756927448 node_paths=PackedStringArray("title_label", "folder_size_label", "resolution_label", "bitrate_label")]
+[node name="right_panel" type="MarginContainer" parent="main_ui/HBoxContainer" unique_id=756927448 node_paths=PackedStringArray("title_label", "resolution_label", "bitrate_label")]
 custom_minimum_size = Vector2(200, 0)
 layout_mode = 2
 size_flags_horizontal = 3
@@ -298,7 +298,6 @@ theme_override_constants/margin_right = 5
 theme_override_constants/margin_bottom = 5
 script = ExtResource("5_p1hux")
 title_label = NodePath("ScrollContainer/VBox/MarginContainer2/title_Label")
-folder_size_label = NodePath("ScrollContainer/VBox/Attributes/VBoxContainer/size_Label")
 resolution_label = NodePath("ScrollContainer/VBox/Attributes/VBoxContainer/resolution_Label2")
 bitrate_label = NodePath("ScrollContainer/VBox/Attributes/VBoxContainer/biterate_Label3")
 

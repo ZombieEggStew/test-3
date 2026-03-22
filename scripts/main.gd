@@ -28,6 +28,51 @@ func _on_save_config(key: String, value: Variant) -> void:
 
 
 # ============ 工具函数 ============
+
+static func delete_and_unsubscribe(target_card_info: Dictionary) -> bool:
+    if target_card_info.is_empty():
+        push_warning("未选择可删除的项目")
+        return false
+
+    var item_path := resolve_target_folder_path(target_card_info)
+    if item_path.is_empty():
+        push_warning("未找到项目路径")
+        return false
+
+    # 首先删除目标文件夹及其内容
+    var err := remove_dir_recursive(item_path)
+    if err != OK:
+        push_error("删除项目文件夹失败: %s, err=%d" % [item_path, err])
+    else:
+        print("已物理删除项目内容: %s" % item_path)
+
+    # 接着如果是工坊项，提交取消订阅请求
+    if is_workshop_item(target_card_info):
+        unsubscribe_workshop_item_2(target_card_info)
+
+    SignalBus.load_workshop_cards.emit()
+    return true
+
+        
+static func resolve_target_folder_path(target_card_info : Dictionary) -> String:
+    var item_path := str(target_card_info.get("item_path", "")).strip_edges()
+    if not item_path.is_empty() and DirAccess.dir_exists_absolute(item_path):
+        return item_path
+
+    var root_path := str(target_card_info.get("root_path", "")).strip_edges()
+    var folder_name := str(target_card_info.get("folder_name", "")).strip_edges()
+    if not root_path.is_empty() and not folder_name.is_empty():
+        var folder_path := "%s/%s" % [root_path, folder_name]
+        if DirAccess.dir_exists_absolute(folder_path):
+            return folder_path
+
+    if not root_path.is_empty() and DirAccess.dir_exists_absolute(root_path):
+        return root_path
+
+
+    return ""
+
+
 static func is_local_project(card_info: Dictionary) -> bool:
     return not card_info.get("is_workshop", false)
 
@@ -283,17 +328,25 @@ static func read_mp4_metadata(file_path: String) -> Dictionary:
     var result := {
         "resolution": "",
         "bitrate_kbps": 0,
+        "duration": 0.0,
+        "size_bytes": 0,
     }
 
     if not FileAccess.file_exists(file_path):
         return result
 
+    # 首先获取文件物理大小
+    var f := FileAccess.open(file_path, FileAccess.READ)
+    if f:
+        result["size_bytes"] = f.get_length()
+        f.close()
+
     var output: Array = []
     var args := [
         "-v", "error",
         "-select_streams", "v:0",
-        "-show_entries", "stream=width,height,bit_rate",
-        "-show_entries", "format=bit_rate",
+        "-show_entries", "stream=width,height,bit_rate,duration",
+        "-show_entries", "format=bit_rate,duration",
         "-of", "json",
         file_path,
     ]
@@ -317,12 +370,22 @@ static func read_mp4_metadata(file_path: String) -> Dictionary:
         var stream_bitrate := int(str(stream.get("bit_rate", "0")))
         if stream_bitrate > 0:
             result["bitrate_kbps"] = int(round(stream_bitrate / 1000.0))
+        
+        var stream_duration := float(str(stream.get("duration", "0.0")))
+        if stream_duration > 0:
+            result["duration"] = stream_duration
 
     if int(result.get("bitrate_kbps", 0)) <= 0:
         var format_data := data.get("format", {}) as Dictionary
         var format_bitrate := int(str(format_data.get("bit_rate", "0")))
         if format_bitrate > 0:
             result["bitrate_kbps"] = int(round(format_bitrate / 1000.0))
+
+    if float(result.get("duration", 0.0)) <= 0.0:
+        var format_data := data.get("format", {}) as Dictionary
+        var format_duration := float(str(format_data.get("duration", "0.0")))
+        if format_duration > 0:
+            result["duration"] = format_duration
 
     return result
 
