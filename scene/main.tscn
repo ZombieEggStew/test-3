@@ -287,7 +287,7 @@ theme_type_variation = &"button_page"
 theme_override_font_sizes/font_size = 18
 text = "  >>  "
 
-[node name="right_panel" type="MarginContainer" parent="main_ui/HBoxContainer" unique_id=756927448 node_paths=PackedStringArray("title_label", "resolution_label", "bitrate_label")]
+[node name="right_panel" type="MarginContainer" parent="main_ui/HBoxContainer" unique_id=756927448 node_paths=PackedStringArray("title_label", "resolution_label", "bitrate_label", "duration_label", "video_size_label")]
 custom_minimum_size = Vector2(200, 0)
 layout_mode = 2
 size_flags_horizontal = 3
@@ -300,6 +300,8 @@ script = ExtResource("5_p1hux")
 title_label = NodePath("ScrollContainer/VBox/MarginContainer2/title_Label")
 resolution_label = NodePath("ScrollContainer/VBox/Attributes/VBoxContainer/resolution_Label2")
 bitrate_label = NodePath("ScrollContainer/VBox/Attributes/VBoxContainer/biterate_Label3")
+duration_label = NodePath("ScrollContainer/VBox/Attributes/VBoxContainer/duration_label")
+video_size_label = NodePath("ScrollContainer/VBox/Attributes/VBoxContainer/size_Label")
 
 [node name="ScrollContainer" type="ScrollContainer" parent="main_ui/HBoxContainer/right_panel" unique_id=549181938]
 layout_mode = 2
@@ -392,6 +394,10 @@ text = "分辨率："
 layout_mode = 2
 size_flags_vertical = 0
 text = "平均码率："
+
+[node name="duration_label" type="Label" parent="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/Attributes/VBoxContainer" unique_id=2019144779]
+layout_mode = 2
+text = "时长："
 
 [node name="sep" type="MarginContainer" parent="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox" unique_id=1298188000]
 layout_mode = 2
