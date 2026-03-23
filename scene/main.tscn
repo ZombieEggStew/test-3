@@ -57,6 +57,33 @@ bg_color = Color(0.25490198, 0.5137255, 0.9607843, 1)
 border_color = Color(1, 1, 1, 0.75)
 corner_detail = 1
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_gtqqq"]
+content_margin_left = 0.0
+content_margin_top = 0.0
+content_margin_right = 0.0
+content_margin_bottom = 0.0
+bg_color = Color(0.047058824, 0.34901962, 0.87058824, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_gn2wi"]
+content_margin_left = 0.0
+content_margin_top = 0.0
+content_margin_right = 0.0
+content_margin_bottom = 0.0
+bg_color = Color(0.30714247, 0.2927038, 0.3071391, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_p8adh"]
+content_margin_left = 0.0
+content_margin_top = 0.0
+content_margin_right = 0.0
+content_margin_bottom = 0.0
+bg_color = Color(0.25490198, 0.5137255, 0.9607843, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_oldxj"]
+content_margin_left = 0.0
+content_margin_top = 0.0
+content_margin_right = 0.0
+content_margin_bottom = 0.0
+
 [sub_resource type="ButtonGroup" id="ButtonGroup_gn2wi"]
 allow_unpress = true
 
@@ -237,6 +264,10 @@ placeholder_text = "搜索(按回车)"
 
 [node name="filter" type="CheckButton" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer" unique_id=1390208884]
 layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_gtqqq")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_gn2wi")
+theme_override_styles/hover = SubResource("StyleBoxFlat_p8adh")
+theme_override_styles/hover_pressed = SubResource("StyleBoxFlat_oldxj")
 text = "  过滤  "
 
 [node name="ScrollContainer2" type="ScrollContainer" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer" unique_id=778066209]

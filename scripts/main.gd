@@ -30,7 +30,7 @@ func _on_save_config(key: String, value: Variant) -> void:
 # ============ 工具函数 ============
 static func has_tag(card_info: Dictionary) -> bool:
     var project_data := card_info.get("project_data", {}) as Dictionary
-    var tags := project_data.get("tags", []) as Array
+    var tags := project_data.get("my_tags", []) as Array
     return not tags.is_empty()
 
 
