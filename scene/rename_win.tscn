@@ -62,6 +62,10 @@ theme_override_styles/separator = SubResource("StyleBoxLine_tvhmq")
 [node name="add_tag" type="HBoxContainer" parent="MarginContainer/VBoxContainer" unique_id=148536746]
 layout_mode = 2
 
+[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/add_tag" unique_id=949912182]
+layout_mode = 2
+text = "创建tag："
+
 [node name="LineEdit2" type="LineEdit" parent="MarginContainer/VBoxContainer/add_tag" unique_id=1375782152]
 custom_minimum_size = Vector2(200, 0)
 layout_mode = 2
