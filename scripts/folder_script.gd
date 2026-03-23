@@ -32,7 +32,7 @@ func _ready() -> void:
 
 	var base_style := get_theme_stylebox("panel")
 	if base_style == null or not (base_style is StyleBoxFlat):
-		push_error("panel 样式不是 StyleBoxFlat，无法直接改 border_color")
+		SignalBus.request_popup_warning.emit("panel 样式不是 StyleBoxFlat，无法直接改 border_color")
 		return
 
 	panel_style = (base_style as StyleBoxFlat).duplicate()
@@ -68,9 +68,9 @@ func _on_gui_input(event: InputEvent) -> void:
 
 	if mouse_event.button_index == MOUSE_BUTTON_RIGHT:
 		if context_menu == null:
-			push_warning("main_ui注入context_menu失败，无法显示右键菜单")
+			SignalBus.request_popup_warning.emit("main_ui注入context_menu失败，无法显示右键菜单")
 		if context_menu == null:
-			push_warning("context_menu 未就绪，无法显示右键菜单")
+			SignalBus.request_popup_warning.emit("context_menu 未就绪，无法显示右键菜单")
 			return
 		if context_menu.has_method("set_target_card_info"):
 			context_menu.call("set_target_card_info", get_card_info())

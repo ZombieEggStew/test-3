@@ -31,7 +31,7 @@ func _ready() -> void:
 	tex.texture = defalt_tex
 	var base_style := get_theme_stylebox("panel")
 	if base_style == null or not (base_style is StyleBoxFlat):
-		push_error("panel 样式不是 StyleBoxFlat，无法直接改 border_color")
+		SignalBus.request_popup_warning.emit("panel 样式不是 StyleBoxFlat，无法直接改 border_color")
 		return
 
 	panel_style = (base_style as StyleBoxFlat).duplicate()
@@ -77,9 +77,9 @@ func _on_gui_input(event: InputEvent) -> void:
 
 	if mouse_event.button_index == MOUSE_BUTTON_RIGHT:
 		if context_menu == null:
-			push_warning("main_ui注入context_menu失败，无法显示右键菜单")
+			SignalBus.request_popup_warning.emit("main_ui注入context_menu失败，无法显示右键菜单")
 		if context_menu == null:
-			push_warning("context_menu 未就绪，无法显示右键菜单")
+			SignalBus.request_popup_warning.emit("context_menu 未就绪，无法显示右键菜单")
 			return
 		if context_menu.has_method("set_target_card_info"):
 			context_menu.call("set_target_card_info", get_card_info())
@@ -95,9 +95,9 @@ func set_context_menu(cm: Control , cm_rename:AcceptDialog) -> void:
 	cm.call("set_context_menu_rename", cm_rename)
 
 
-func set_card_info(info: Dictionary, show_pic: bool = true) -> void:
+func set_card_info(info: Dictionary) -> void:
 	card_info = info.duplicate(true)
-	_apply_card_texture(show_pic)
+	# _apply_card_texture(show_pic)
 	local_label.visible = not card_info.get("is_workshop", false)
 	tagged_label.visible = MainManager.has_tag(card_info)
 	unsubscribed_label.visible = MainManager.is_workshop_unsubscribed(card_info)
@@ -123,16 +123,16 @@ func set_converting() -> void:
 
 
 
-func _apply_card_texture(show_pic: bool) -> void:
+func apply_card_texture(show_pic: bool) -> void:
 	if tex == null:
 		if DEBUG_PREVIEW:
-			push_warning("[card_preview] tex 未绑定")
+			SignalBus.request_popup_warning.emit("[card_preview] tex 未绑定")
 		return
 
 	if not show_pic:
 		tex.texture = defalt_tex
 		# if DEBUG_PREVIEW:
-		# 	push_warning("[card_preview] show_pic=false，使用默认图")
+		# 	SignalBus.request_popup_warning.emit("[card_preview] show_pic=false，使用默认图")
 		return
 
 	var preview_path := _find_preview_file_path()
@@ -152,7 +152,7 @@ func _apply_card_texture(show_pic: bool) -> void:
 	else:
 		tex.texture = defalt_tex
 		if DEBUG_PREVIEW:
-			push_warning("[card_preview] 贴图加载失败，使用默认图: %s" % preview_path)
+			SignalBus.request_popup_warning.emit("[card_preview] 贴图加载失败，使用默认图: %s" % preview_path)
 
 
 func _find_preview_file_path() -> String:
@@ -213,7 +213,7 @@ func _load_texture_from_path(file_path: String , _name:String) -> Texture2D:
 	var err := image.load(file_path)
 	if err != OK:
 		if DEBUG_PREVIEW:
-			push_warning("[card_preview] Image.load 失败, err=%d, path=%s" % [err, file_path])
+			SignalBus.request_popup_warning.emit("[card_preview] Image.load 失败, err=%d, path=%s" % [err, file_path])
 		return null
 
 	var texture := ImageTexture.create_from_image(image)

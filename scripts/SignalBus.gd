@@ -16,4 +16,12 @@ signal tag_2_clicked(tag_name: String , toggled_on: bool)
 
 signal request_popup_dialog(title: String, message: String)
 
+signal request_popup_warning(message: String)
+
 signal toggle_show_tag_before_name(toggled_on: bool)
+
+signal toggle_show_preview(toggled_on: bool)
+
+signal toggle_show_local(toggled_on: bool)
+
+signal toggle_show_workshop(toggled_on: bool)

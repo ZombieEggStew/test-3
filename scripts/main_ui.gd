@@ -1,41 +1,9 @@
-#TO DO : 显示待转换列表 跳转到对应选项卡
+#TO DO : 使用gif第一帧作为预览图
 #TO DO : 
 #TO DO : 
-#TO DO : 显示steam连接状态
-#TO DO : 
-#TO DO : 本地文件计数,与各项信息计数
-#TO DO : 开关gif显示，一键删除gif缓存，显示目前gif缓存大小 ，关闭后只显示gif的第一帧
-#TO DO : 解决调试器中的warning
-#TO DO : 
-#TO DO : 
-#TO DO : 每次重新加载区分出新加入的card
-#TO DO : 
-#TO DO : 
-#TO DO : 
-#TO DO : 
-#TO DO : 
-#TO DO : 测试创意工坊文件改名
 #TO DO : 
 
 
-#FIX ME : 
-#FIX ME : 
-#FIX ME : 
-#FIX ME : 
-#FIX ME : 
-#FIX ME : 
-#FIX ME : 
-#FIX ME : 
-#FIX ME : 
-#FIX ME : 
-#FIX ME : 
-#FIX ME : 
-#FIX ME : 
-#FIX ME : 
-#FIX ME : 
-#FIX ME : 
-#FIX ME : 
-#FIX ME : 
 extends CanvasLayer
 
 signal setup_pages(_total_items : int, max :int ,_current_page :int)
@@ -73,16 +41,15 @@ var selected_card_node: Node = null
 var converting_item_key: String = ""
 
 
-##关键参数
-const MAX_TEST_FOLDER_COUNT := 10000
-var is_show_pic = false
 var is_show_tag_before_name = false
-
+var IS_SHOW_PREVIEW := false
 
 func _ready() -> void:
     current_sort_index = int(MainManager.get_config_value("sort", 1))
     is_show_tag_before_name = bool(MainManager.get_config_value("show_tag_before_name", true))
-
+    IS_SHOW_PREVIEW = bool(MainManager.get_config_value("is_show_preview", false))
+    is_show_local = bool(MainManager.get_config_value("is_show_local", true))
+    is_show_workshop = bool(MainManager.get_config_value("is_show_workshop", true))
 
     SignalBus.load_workshop_cards.connect(_on_request_load_workshop_cards)
     SignalBus.conversion_started.connect(_on_conversion_started)
@@ -91,6 +58,10 @@ func _ready() -> void:
     SignalBus.tag_2_clicked.connect(_on_tag_2_toggled)
     SignalBus.request_popup_dialog.connect(_popup_dialog)
     SignalBus.toggle_show_tag_before_name.connect(_on_toggle_show_tag)
+    SignalBus.request_popup_warning.connect(_popup_warning)
+    SignalBus.toggle_show_preview.connect(_on_toggle_show_preview)
+    SignalBus.toggle_show_local.connect(_on_is_show_local_toggled)
+    SignalBus.toggle_show_workshop.connect(_on_is_show_workshop_toggled)
 
     var wallpaper := MainManager.get_config_value("wallpaper_root" , "") as String
     var workshop := MainManager.get_config_value("workshop_root" , "") as String
@@ -107,6 +78,15 @@ func _ready() -> void:
     _load_custom_folders_from_local()
 
     _load_workshop_cards()
+
+func _on_toggle_show_preview(toggled_on: bool) -> void:
+    if IS_SHOW_PREVIEW == toggled_on:
+        return
+    IS_SHOW_PREVIEW = toggled_on
+
+
+    _render_current_page_from_cache()
+
 
 func _on_toggle_show_tag(toggled_on: bool) -> void:
     is_show_tag_before_name = toggled_on
@@ -128,6 +108,7 @@ func _on_conversion_finished(success: bool, message: String) -> void:
         if child.has_method("get_card_info") and child.has_method("set_converted"):
             if _get_item_unique_key(child.call("get_card_info")) == converting_item_key:
                 child.call("set_converted")
+                break
     # 还原最小化的窗口并带到前台
     DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
     DisplayServer.window_move_to_foreground()
@@ -139,6 +120,11 @@ func _on_conversion_finished(success: bool, message: String) -> void:
 
 func _popup_dialog(title: String, message: String) -> void:
     accept_dialog.title = title
+    accept_dialog.dialog_text = message
+    accept_dialog.popup_centered()
+
+func _popup_warning(message: String) -> void:
+    accept_dialog.title = "警告"
     accept_dialog.dialog_text = message
     accept_dialog.popup_centered()
 
@@ -162,10 +148,10 @@ func _get_item_unique_key(info: Dictionary) -> String:
 
 func _load_workshop_cards() -> void:
     if card_container == null:
-        push_error("card_container 未绑定")
+        _popup_warning("card_container 未绑定")
         return
     if card_scene == null:
-        push_error("card_scene 未绑定")
+        _popup_warning("card_scene 未绑定")
         return
 
     _preload_workshop_items_once()
@@ -184,8 +170,8 @@ func _preload_workshop_items_once() -> bool:
     # 本地项目优先加载，合并时把本地放前面
     var items := items_local + items_workshop
 
-    if MAX_TEST_FOLDER_COUNT > 0 and items.size() > MAX_TEST_FOLDER_COUNT:
-        items = items.slice(0, MAX_TEST_FOLDER_COUNT)
+    if res.MAX_TEST_FOLDER_COUNT > 0 and items.size() > res.MAX_TEST_FOLDER_COUNT:
+        items = items.slice(0, res.MAX_TEST_FOLDER_COUNT)
 
     for item in items:
         var card_info := _build_card_info_for_item(item)
@@ -252,6 +238,7 @@ func _render_current_page_from_cache() -> void:
             _add_custom_folder_card(card_info, title)
         else:
             var card = _add_card(card_info, title)
+            card.call("apply_card_texture", IS_SHOW_PREVIEW)
             # 如果该卡片正在转换，手动触发显示状态
             if not converting_item_key.is_empty() and _get_item_unique_key(card_info) == converting_item_key:
                 if card.has_method("set_converting"):
@@ -403,7 +390,7 @@ func _add_card(card_info: Dictionary, title: String) -> Node:
     if card.has_method("set_context_menu"):
         card.call("set_context_menu", context_menu_card,context_menu_rename)
     if card.has_method("set_card_info"):
-        card.call("set_card_info", card_info, is_show_pic)
+        card.call("set_card_info", card_info)
     if card.has_signal("card_left_clicked"):
         card.connect("card_left_clicked", _on_card_left_clicked)
     _set_card_label(card, title)
@@ -412,7 +399,7 @@ func _add_card(card_info: Dictionary, title: String) -> Node:
 
 func _add_custom_folder_card(card_info: Dictionary, title: String) -> void:
     if folder_scene == null:
-        push_error("folder_scene 未绑定")
+        _popup_warning("folder_scene 未绑定")
         return
 
     var folder_card := folder_scene.instantiate()
@@ -718,7 +705,7 @@ func _prepare_convert_output_dir(input_file: String) -> String:
     var output_dir := "%s/%s_my_convert" % [res.LOCAL_PROJECTS_ROOT, input_file_name]
     var err := DirAccess.make_dir_recursive_absolute(output_dir)
     if err != OK:
-        push_warning("创建输出目录失败: %s, err=%d" % [output_dir, err])
+        _popup_warning("创建输出目录失败: %s, err=%d" % [output_dir, err])
         return ""
 
     return output_dir
@@ -739,13 +726,6 @@ func _on_line_edit_text_submitted(new_text: String) -> void:
     search_keyword = new_text.strip_edges()
     current_page = 1
     _render_current_page_from_cache()
-
-
-func _on_is_show_pic_toggled(toggled_on: bool) -> void:
-    is_show_pic = toggled_on
-    current_page = 1
-    _render_current_page_from_cache()
-
 
 func _on_create_new_folder_button_up() -> void:
     var folder_name := _generate_new_custom_folder_name()
@@ -791,7 +771,7 @@ func _load_custom_folders_from_local() -> void:
 
     var file := FileAccess.open(res.CUSTOM_FOLDER_STORE_PATH, FileAccess.READ)
     if file == null:
-        push_warning("无法读取自定义文件夹存档: %s" % res.CUSTOM_FOLDER_STORE_PATH)
+        _popup_warning("无法读取自定义文件夹存档: %s" % res.CUSTOM_FOLDER_STORE_PATH)
         return
 
     var raw := file.get_as_text().strip_edges()
@@ -800,7 +780,7 @@ func _load_custom_folders_from_local() -> void:
 
     var parsed := JSON.parse_string(raw) as Dictionary
     if not (parsed is Dictionary):
-        push_warning("自定义文件夹存档格式无效")
+        _popup_warning("自定义文件夹存档格式无效")
         return
 
     var payload := parsed as Dictionary
@@ -831,7 +811,7 @@ func _save_custom_folders_to_local() -> void:
 
     var file := FileAccess.open(res.CUSTOM_FOLDER_STORE_PATH, FileAccess.WRITE)
     if file == null:
-        push_warning("无法写入自定义文件夹存档: %s" % res.CUSTOM_FOLDER_STORE_PATH)
+        _popup_warning("无法写入自定义文件夹存档: %s" % res.CUSTOM_FOLDER_STORE_PATH)
         return
 
     file.store_string(JSON.stringify(payload))

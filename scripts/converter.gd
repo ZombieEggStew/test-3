@@ -8,6 +8,7 @@ extends Node
 @export var progress_bar : ProgressBar
 @export var start_convert_button: Button
 @export var stop_convert_button: Button
+@export var delete_check_box: CheckBox
 
 
 @export var res: MyRes
@@ -69,10 +70,10 @@ func start_conversion(python_path: String, converter_script: String, input_file:
 	# var orientation_text := MainManager.get_option_selected_text(is_h, "横屏")
 	# var width_value := res.PORTRAIT_WIDTH if orientation_text.find("竖") >= 0 else res.LANDSCAPE_WIDTH
 	if not FileAccess.file_exists(python_path):
-		push_warning("Python 可执行文件不存在: %s" % python_path)
+		SignalBus.request_popup_warning.emit("Python 可执行文件不存在: %s" % python_path)
 		return false
 	if not FileAccess.file_exists(converter_script):
-		push_warning("转换脚本不存在: %s" % converter_script)
+		SignalBus.request_popup_warning.emit("转换脚本不存在: %s" % converter_script)
 		return false
 
 	var args := [
@@ -88,7 +89,7 @@ func start_conversion(python_path: String, converter_script: String, input_file:
 	var pid := OS.create_process(python_path, args)
 
 	if pid == -1:
-		push_warning("启动转换失败")
+		SignalBus.request_popup_warning.emit("启动转换失败")
 		return false
 	converter_pid = pid
 	is_converting = true
@@ -164,7 +165,7 @@ func _update_progress_bar_from_file() -> void:
 		
 		# 进程确实没了，且进度没到 100，判定为异常终止
 		_finish_conversion_state(false)
-		push_warning("转换失败: 进程已退出且进度未完成")
+		SignalBus.request_popup_warning.emit("转换失败: 进程已退出且进度未完成")
 		SignalBus.conversion_finished.emit(false, "转换进程异常终止或进度文件读取失败")
 		return
 
@@ -172,6 +173,9 @@ func _update_progress_bar_from_file() -> void:
 	if value >= 100.0:
 		_finish_conversion_state(true)
 		SignalBus.conversion_finished.emit(true, "文件转换已完成！")
+
+		if delete_check_box and delete_check_box.pressed:
+			MainManager.delete_and_unsubscribe(converting_card_info)
 
 func _finish_conversion_state(success: bool) -> void:
 	is_converting = false
@@ -188,32 +192,32 @@ func _set_convert_ui_state(running: bool) -> void:
 
 func _on_start_convert_button_up() -> void:
 	if is_converting:
-		push_warning("已有转换任务正在进行")
+		SignalBus.request_popup_warning.emit("已有转换任务正在进行")
 		return
 
 	if selected_card_info.is_empty():
-		push_warning("请先左键选择一个 card")
+		SignalBus.request_popup_warning.emit("请先左键选择一个 card")
 		return
 
 	var input_file := str(selected_card_info.get("media_file_path", "")).strip_edges()
 	print(input_file)
 	if input_file.is_empty():
-		push_warning("当前 card 没有可转换的媒体文件")
+		SignalBus.request_popup_warning.emit("当前 card 没有可转换的媒体文件")
 		return
 	if not FileAccess.file_exists(input_file):
-		push_warning("文件不存在: %s" % input_file)
+		SignalBus.request_popup_warning.emit("文件不存在: %s" % input_file)
 		return
 
 	var output_dir := prepare_output_dir(res.LOCAL_PROJECTS_ROOT, input_file) as String
 	if output_dir.is_empty():
-		push_warning("创建输出目录失败")
+		SignalBus.request_popup_warning.emit("创建输出目录失败")
 		return
 
 	if not FileAccess.file_exists(res.PYTHON_EXE_PATH):
-		push_warning("Python 不存在: %s" % res.PYTHON_EXE_PATH)
+		SignalBus.request_popup_warning.emit("Python 不存在: %s" % res.PYTHON_EXE_PATH)
 		return
 	if not FileAccess.file_exists(res.CONVERTER_SCRIPT_PATH):
-		push_warning("转换脚本不存在: %s" % res.CONVERTER_SCRIPT_PATH)
+		SignalBus.request_popup_warning.emit("转换脚本不存在: %s" % res.CONVERTER_SCRIPT_PATH)
 		return
 
 	write_progress(res.CONVERTER_PROGRESS_PATH, 0.0)
@@ -226,7 +230,7 @@ func _on_stop_button_button_up() -> void:
 
 	if converter_pid > 0:
 		if not kill_process_tree(converter_pid):
-			push_warning("停止转换失败")
+			SignalBus.request_popup_warning.emit("停止转换失败")
 
 	write_progress(res.CONVERTER_PROGRESS_PATH,0.0)
 	if progress_bar:

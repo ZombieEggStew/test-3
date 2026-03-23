@@ -26,7 +26,7 @@ func convert_gif_to_animated_texture(gif_path: String, output_dir_path: String) 
 	if not DirAccess.dir_exists_absolute(output_dir):
 		var err = DirAccess.make_dir_recursive_absolute(output_dir)
 		if err != OK:
-			push_error("无法创建目录: " + output_dir_path + " 错误码: " + str(err))
+			SignalBus.request_popup_warning.emit("无法创建目录: " + output_dir_path + " 错误码: " + str(err))
 			return null
 	
 	# 调用 Python 脚本
@@ -35,12 +35,12 @@ func convert_gif_to_animated_texture(gif_path: String, output_dir_path: String) 
 	var exit_code = OS.execute(python_path, args, output, true)
 	
 	if exit_code != 0:
-		push_error("GIF 转换失败: " + str(output))
+		SignalBus.request_popup_warning.emit("GIF 转换失败: " + str(output))
 		return null
 	
 	# 读取 metadata.json
 	if not FileAccess.file_exists(metadata_path):
-		push_error("找不到转换后的 metadata.json")
+		SignalBus.request_popup_warning.emit("找不到转换后的 metadata.json")
 		return null
 		
 	var file = FileAccess.open(metadata_path, FileAccess.READ)
@@ -48,7 +48,7 @@ func convert_gif_to_animated_texture(gif_path: String, output_dir_path: String) 
 	file.close()
 	
 	if typeof(json_data) != TYPE_ARRAY:
-		push_error("metadata.json 格式错误")
+		SignalBus.request_popup_warning.emit("metadata.json 格式错误")
 		return null
 		
 	# 创建 AnimatedTexture

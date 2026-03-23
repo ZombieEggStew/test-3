@@ -1,7 +1,7 @@
 extends CheckBox
 
 func _ready() -> void:
-	button_pressed = MainManager.get_config_value("show_tag_before_name", true)
+	button_pressed = MainManager.get_config_value("show_tag_before_name", false)
 
 
 func _on_toggled(toggled_on: bool) -> void:

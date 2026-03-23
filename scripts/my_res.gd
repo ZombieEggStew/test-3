@@ -2,7 +2,9 @@ extends Resource
 class_name MyRes
 
 
-const IS_SHOW_NAME := false
+const IS_SHOW_NAME := true
+
+const MAX_TEST_FOLDER_COUNT := 10000
 
 const MY_WORKSHOP_ROOT := "D:/Steam/steamapps/workshop/content/431960"
 const MY_LOCAL_PROJECTS_ROOT := "D:/Steam/steamapps/common/wallpaper_engine/projects/myprojects"

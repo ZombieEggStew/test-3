@@ -49,24 +49,23 @@ static func delete_and_unsubscribe(target_card_info: Dictionary) -> bool:
     if is_workshop_item(target_card_info):
         success = unsubscribe_workshop_item_2(target_card_info)
         if not success:
-            push_warning("取消订阅失败，尝试直接删除项目文件")
-            SignalBus.request_popup_dialog.emit("取消订阅失败", "未检测到steam，可能是因为未登录或网络问题。请确保Steam已登录并运行。")
+            SignalBus.request_popup_warning.emit("未检测到steam，可能是因为未登录或网络问题。请确保Steam已运行并登录后重启应用，再次尝试取消订阅。")
             return false
 
 
     if target_card_info.is_empty():
-        push_warning("未选择可删除的项目")
+        SignalBus.request_popup_warning.emit("未选择可删除的项目")
         return false
 
     var item_path := resolve_target_folder_path(target_card_info)
     if item_path.is_empty():
-        push_warning("未找到项目路径")
+        SignalBus.request_popup_warning.emit("未找到项目路径")
         return false
 
     # 首先删除目标文件夹及其内容
     var err := remove_dir_recursive(item_path)
     if err != OK:
-        push_error("删除项目文件夹失败: %s, err=%d" % [item_path, err])
+        SignalBus.request_popup_warning.emit("删除项目文件夹失败: %s, err=%d" % [item_path, err])
     else:
         print("已物理删除项目内容: %s" % item_path)
 
@@ -137,17 +136,17 @@ static func is_workshop_unsubscribed(card_info: Dictionary) -> bool:
 static func read_project_data(root_path: String) -> Dictionary:
     var project_file := "%s/project.json" % root_path
     if not FileAccess.file_exists(project_file):
-        push_error("未找到 project.json: %s" % project_file)
+        SignalBus.request_popup_warning.emit("未找到 project.json: %s" % project_file)
         return {}
 
     var file := FileAccess.open(project_file, FileAccess.READ)
     if file == null:
-        push_error("无法读取 project.json: %s" % project_file)
+        SignalBus.request_popup_warning.emit("无法读取 project.json: %s" % project_file)
         return {}
 
     var parsed := JSON.parse_string(file.get_as_text()) as Dictionary
     if typeof(parsed) != TYPE_DICTIONARY:
-        push_error("project.json 格式错误: %s" % project_file)
+        SignalBus.request_popup_warning.emit("project.json 格式错误: %s" % project_file)
         return {}
 
     return parsed as Dictionary
@@ -215,25 +214,25 @@ static func get_option_selected_text(option: OptionButton, fallback: String) -> 
 
 static func unsubscribe_workshop_item_2(card_info: Dictionary) -> bool:
     if card_info.is_empty():
-        push_warning("未选择可取消订阅的项目")
+        SignalBus.request_popup_warning.emit("未选择可取消订阅的项目")
         return false
 
     var published_id := int(card_info.get("published_id", 0))
     if published_id <= 0:
-        push_error("当前项目缺少有效 published_id，无法取消订阅")
+        SignalBus.request_popup_warning.emit("当前项目缺少有效 published_id，无法取消订阅")
         return false
 
     if not steam_ready_for_ugc():
-        push_error("Steam 尚未完成初始化或未登录，暂时无法取消订阅")
+        SignalBus.request_popup_warning.emit("Steam 尚未完成初始化或未登录，暂时无法取消订阅")
         return false
 
     var steam := _get_steam_singleton()
     if steam == null:
-        push_error("无法获取 Steam 单例，取消订阅失败")
+        SignalBus.request_popup_warning.emit("无法获取 Steam 单例，取消订阅失败")
         return false
 
     if not _is_steam_ready_for_ugc(steam):
-        push_error("Steam 尚未准备好处理 UGC 请求，取消订阅失败")
+        SignalBus.request_popup_warning.emit("Steam 尚未准备好处理 UGC 请求，取消订阅失败")
         return false
     return _submit_unsubscribe_request(steam, published_id)
 
@@ -343,16 +342,38 @@ static func save_json_file(json_path: String, data: Variant) -> void:
         file.close()
 
 
+## 递归删除目录下的所有内容（保留目录本身）
+static func clear_directory_contents(dir_path: String) -> void:
+    var global_path = ProjectSettings.globalize_path(dir_path)
+    if not DirAccess.dir_exists_absolute(global_path):
+        return
+        
+    var dir := DirAccess.open(global_path)
+    if dir == null:
+        return
+
+    # 删除所有文件
+    for file_name in dir.get_files():
+        dir.remove(file_name)
+    
+    # 递归删除所有子目录
+    for sub_dir_name in dir.get_directories():
+        var sub_path = global_path.path_join(sub_dir_name)
+        remove_dir_recursive(sub_path)
+    
+    print("已清理目录内容: %s" % global_path)
+
+
 ## 从 VDF 文件读取订阅时间
 static func read_subscription_times(vdf_path: String) -> Dictionary:
     var result: Dictionary = {}
     if not FileAccess.file_exists(vdf_path):
-        push_warning("订阅文件不存在: %s" % vdf_path)
+        SignalBus.request_popup_warning.emit("订阅文件不存在: %s" % vdf_path)
         return result
 
     var file := FileAccess.open(vdf_path, FileAccess.READ)
     if file == null:
-        push_warning("无法读取订阅文件: %s" % vdf_path)
+        SignalBus.request_popup_warning.emit("无法读取订阅文件: %s" % vdf_path)
         return result
 
     var content := file.get_as_text()
@@ -472,13 +493,13 @@ static func move_folder_contents(src_dir_path: String, dest_dir_path: String) ->
         
     var src_dir := DirAccess.open(src_dir_path)
     if src_dir == null:
-        push_error("无法打开源目录: %s" % src_dir_path)
+        SignalBus.request_popup_warning.emit("无法打开源目录: %s" % src_dir_path)
         return false
 
     if not DirAccess.dir_exists_absolute(dest_dir_path):
         var err := DirAccess.make_dir_recursive_absolute(dest_dir_path)
         if err != OK:
-            push_error("无法创建目标目录: %s, err=%d" % [dest_dir_path, err])
+            SignalBus.request_popup_warning.emit("无法创建目标目录: %s, err=%d" % [dest_dir_path, err])
             return false
 
     for file_name in src_dir.get_files():
@@ -486,7 +507,7 @@ static func move_folder_contents(src_dir_path: String, dest_dir_path: String) ->
         var new_path := dest_dir_path.path_join(file_name)
         var err := src_dir.rename(old_path, new_path)
         if err != OK:
-            push_warning("文件移动失败: %s -> %s, err=%d" % [old_path, new_path, err])
+            SignalBus.request_popup_warning.emit("文件移动失败: %s -> %s, err=%d" % [old_path, new_path, err])
 
     for sub_dir_name in src_dir.get_directories():
         var old_sub_path := src_dir_path.path_join(sub_dir_name)
@@ -522,7 +543,7 @@ static func remove_dir_recursive(path: String) -> Error:
         var file_path := path.path_join(file_name)
         err = dir.remove(file_path)
         if err != OK:
-            push_error("无法删除文件: %s, err=%d" % [file_path, err])
+            SignalBus.request_popup_warning.emit("无法删除文件: %s, err=%d" % [file_path, err])
             return err
             
     # 最后删除本目录
@@ -534,7 +555,7 @@ static func remove_dir_recursive(path: String) -> Error:
         
     err = parent_dir.remove(target_dir_name)
     if err != OK:
-        push_error("无法删除目录: %s, err=%d" % [path, err])
+        SignalBus.request_popup_warning.emit("无法删除目录: %s, err=%d" % [path, err])
     return err
 
 

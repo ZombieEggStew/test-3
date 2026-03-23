@@ -32,18 +32,18 @@ func _on_button_button_down() -> void:
 func _on_play_button_up() -> void:
     var media_file_path := _resolve_media_file_path()
     if media_file_path.is_empty():
-        push_warning("未找到可播放的媒体文件路径")
+        SignalBus.request_popup_warning.emit("未找到可播放的媒体文件路径")
         return
 
     if not FileAccess.file_exists(media_file_path):
-        push_warning("文件不存在: %s" % media_file_path)
+        SignalBus.request_popup_warning.emit("文件不存在: %s" % media_file_path)
         return
 
     var normalized_path := media_file_path.replace("\\", "/")
     var file_uri := "file:///" + normalized_path
     var err := OS.shell_open(file_uri)
     if err != OK:
-        push_warning("打开文件失败: %s" % media_file_path)
+        SignalBus.request_popup_warning.emit("打开文件失败: %s" % media_file_path)
         return
 
     hide()
@@ -56,14 +56,14 @@ func _on_open_folder_button_up() -> void:
 func _open_target_folder() -> void:
     var folder_path := MainManager.resolve_target_folder_path(target_card_info)
     if folder_path.is_empty():
-        push_warning("未找到可打开的目录路径")
+        SignalBus.request_popup_warning.emit("未找到可打开的目录路径")
         return
 
     var normalized_path := folder_path.replace("\\", "/")
     var file_uri := "file:///" + normalized_path
     var err := OS.shell_open(file_uri)
     if err != OK:
-        push_warning("打开目录失败: %s" % folder_path)
+        SignalBus.request_popup_warning.emit("打开目录失败: %s" % folder_path)
         return
 
     hide()
@@ -104,14 +104,14 @@ func _on_backup_button_up() -> void:
         return
 
     if target_card_info.is_empty():
-        push_warning("未选择可备份的项目")
+        SignalBus.request_popup_warning.emit("未选择可备份的项目")
         hide()
         return
 
     var video_name := str(target_card_info.get("media_file_name", "")).strip_edges()
 
     if video_name.is_empty():
-        push_warning("未找到视频文件名或项目名，无法创建备份文件夹")
+        SignalBus.request_popup_warning.emit("未找到视频文件名或项目名，无法创建备份文件夹")
         hide()
         return
 
@@ -122,7 +122,7 @@ func _on_backup_button_up() -> void:
     if not dir.dir_exists(dest_folder):
         var err := dir.make_dir_recursive(dest_folder) as Error
         if err != OK:
-            push_warning("创建目录失败: %s" % dest_folder)
+            SignalBus.request_popup_warning.emit("创建目录失败: %s" % dest_folder)
             hide()
             return
     var item_path := MainManager.resolve_target_folder_path(target_card_info) 
@@ -148,11 +148,11 @@ func _on_rename_button_up() -> void:
     #     add_child(acceptDialog)
     #     acceptDialog.dialog_text = "工坊项目不支持重命名,先转为本地再重命名"
     #     acceptDialog.popup_centered()
-    #     push_warning("工坊项目不支持重命名")
+    #     SignalBus.request_popup_warning.emit("工坊项目不支持重命名")
     #     hide()
     #     return
     if context_menu == null:
-        push_warning("注入rename_context_menu失败，无法显示重命名菜单")
+        SignalBus.request_popup_warning.emit("注入rename_context_menu失败，无法显示重命名菜单")
         hide()
         return
     context_menu.call("set_default_name", target_card_info.get("title", ""))

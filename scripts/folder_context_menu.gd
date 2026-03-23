@@ -25,36 +25,36 @@ func set_context_menu_rename(cm: AcceptDialog) -> void:
  
 func _on_delete_button_up() -> void:
     if target_card_info.is_empty():
-        push_warning("未选择可删除的文件夹")
+        SignalBus.request_popup_warning.emit("未选择可删除的文件夹")
         hide()
         return
 
     if MainManager.instance == null:
-        push_warning("MainManager 未就绪，无法删除文件夹")
+        SignalBus.request_popup_warning.emit("MainManager 未就绪，无法删除文件夹")
         hide()
         return
 
     var main_ui := MainManager.instance.get_node_or_null("main_ui")
     if main_ui == null:
-        push_warning("未找到 main_ui，无法删除文件夹")
+        SignalBus.request_popup_warning.emit("未找到 main_ui，无法删除文件夹")
         hide()
         return
 
     if not main_ui.has_method("delete_custom_folder"):
-        push_warning("main_ui 未实现 delete_custom_folder")
+        SignalBus.request_popup_warning.emit("main_ui 未实现 delete_custom_folder")
         hide()
         return
 
     var ok := bool(main_ui.call("delete_custom_folder", target_card_info))
     if not ok:
-        push_warning("删除文件夹失败")
+        SignalBus.request_popup_warning.emit("删除文件夹失败")
 
     hide()
 
 
 func _on_rename_button_up() -> void:
     if context_menu == null:
-        push_warning("注入rename_context_menu失败，无法显示重命名菜单")
+        SignalBus.request_popup_warning.emit("注入rename_context_menu失败，无法显示重命名菜单")
         return
     context_menu.call("set_default_name", target_card_info.get("title", ""))
     context_menu.call("set_target_info", target_card_info)
