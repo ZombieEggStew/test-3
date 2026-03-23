@@ -53,23 +53,18 @@ def copy_project_and_preview_files(source_dir, target_dir, new_video_name):
             if os.path.isfile(src_path):
                 shutil.copy2(src_path, os.path.join(target_dir_abs, name))
 
-def get_bitrate(input_path):
-    """获取原视频比特率（返回如 '4000k'）"""
+def get_video_stream(input_path):
+    """获取视频流信息"""
     try:
         probe = ffmpeg.probe(input_path)
         for stream in probe['streams']:
             if stream['codec_type'] == 'video':
-                # bit_rate 可能为 None
-                bit_rate = stream.get('bit_rate')
-                if bit_rate:
-                    # 转为 k 单位
-                    kbit = int(bit_rate) // 1000
-                    return f"{kbit}k"
+                return stream
     except Exception as e:
-        print(f"获取比特率失败: {e}")
+        print(f"获取视频信息失败: {e}")
     return None
 
-def test2(input_path, output_dir='', width=1920, preset='p7', cq='21', maxrate='10M', callback=None, progress_file=None):
+def test2(input_path, output_dir='', preset='p7', cq='21', maxrate='10M', callback=None, progress_file=None):
     file_dir = os.path.dirname(os.path.abspath(input_path))
     print(f"文件目录: {file_dir}")
     file_name = os.path.basename(input_path)
@@ -83,6 +78,22 @@ def test2(input_path, output_dir='', width=1920, preset='p7', cq='21', maxrate='
     print(f"临时文件路径: {temp_file}")
     backup_path = os.path.join(file_dir, f"{file_name}.bak")
     print(f"备份文件路径: {backup_path}")
+
+    # 获取视频信息并计算缩放
+    stream = get_video_stream(input_path)
+    vf_scale = "scale=1920:-2:flags=spline" # 默认值
+    if stream:
+        width = int(stream.get('width', 0))
+        height = int(stream.get('height', 0))
+        if width > 0 and height > 0:
+            aspect_ratio = width / height
+            target_ratio = 16.0 / 9.0
+            if aspect_ratio >= target_ratio:
+                vf_scale = "scale=1920:-2:flags=spline"
+                print(f"检测到宽屏/标准比例 ({aspect_ratio:.2f} >= {target_ratio:.2f})，固定宽度 1920")
+            else:
+                vf_scale = "scale=-2:1080:flags=spline"
+                print(f"检测到窄屏/竖屏比例 ({aspect_ratio:.2f} < {target_ratio:.2f})，固定高度 1080")
 
     print(f"质量:{preset}")
 
@@ -98,7 +109,7 @@ def test2(input_path, output_dir='', width=1920, preset='p7', cq='21', maxrate='
     cmd = [
         'ffmpeg',
         '-i', input_path,           # 输入文件
-        '-vf', f'scale={width}:-2:flags=spline',  # 视频滤镜：缩放
+        '-vf', vf_scale,            # 使用动态计算的缩放滤镜
         '-vcodec', 'h264_nvenc',    # 视频编码器
         '-preset', preset,              # 编码预设
         '-rc:v', 'vbr',            # NVENC 码率控制模式
@@ -190,7 +201,6 @@ def _parse_args():
     parser = argparse.ArgumentParser(description="视频转换入口")
     parser.add_argument("--input", required=True, help="输入文件路径")
     parser.add_argument("--output-dir", default="", help="输出目录路径")
-    parser.add_argument("--width", type=int, default=1920, help="缩放目标宽度")
     parser.add_argument("--preset", default="p7", help="NVENC 预设")
     parser.add_argument("--cq", default="21", help="CQ 值")
     parser.add_argument("--maxrate", default="10M", help="最大码率")
@@ -208,7 +218,6 @@ if __name__ == "__main__":
     ok = test2(
         input_path=args.input,
         output_dir=args.output_dir,
-        width=args.width,
         preset=args.preset,
         cq=args.cq,
         maxrate=args.maxrate,

@@ -1,8 +1,7 @@
 extends Resource
 class_name MyRes
 
-const LANDSCAPE_WIDTH := 1920
-const PORTRAIT_WIDTH := 1080
+
 const WORKSHOP_CACHE_VERSION := 1
 const CUSTOM_FOLDER_STORE_VERSION := 1
 const CUSTOM_FOLDER_ITEM_TYPE := "custom_folder"
@@ -33,6 +32,9 @@ const CONFIG_PATH := "user://config.json"
 #deprecated
 const SUBSCRIPTIONS_VDF_PATH := "D:/Steam/userdata/213406194/ugc/431960_subscriptions.vdf"
 const WORKSHOP_CACHE_PATH := "user://workshop_video_cache.json"
+const LANDSCAPE_WIDTH := 1920
+const PORTRAIT_WIDTH := 1080
+
 
 func _init() -> void:
     pass

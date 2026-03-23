@@ -48,11 +48,11 @@ static func delete_and_unsubscribe(target_card_info: Dictionary) -> bool:
     var success := false
     if is_workshop_item(target_card_info):
         success = unsubscribe_workshop_item_2(target_card_info)
+        if not success:
+            push_warning("取消订阅失败，尝试直接删除项目文件")
+            SignalBus.request_popup_dialog.emit("取消订阅失败", "未检测到steam，可能是因为未登录或网络问题。请确保Steam已登录并运行。")
+            return false
 
-    if not success:
-        push_warning("取消订阅失败，尝试直接删除项目文件")
-        SignalBus.request_popup_dialog.emit("取消订阅失败", "未检测到steam，可能是因为未登录或网络问题。请确保Steam已登录并运行。")
-        return false
 
     if target_card_info.is_empty():
         push_warning("未选择可删除的项目")

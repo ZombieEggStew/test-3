@@ -447,7 +447,7 @@ layout_mode = 2
 size_flags_horizontal = 3
 theme_override_styles/separator = SubResource("StyleBoxLine_brvut")
 
-[node name="converter" type="MarginContainer" parent="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox" unique_id=1327560853 node_paths=PackedStringArray("preset", "cq", "maxrate", "is_h", "progress_bar", "start_convert_button", "stop_convert_button")]
+[node name="converter" type="MarginContainer" parent="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox" unique_id=1327560853 node_paths=PackedStringArray("preset", "cq", "maxrate", "progress_bar", "start_convert_button", "stop_convert_button")]
 layout_mode = 2
 theme_override_constants/margin_left = 3
 theme_override_constants/margin_top = 6
@@ -457,7 +457,6 @@ script = ExtResource("7_of57s")
 preset = NodePath("VBoxContainer/HBoxContainer/preset")
 cq = NodePath("VBoxContainer/HBoxContainer/cq")
 maxrate = NodePath("VBoxContainer/HBoxContainer2/maxrate")
-is_h = NodePath("VBoxContainer/HBoxContainer2/is_H")
 progress_bar = NodePath("VBoxContainer/ProgressBar")
 start_convert_button = NodePath("VBoxContainer/start_convert")
 stop_convert_button = NodePath("VBoxContainer/stop_button")
@@ -529,16 +528,6 @@ popup/item_3/text = "15M"
 popup/item_3/id = 1
 popup/item_4/text = "20M"
 popup/item_4/id = 2
-
-[node name="is_H" type="OptionButton" parent="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/HBoxContainer2" unique_id=2054930847]
-layout_mode = 2
-size_flags_horizontal = 3
-selected = 0
-item_count = 2
-popup/item_0/text = "横屏"
-popup/item_0/id = 0
-popup/item_1/text = "竖屏"
-popup/item_1/id = 1
 
 [node name="start_convert" type="Button" parent="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer" unique_id=1324767763]
 layout_mode = 2
@@ -627,7 +616,6 @@ layout_mode = 2
 [connection signal="item_selected" from="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/HBoxContainer/preset" to="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter" method="_on_preset_item_selected"]
 [connection signal="item_selected" from="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/HBoxContainer/cq" to="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter" method="_on_cq_item_selected"]
 [connection signal="item_selected" from="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/HBoxContainer2/maxrate" to="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter" method="_on_maxrate_item_selected"]
-[connection signal="item_selected" from="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/HBoxContainer2/is_H" to="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter" method="_on_is_h_item_selected"]
 [connection signal="button_up" from="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/start_convert" to="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter" method="_on_start_convert_button_up"]
 [connection signal="button_up" from="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/stop_button" to="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter" method="_on_stop_button_button_up"]
 [connection signal="button_up" from="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/test_button" to="main_ui" method="_on_test_button_button_up"]

@@ -5,7 +5,6 @@ extends Node
 @export var preset :OptionButton
 @export var cq :OptionButton
 @export var maxrate :OptionButton
-@export var is_h :OptionButton
 @export var progress_bar : ProgressBar
 @export var start_convert_button: Button
 @export var stop_convert_button: Button
@@ -67,8 +66,8 @@ func start_conversion(python_path: String, converter_script: String, input_file:
 	var preset_value := MainManager.get_option_selected_text(preset, "p7")
 	var cq_value := MainManager.get_option_selected_text(cq, "21")
 	var maxrate_value := MainManager.get_option_selected_text(maxrate, "10M")
-	var orientation_text := MainManager.get_option_selected_text(is_h, "横屏")
-	var width_value := res.PORTRAIT_WIDTH if orientation_text.find("竖") >= 0 else res.LANDSCAPE_WIDTH
+	# var orientation_text := MainManager.get_option_selected_text(is_h, "横屏")
+	# var width_value := res.PORTRAIT_WIDTH if orientation_text.find("竖") >= 0 else res.LANDSCAPE_WIDTH
 	if not FileAccess.file_exists(python_path):
 		push_warning("Python 可执行文件不存在: %s" % python_path)
 		return false
@@ -80,7 +79,6 @@ func start_conversion(python_path: String, converter_script: String, input_file:
 		converter_script,
 		"--input", input_file,
 		"--output-dir", output_dir,
-		"--width", str(width_value),
 		"--preset", preset_value,
 		"--cq", cq_value,
 		"--maxrate", maxrate_value,

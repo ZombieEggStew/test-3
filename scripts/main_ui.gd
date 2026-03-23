@@ -7,14 +7,14 @@
 #TO DO : 开关gif显示，一键删除gif缓存，显示目前gif缓存大小 ，关闭后只显示gif的第一帧
 #TO DO : 解决调试器中的warning
 #TO DO : 
-#TO DO : 只显示未转换的本地文件
+#TO DO : 
 #TO DO : 每次重新加载区分出新加入的card
 #TO DO : 
 #TO DO : 
 #TO DO : 
 #TO DO : 在名称前加上tag显示
 #TO DO : 
-#TO DO : 
+#TO DO : 测试创意工坊文件改名
 #TO DO : 
 
 
