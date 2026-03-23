@@ -2,9 +2,7 @@ extends Resource
 class_name MyRes
 
 
-const WORKSHOP_CACHE_VERSION := 1
-const CUSTOM_FOLDER_STORE_VERSION := 1
-const CUSTOM_FOLDER_ITEM_TYPE := "custom_folder"
+const IS_SHOW_NAME := true
 
 const MY_WORKSHOP_ROOT := "D:/Steam/steamapps/workshop/content/431960"
 const MY_LOCAL_PROJECTS_ROOT := "D:/Steam/steamapps/common/wallpaper_engine/projects/myprojects"
@@ -34,7 +32,6 @@ const SUBSCRIPTIONS_VDF_PATH := "D:/Steam/userdata/213406194/ugc/431960_subscrip
 const WORKSHOP_CACHE_PATH := "user://workshop_video_cache.json"
 const LANDSCAPE_WIDTH := 1920
 const PORTRAIT_WIDTH := 1080
-
-
-func _init() -> void:
-    pass
+const WORKSHOP_CACHE_VERSION := 1
+const CUSTOM_FOLDER_STORE_VERSION := 1
+const CUSTOM_FOLDER_ITEM_TYPE := "custom_folder"

@@ -15,3 +15,5 @@ signal request_file_dialog()
 signal tag_2_clicked(tag_name: String , toggled_on: bool)
 
 signal request_popup_dialog(title: String, message: String)
+
+signal toggle_show_tag_before_name(toggled_on: bool)

@@ -40,11 +40,12 @@ func _ready() -> void:
 	normal_alpha = panel_style.border_color.a
 
 
-	
-
 func set_label_text(text: String) -> void:
 	if label:
-		label.text = text
+		if res.IS_SHOW_NAME:
+			label.text = text
+		else:
+			label.text = "name"
 
 func _on_mouse_entered() -> void:
 	_tween_border_alpha(1.0)  # 255 对应 1.0

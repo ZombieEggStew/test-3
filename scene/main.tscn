@@ -18,8 +18,10 @@
 [ext_resource type="Script" uid="uid://nw8l0ivwo1hh" path="res://scripts/option_button.gd" id="9_0vlqb"]
 [ext_resource type="Script" uid="uid://dnqxwnlou5dph" path="res://scripts/refresh.gd" id="9_gjnwh"]
 [ext_resource type="Script" uid="uid://ycn0c8k5v0cr" path="res://scripts/open_res_button.gd" id="9_tv8i1"]
+[ext_resource type="Script" uid="uid://qshmyxknhc6w" path="res://scripts/toggle_tag.gd" id="12_p8adh"]
 [ext_resource type="PackedScene" uid="uid://besmajj3fj03t" path="res://scene/folder_context_menu.tscn" id="13_mswub"]
 [ext_resource type="PackedScene" uid="uid://dbxt26px8q0m3" path="res://scene/rename_win.tscn" id="14_hybxs"]
+[ext_resource type="Script" uid="uid://um35xx1vq1a" path="res://scripts/my_res.gd" id="16_gn2wi"]
 [ext_resource type="PackedScene" uid="uid://bhbw5k2mfc2jp" path="res://scene/settings_dialog.tscn" id="21_fdqew"]
 [ext_resource type="Script" uid="uid://167jyo4wstle" path="res://scripts/tag_panel.gd" id="22_0d4pv"]
 [ext_resource type="PackedScene" uid="uid://dp1fk6od5dys3" path="res://scene/tag_2.tscn" id="23_gtqqq"]
@@ -84,10 +86,14 @@ content_margin_top = 0.0
 content_margin_right = 0.0
 content_margin_bottom = 0.0
 
-[sub_resource type="ButtonGroup" id="ButtonGroup_gtqqq"]
+[sub_resource type="ButtonGroup" id="ButtonGroup_p8adh"]
 allow_unpress = true
 
 [sub_resource type="Theme" id="Theme_tqoya"]
+
+[sub_resource type="Resource" id="Resource_oldxj"]
+script = ExtResource("16_gn2wi")
+metadata/_custom_type_script = "uid://um35xx1vq1a"
 
 [sub_resource type="LabelSettings" id="LabelSettings_wp4xf"]
 font_size = 24
@@ -240,6 +246,12 @@ popup/item_3/text = "随机"
 popup/item_3/id = 3
 script = ExtResource("9_0vlqb")
 
+[node name="toggle_tag" type="CheckBox" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer3" unique_id=753716488]
+layout_mode = 2
+button_pressed = true
+text = "在标题前显示tag"
+script = ExtResource("12_p8adh")
+
 [node name="VBoxContainer5" type="VBoxContainer" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer" unique_id=1502383290]
 layout_mode = 2
 
@@ -316,7 +328,7 @@ page_card = ExtResource("7_k65ib")
 
 [node name="page_1" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/MarginContainer/HBoxContainer/page_num" unique_id=109932289 instance=ExtResource("7_k65ib")]
 layout_mode = 2
-button_group = SubResource("ButtonGroup_gtqqq")
+button_group = SubResource("ButtonGroup_p8adh")
 
 [node name="Button2" type="Button" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/MarginContainer/HBoxContainer" unique_id=924454259]
 layout_mode = 2
@@ -338,10 +350,11 @@ theme_override_constants/margin_right = 5
 theme_override_constants/margin_bottom = 5
 script = ExtResource("5_p1hux")
 title_label = NodePath("ScrollContainer/VBox/MarginContainer2/title_Label")
-resolution_label = NodePath("ScrollContainer/VBox/Attributes/VBoxContainer/resolution_Label2")
-bitrate_label = NodePath("ScrollContainer/VBox/Attributes/VBoxContainer/biterate_Label3")
-duration_label = NodePath("ScrollContainer/VBox/Attributes/VBoxContainer/duration_label")
-video_size_label = NodePath("ScrollContainer/VBox/Attributes/VBoxContainer/size_Label")
+resolution_label = NodePath("ScrollContainer/VBox/Attributes/VBoxContainer/HBoxContainer/resolution_Label2")
+bitrate_label = NodePath("ScrollContainer/VBox/Attributes/VBoxContainer/HBoxContainer2/biterate_Label3")
+duration_label = NodePath("ScrollContainer/VBox/Attributes/VBoxContainer/HBoxContainer2/duration_label")
+video_size_label = NodePath("ScrollContainer/VBox/Attributes/VBoxContainer/HBoxContainer/size_Label")
+res = SubResource("Resource_oldxj")
 
 [node name="ScrollContainer" type="ScrollContainer" parent="main_ui/HBoxContainer/right_panel" unique_id=549181938]
 layout_mode = 2
@@ -372,12 +385,6 @@ theme_override_constants/margin_left = 6
 theme_override_constants/margin_top = 12
 theme_override_constants/margin_right = 6
 theme_override_constants/margin_bottom = 12
-
-[node name="TextEdit" type="TextEdit" parent="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/MarginContainer2" unique_id=1871891483]
-visible = false
-custom_minimum_size = Vector2(0, 50)
-layout_mode = 2
-text = "请问请问"
 
 [node name="title_Label" type="Label" parent="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/MarginContainer2" unique_id=668942518]
 custom_minimum_size = Vector2(100, 0)
@@ -415,22 +422,30 @@ layout_mode = 2
 size_flags_vertical = 3
 theme_override_constants/separation = 4
 
-[node name="size_Label" type="Label" parent="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/Attributes/VBoxContainer" unique_id=5260522]
+[node name="HBoxContainer" type="HBoxContainer" parent="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/Attributes/VBoxContainer" unique_id=1074463287]
 layout_mode = 2
+
+[node name="size_Label" type="Label" parent="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/Attributes/VBoxContainer/HBoxContainer" unique_id=5260522]
+layout_mode = 2
+size_flags_horizontal = 3
 size_flags_vertical = 0
 text = "文件大小："
 
-[node name="resolution_Label2" type="Label" parent="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/Attributes/VBoxContainer" unique_id=574732040]
+[node name="resolution_Label2" type="Label" parent="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/Attributes/VBoxContainer/HBoxContainer" unique_id=574732040]
 layout_mode = 2
 size_flags_vertical = 0
 text = "分辨率："
 
-[node name="biterate_Label3" type="Label" parent="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/Attributes/VBoxContainer" unique_id=636252279]
+[node name="HBoxContainer2" type="HBoxContainer" parent="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/Attributes/VBoxContainer" unique_id=1974278986]
 layout_mode = 2
+
+[node name="biterate_Label3" type="Label" parent="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/Attributes/VBoxContainer/HBoxContainer2" unique_id=636252279]
+layout_mode = 2
+size_flags_horizontal = 3
 size_flags_vertical = 0
 text = "平均码率："
 
-[node name="duration_label" type="Label" parent="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/Attributes/VBoxContainer" unique_id=2019144779]
+[node name="duration_label" type="Label" parent="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/Attributes/VBoxContainer/HBoxContainer2" unique_id=2019144779]
 layout_mode = 2
 text = "时长："
 
@@ -608,6 +623,7 @@ layout_mode = 2
 [connection signal="button_up" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer/settings_button" to="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer/settings_button" method="_on_button_up"]
 [connection signal="item_selected" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer3/OptionButton" to="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer3/OptionButton" method="_on_item_selected"]
 [connection signal="request_sort_change" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer3/OptionButton" to="main_ui" method="_on_option_button_request_sort_change"]
+[connection signal="toggled" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer3/toggle_tag" to="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer3/toggle_tag" method="_on_toggled"]
 [connection signal="toggled" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer5/is_show_local" to="main_ui" method="_on_is_show_local_toggled"]
 [connection signal="toggled" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer5/is_show_workshop" to="main_ui" method="_on_is_show_workshop_toggled"]
 [connection signal="text_submitted" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/LineEdit" to="main_ui" method="_on_line_edit_text_submitted"]

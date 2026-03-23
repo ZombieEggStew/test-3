@@ -7,7 +7,6 @@ func _ready() -> void:
 
 func _load_config() -> void:
 	selected = int(MainManager.get_config_value("sort", 1))
-	request_sort_change.emit(selected)
 
 func _on_item_selected(index: int) -> void:
 	SignalBus.save_config.emit("sort", index)

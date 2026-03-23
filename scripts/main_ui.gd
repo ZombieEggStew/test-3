@@ -12,7 +12,7 @@
 #TO DO : 
 #TO DO : 
 #TO DO : 
-#TO DO : 在名称前加上tag显示
+#TO DO : 
 #TO DO : 
 #TO DO : 测试创意工坊文件改名
 #TO DO : 
@@ -76,15 +76,21 @@ var converting_item_key: String = ""
 ##关键参数
 const MAX_TEST_FOLDER_COUNT := 10000
 var is_show_pic = false
+var is_show_tag_before_name = false
 
 
 func _ready() -> void:
+    current_sort_index = int(MainManager.get_config_value("sort", 1))
+    is_show_tag_before_name = bool(MainManager.get_config_value("show_tag_before_name", true))
+
+
     SignalBus.load_workshop_cards.connect(_on_request_load_workshop_cards)
     SignalBus.conversion_started.connect(_on_conversion_started)
     SignalBus.conversion_finished.connect(_on_conversion_finished)
     SignalBus.request_file_dialog.connect(_on_request_file_dialog)
     SignalBus.tag_2_clicked.connect(_on_tag_2_toggled)
     SignalBus.request_popup_dialog.connect(_popup_dialog)
+    SignalBus.toggle_show_tag_before_name.connect(_on_toggle_show_tag)
 
     var wallpaper := MainManager.get_config_value("wallpaper_root" , "") as String
     var workshop := MainManager.get_config_value("workshop_root" , "") as String
@@ -101,6 +107,11 @@ func _ready() -> void:
     _load_custom_folders_from_local()
 
     _load_workshop_cards()
+
+func _on_toggle_show_tag(toggled_on: bool) -> void:
+    is_show_tag_before_name = toggled_on
+    _render_current_page_from_cache()
+
 
 func _on_tag_2_toggled(tag_name: String , toggled_on: bool) -> void:
     if toggled_on:
@@ -227,6 +238,16 @@ func _render_current_page_from_cache() -> void:
         var title := str(card_info.get("title", "")).strip_edges()
         if title.is_empty():
             title = MainManager.extract_card_title(card_info)
+            
+        if is_show_tag_before_name:
+            var project_data = card_info.get("project_data", {})
+            var my_tags = project_data.get("my_tags", [])
+            if my_tags is Array and not my_tags.is_empty():
+                var tags_str = ""
+                for tag in my_tags:
+                    tags_str += "[%s]" % str(tag)
+                title = tags_str + " " + title
+                
         if _is_custom_folder_info(card_info):
             _add_custom_folder_card(card_info, title)
         else:

@@ -143,14 +143,14 @@ func _on_backup_button_up() -> void:
 
 
 func _on_rename_button_up() -> void:
-    if target_card_info.get("is_workshop", false):
-        var acceptDialog = AcceptDialog.new()
-        add_child(acceptDialog)
-        acceptDialog.dialog_text = "工坊项目不支持重命名,先转为本地再重命名"
-        acceptDialog.popup_centered()
-        push_warning("工坊项目不支持重命名")
-        hide()
-        return
+    # if target_card_info.get("is_workshop", false):
+    #     var acceptDialog = AcceptDialog.new()
+    #     add_child(acceptDialog)
+    #     acceptDialog.dialog_text = "工坊项目不支持重命名,先转为本地再重命名"
+    #     acceptDialog.popup_centered()
+    #     push_warning("工坊项目不支持重命名")
+    #     hide()
+    #     return
     if context_menu == null:
         push_warning("注入rename_context_menu失败，无法显示重命名菜单")
         hide()
