@@ -159,3 +159,5 @@ func _on_rename_button_up() -> void:
     context_menu.call("set_target_info", target_card_info)
     context_menu.popup_centered()
     hide()
+
+

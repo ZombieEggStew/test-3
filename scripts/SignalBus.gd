@@ -11,3 +11,5 @@ signal conversion_finished(success: bool, message: String)
 signal save_config(key: String, value: Variant)
 
 signal request_file_dialog()
+
+signal tag_2_clicked(tag_name: String , toggled_on: bool)
