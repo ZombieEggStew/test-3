@@ -84,6 +84,7 @@ func _ready() -> void:
     SignalBus.conversion_finished.connect(_on_conversion_finished)
     SignalBus.request_file_dialog.connect(_on_request_file_dialog)
     SignalBus.tag_2_clicked.connect(_on_tag_2_toggled)
+    SignalBus.request_popup_dialog.connect(_popup_dialog)
 
     var wallpaper := MainManager.get_config_value("wallpaper_root" , "") as String
     var workshop := MainManager.get_config_value("workshop_root" , "") as String
@@ -123,10 +124,12 @@ func _on_conversion_finished(success: bool, message: String) -> void:
     converting_item_key = ""
     _load_workshop_cards()
 
-    accept_dialog.title = "转换成功" if success else "转换失败"
+    _popup_dialog("转换成功" if success else "转换失败", message)
+
+func _popup_dialog(title: String, message: String) -> void:
+    accept_dialog.title = title
     accept_dialog.dialog_text = message
     accept_dialog.popup_centered()
-
 
 func _on_conversion_started(info: Dictionary) -> void:
     converting_item_key = _get_item_unique_key(info)
@@ -555,14 +558,29 @@ func _build_card_info_for_item(item: Dictionary) -> Dictionary:
 
 
 func _resolve_item_create_time(root_path: String, folder_name: String) -> int:
-    var project_ts := 0
-    var project_json_path := "%s/%s/project.json" % [root_path, folder_name]
-    if FileAccess.file_exists(project_json_path):
-        project_ts = maxi(int(FileAccess.get_modified_time(project_json_path)), 0)
-
     var folder_path := "%s/%s" % [root_path, folder_name]
-    var folder_ts := int(FileAccess.get_modified_time(folder_path))
-    return maxi(project_ts, maxi(folder_ts, 0))
+    var dir := DirAccess.open(folder_path)
+    var latest_ts := 0
+    
+    if dir:
+        dir.list_dir_begin()
+        var file_name = dir.get_next()
+        while file_name != "":
+            if not dir.current_is_dir() and file_name.begins_with("preview."):
+                var full_path = folder_path.path_join(file_name)
+                latest_ts = maxi(latest_ts, int(FileAccess.get_modified_time(full_path)))
+            file_name = dir.get_next()
+        dir.list_dir_end()
+    
+    # 如果没找到 preview.* 文件，回退到文件夹或 project.json 的修改时间
+    if latest_ts == 0:
+        var project_json_path := folder_path.path_join("project.json")
+        if FileAccess.file_exists(project_json_path):
+            latest_ts = int(FileAccess.get_modified_time(project_json_path))
+        else:
+            latest_ts = int(FileAccess.get_modified_time(folder_path))
+            
+    return maxi(latest_ts, 0)
 
 
 func _filter_items_with_mp4(items: Array) -> Array:

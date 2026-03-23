@@ -86,7 +86,14 @@ content_margin_top = 0.0
 content_margin_right = 5.0
 content_margin_bottom = 0.0
 
-[node name="PanelContainer" type="PanelContainer" unique_id=747637982 node_paths=PackedStringArray("tex", "inside_panel", "label", "local_label", "tagged_label", "converting_label")]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_gvr3l"]
+content_margin_left = 5.0
+content_margin_top = 0.0
+content_margin_right = 5.0
+content_margin_bottom = 0.0
+bg_color = Color(1, 0, 0, 0.30588236)
+
+[node name="PanelContainer" type="PanelContainer" unique_id=747637982 node_paths=PackedStringArray("tex", "inside_panel", "label", "local_label", "tagged_label", "converting_label", "unsubscribed_label")]
 custom_minimum_size = Vector2(100, 100)
 offset_right = 202.0
 offset_bottom = 202.0
@@ -100,6 +107,7 @@ res = SubResource("Resource_3cebx")
 local_label = NodePath("right/local")
 tagged_label = NodePath("right/tagged")
 converting_label = NodePath("is_converting")
+unsubscribed_label = NodePath("right/unsubscribe")
 
 [node name="TextureRect" type="TextureRect" parent="." unique_id=501766723]
 custom_minimum_size = Vector2(200, 200)
@@ -188,6 +196,15 @@ layout_mode = 2
 theme_override_styles/normal = SubResource("StyleBoxEmpty_ppd22")
 text = "本地"
 horizontal_alignment = 1
+
+[node name="unsubscribe" type="PanelContainer" parent="right" unique_id=278964724]
+visible = false
+layout_mode = 2
+
+[node name="Label" type="Label" parent="right/unsubscribe" unique_id=147502058]
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_gvr3l")
+text = "未订阅"
 
 [connection signal="gui_input" from="." to="." method="_on_gui_input"]
 [connection signal="mouse_entered" from="." to="." method="_on_mouse_entered"]

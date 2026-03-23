@@ -45,6 +45,15 @@ static func delete_tag(tag_name: String) -> void:
 
 
 static func delete_and_unsubscribe(target_card_info: Dictionary) -> bool:
+    var success := false
+    if is_workshop_item(target_card_info):
+        success = unsubscribe_workshop_item_2(target_card_info)
+
+    if not success:
+        push_warning("取消订阅失败，尝试直接删除项目文件")
+        SignalBus.request_popup_dialog.emit("取消订阅失败", "未检测到steam，可能是因为未登录或网络问题。请确保Steam已登录并运行。")
+        return false
+
     if target_card_info.is_empty():
         push_warning("未选择可删除的项目")
         return false
@@ -62,8 +71,7 @@ static func delete_and_unsubscribe(target_card_info: Dictionary) -> bool:
         print("已物理删除项目内容: %s" % item_path)
 
     # 接着如果是工坊项，提交取消订阅请求
-    if is_workshop_item(target_card_info):
-        unsubscribe_workshop_item_2(target_card_info)
+
 
     SignalBus.load_workshop_cards.emit()
     return true
@@ -94,6 +102,36 @@ static func is_local_project(card_info: Dictionary) -> bool:
 
 static func is_workshop_item(card_info: Dictionary) -> bool:
     return bool(card_info.get("is_workshop", false))
+
+
+static func is_workshop_unsubscribed(card_info: Dictionary) -> bool:
+    if not is_workshop_item(card_info):
+        return false
+        
+    var published_id := int(card_info.get("published_id", 0))
+    if published_id <= 0:
+        # 如果没有 id，尝试从 folder_name 转换（通常文件夹名就是 id）
+        var folder_name := str(card_info.get("folder_name", ""))
+        if folder_name.is_valid_int():
+            published_id = int(folder_name)
+    
+    if published_id <= 0:
+        return false
+
+    if not steam_ready_for_ugc():
+        return false
+
+    var steam := _get_steam_singleton()
+    if steam == null:
+        return false
+
+    # 检查状态：1 代表已订阅 (ItemStateSubscribed)
+    # Steam.getItemState(published_id) 返回位掩码
+    if steam.has_method("getItemState"):
+        var state = steam.call("getItemState", published_id)
+        return (int(state) & 1) == 0
+        
+    return false
 
 
 static func read_project_data(root_path: String) -> Dictionary:

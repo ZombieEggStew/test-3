@@ -13,6 +13,7 @@ signal card_left_clicked(card: Node, info: Dictionary)
 @export var local_label: PanelContainer
 @export var tagged_label: PanelContainer
 @export var converting_label: PanelContainer
+@export var unsubscribed_label: PanelContainer
 
 var context_menu : Control
 var card_info: Dictionary = {}
@@ -98,6 +99,7 @@ func set_card_info(info: Dictionary, show_pic: bool = true) -> void:
 	_apply_card_texture(show_pic)
 	local_label.visible = not card_info.get("is_workshop", false)
 	tagged_label.visible = MainManager.has_tag(card_info)
+	unsubscribed_label.visible = MainManager.is_workshop_unsubscribed(card_info)
 
 
 func get_card_info() -> Dictionary:
