@@ -45,6 +45,11 @@ var is_show_tag_before_name = false
 var IS_SHOW_PREVIEW := false
 
 func _ready() -> void:
+    var steam := Engine.get_singleton("Steam")
+    if not steam.isSteamRunning() or not steam.loggedOn():
+        _popup_warning("未检测到steam。请确保Steam已运行并登录后再启动应用,否则无法取消订阅和删除创意工坊项目")
+        
+
     current_sort_index = int(MainManager.get_config_value("sort", 1))
     is_show_tag_before_name = bool(MainManager.get_config_value("show_tag_before_name", true))
     IS_SHOW_PREVIEW = bool(MainManager.get_config_value("is_show_preview", false))

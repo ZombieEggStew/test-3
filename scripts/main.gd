@@ -49,7 +49,7 @@ static func delete_and_unsubscribe(target_card_info: Dictionary) -> bool:
     if is_workshop_item(target_card_info):
         success = unsubscribe_workshop_item_2(target_card_info)
         if not success:
-            SignalBus.request_popup_warning.emit("未检测到steam，可能是因为未登录或网络问题。请确保Steam已运行并登录后重启应用，再次尝试取消订阅。")
+            SignalBus.request_popup_warning.emit("未检测到steam。请确保Steam已运行并登录后再启动应用，再次尝试取消订阅。")
             return false
 
 
