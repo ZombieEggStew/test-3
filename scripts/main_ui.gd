@@ -1,6 +1,6 @@
 #TO DO : 显示待转换列表 跳转到对应选项卡
 #TO DO : 
-#TO DO : 添加本地标识
+#TO DO : 
 #TO DO : 显示steam连接状态
 #TO DO : 
 #TO DO : 本地文件计数,与各项信息计数
@@ -11,7 +11,7 @@
 #TO DO : 每次重新加载区分出新加入的card
 #TO DO : 
 #TO DO : 
-#TO DO : 过滤显示（tag） !!!!!!!!下一步，在filter_panel中添加所有tag的checkbox，勾选后只显示包含该tag的项目
+#TO DO : 
 #TO DO : 在名称前加上tag显示
 #TO DO : 
 #TO DO : 
@@ -87,6 +87,9 @@ func _ready() -> void:
 
     var wallpaper := MainManager.get_config_value("wallpaper_root" , "") as String
     var workshop := MainManager.get_config_value("workshop_root" , "") as String
+    if wallpaper.is_empty() or workshop.is_empty():
+        _on_request_file_dialog()
+        return
 
     res.WORKSHOP_ROOT = workshop
     res.LOCAL_PROJECTS_ROOT = (wallpaper + "/projects/myprojects")
@@ -183,32 +186,18 @@ func _apply_sort_on_cached_items() -> void:
     sorted_items = cached_items.duplicate()
 
     var custom_sort = func(a: Dictionary, b: Dictionary) -> bool:
-        # 正在转换的项目始终排在首位
-        if not converting_item_key.is_empty():
-            var key_a = _get_item_unique_key(a)
-            var key_b = _get_item_unique_key(b)
-            if key_a == converting_item_key: return true
-            if key_b == converting_item_key: return false
-
         if current_sort_index == 1:
             return _compare_subscribe_time_desc(a, b)
         elif current_sort_index == 2:
             return _compare_folder_size_desc(a, b)
         elif current_sort_index == 3:
-            # 随机排序无法稳定保持首位，除非显式处理
+            # 随机排序
             return false 
         else:
             return _compare_publish_date_with_local_last(a, b)
 
     if current_sort_index == 3:
         sorted_items.shuffle()
-        # 随机排序后，如果存在正在转换的项目，手动移到开头
-        if not converting_item_key.is_empty():
-            for i in range(sorted_items.size()):
-                if _get_item_unique_key(sorted_items[i]) == converting_item_key:
-                    var item = sorted_items.pop_at(i)
-                    sorted_items.push_front(item)
-                    break
     else:
         sorted_items.sort_custom(custom_sort)
 
@@ -216,9 +205,10 @@ func _apply_sort_on_cached_items() -> void:
 func _render_current_page_from_cache() -> void:
     _clear_cards()
 
-    var custom_items := _get_visible_custom_folder_infos()
-    var visible_items := custom_items
-    visible_items.append_array(_get_visible_items_from_sorted_cache())
+    # var custom_items := _get_visible_custom_folder_infos()
+    # var visible_items := custom_items
+    # visible_items.append_array(_get_visible_items_from_sorted_cache())
+    var visible_items = _get_visible_items_from_sorted_cache()
     var total_items := visible_items.size()
     var total_pages := _calculate_total_pages(total_items)
     if total_pages <= 0:
@@ -260,10 +250,6 @@ func _get_visible_items_from_sorted_cache() -> Array:
 
         if not _is_item_match_search(info):
             continue
-        if _get_item_unique_key(info) == converting_item_key:
-            _visible.insert(0, info)
-            continue
-        
 
         _visible.append(info)
 

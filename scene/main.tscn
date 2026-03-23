@@ -84,7 +84,7 @@ content_margin_top = 0.0
 content_margin_right = 0.0
 content_margin_bottom = 0.0
 
-[sub_resource type="ButtonGroup" id="ButtonGroup_gn2wi"]
+[sub_resource type="ButtonGroup" id="ButtonGroup_gtqqq"]
 allow_unpress = true
 
 [sub_resource type="Theme" id="Theme_tqoya"]
@@ -157,7 +157,7 @@ layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/margin_left = 5
 theme_override_constants/margin_top = 5
-theme_override_constants/margin_right = 5
+theme_override_constants/margin_right = 0
 theme_override_constants/margin_bottom = 5
 
 [node name="VBoxContainer" type="VBoxContainer" parent="main_ui/HBoxContainer/MarginContainer" unique_id=873184152]
@@ -187,6 +187,7 @@ layout_mode = 2
 
 [node name="create_new_folder" type="Button" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer4" unique_id=1142434020]
 layout_mode = 2
+disabled = true
 text = "新文件夹"
 
 [node name="settings_button" type="Button" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer4" unique_id=1621929074]
@@ -219,6 +220,7 @@ res = ExtResource("5_v2gmf")
 
 [node name="refresh2" type="Button" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer" unique_id=1838690579]
 layout_mode = 2
+disabled = true
 text = "备用按钮"
 
 [node name="VBoxContainer3" type="VBoxContainer" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer" unique_id=1206374599]
@@ -242,6 +244,7 @@ script = ExtResource("9_0vlqb")
 
 [node name="Button" type="Button" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer3" unique_id=578046758]
 layout_mode = 2
+disabled = true
 text = "button"
 
 [node name="VBoxContainer5" type="VBoxContainer" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer" unique_id=1502383290]
@@ -320,7 +323,7 @@ page_card = ExtResource("7_k65ib")
 
 [node name="page_1" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/MarginContainer/HBoxContainer/page_num" unique_id=109932289 instance=ExtResource("7_k65ib")]
 layout_mode = 2
-button_group = SubResource("ButtonGroup_gn2wi")
+button_group = SubResource("ButtonGroup_gtqqq")
 
 [node name="Button2" type="Button" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/MarginContainer/HBoxContainer" unique_id=924454259]
 layout_mode = 2
@@ -359,7 +362,7 @@ size_flags_vertical = 3
 layout_mode = 2
 theme_override_constants/margin_left = 6
 theme_override_constants/margin_top = 0
-theme_override_constants/margin_right = 15
+theme_override_constants/margin_right = 6
 theme_override_constants/margin_bottom = 0
 
 [node name="TextureRect" type="TextureRect" parent="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/panel_tex" unique_id=2105504702]
@@ -374,7 +377,7 @@ layout_mode = 2
 size_flags_vertical = 0
 theme_override_constants/margin_left = 6
 theme_override_constants/margin_top = 12
-theme_override_constants/margin_right = 15
+theme_override_constants/margin_right = 6
 theme_override_constants/margin_bottom = 12
 
 [node name="TextEdit" type="TextEdit" parent="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/MarginContainer2" unique_id=1871891483]
@@ -402,21 +405,16 @@ size_flags_vertical = 0
 text = "属性"
 label_settings = SubResource("LabelSettings_brvut")
 
-[node name="MarginContainer" type="MarginContainer" parent="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/Attribute_label" unique_id=1160841591]
+[node name="HSeparator" type="HSeparator" parent="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/Attribute_label" unique_id=548318415]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/margin_left = 0
-theme_override_constants/margin_right = 12
-
-[node name="HSeparator" type="HSeparator" parent="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/Attribute_label/MarginContainer" unique_id=548318415]
-layout_mode = 2
 theme_override_styles/separator = SubResource("StyleBoxLine_wp4xf")
 
 [node name="Attributes" type="MarginContainer" parent="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox" unique_id=1758704139]
 layout_mode = 2
 theme_override_constants/margin_left = 3
 theme_override_constants/margin_top = 6
-theme_override_constants/margin_right = 15
+theme_override_constants/margin_right = 3
 theme_override_constants/margin_bottom = 10
 
 [node name="VBoxContainer" type="VBoxContainer" parent="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/Attributes" unique_id=2032544000]
@@ -443,12 +441,10 @@ text = "平均码率："
 layout_mode = 2
 text = "时长："
 
-[node name="sep" type="MarginContainer" parent="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox" unique_id=1298188000]
+[node name="HBoxContainer" type="HBoxContainer" parent="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox" unique_id=1000162371]
 layout_mode = 2
-theme_override_constants/margin_left = 6
-theme_override_constants/margin_right = 12
 
-[node name="HSeparator" type="HSeparator" parent="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/sep" unique_id=788386045]
+[node name="sep_2" type="HSeparator" parent="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/HBoxContainer" unique_id=788386045]
 layout_mode = 2
 theme_override_styles/separator = SubResource("StyleBoxLine_brvut")
 
