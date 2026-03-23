@@ -2,7 +2,7 @@ extends Resource
 class_name MyRes
 
 
-const IS_SHOW_NAME := true
+const IS_SHOW_NAME := false
 
 const MY_WORKSHOP_ROOT := "D:/Steam/steamapps/workshop/content/431960"
 const MY_LOCAL_PROJECTS_ROOT := "D:/Steam/steamapps/common/wallpaper_engine/projects/myprojects"

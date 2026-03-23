@@ -508,6 +508,23 @@ func _scan_root_for_items(root_path: String , is_wrokshop:bool) -> Array:
     for folder_name in folders:
         var folder_id_str := str(folder_name)
         var published_id := int(folder_id_str) if folder_id_str.is_valid_int() else 0
+
+        var project_json_path := "%s/%s/project.json" % [root_path, folder_name]
+        var project_data := MainManager.read_json_file(project_json_path)
+        var type_text := str(project_data.get("type", "")).strip_edges().to_lower()
+        if type_text != "video":
+            continue
+        var media_file_name := str(project_data.get("file", "")).strip_edges()
+        # if media_file_name.is_empty():
+        #     continue
+        var media_file_path := "%s/%s/%s" % [root_path, folder_name, media_file_name]
+        # if not FileAccess.file_exists(media_file_path):
+        #     continue
+
+        var title := str(project_data.get("title", "")).strip_edges()
+        if title.is_empty():
+            title = folder_name
+
         var subscribe_time := _resolve_item_create_time(root_path, folder_id_str)
         var folder_path := "%s/%s" % [root_path, folder_id_str]
         var folder_size := MainManager.calculate_dir_size_bytes(folder_path)
@@ -518,6 +535,11 @@ func _scan_root_for_items(root_path: String , is_wrokshop:bool) -> Array:
             "folder_size": folder_size,
             "root_path": root_path,
             "is_workshop": is_wrokshop,
+            "project_json_path" : project_json_path,
+            "project_data" : project_data,
+            "title" : title,
+            "media_file_name": media_file_name,
+            "media_file_path": media_file_path
         })
     return items
 
@@ -528,19 +550,11 @@ func _build_card_info_for_item(item: Dictionary) -> Dictionary:
     if folder_name.is_empty() or item_root.is_empty():
         return {}
 
-    var project_json_path := "%s/%s/project.json" % [item_root, folder_name]
-    var project_data := MainManager.read_json_file(project_json_path)
-    var type_text := str(project_data.get("type", "")).strip_edges().to_lower()
-    if type_text != "video":
-        return {}
 
-    var media_file_name := str(project_data.get("file", "")).strip_edges()
-    if media_file_name.is_empty():
-        return {}
 
-    var media_file_path := "%s/%s/%s" % [item_root, folder_name, media_file_name]
-    if not FileAccess.file_exists(media_file_path):
-        return {}
+
+
+    
 
     var item_path := "%s/%s" % [item_root, folder_name]
 
@@ -549,9 +563,7 @@ func _build_card_info_for_item(item: Dictionary) -> Dictionary:
         var folder_path := "%s/%s" % [item_root, folder_name]
         folder_size = MainManager.calculate_dir_size_bytes(folder_path)
 
-    var title := str(project_data.get("title", "")).strip_edges()
-    if title.is_empty():
-        title = folder_name
+
 
     var video_resolution := ""
     var video_bitrate_kbps := 0
@@ -562,14 +574,13 @@ func _build_card_info_for_item(item: Dictionary) -> Dictionary:
     # 	video_bitrate_kbps = int(meta.get("bitrate_kbps", 0))
 
     var card_info := item.duplicate(true) as Dictionary
-    card_info["project_json_path"] = project_json_path
-    card_info["project_data"] = project_data
-    card_info["media_file_name"] = media_file_name
-    card_info["media_file_path"] = media_file_path
+
+    
+    
     card_info["item_path"] = item_path
     card_info["video_resolution"] = video_resolution
     card_info["video_bitrate_kbps"] = video_bitrate_kbps
-    card_info["title"] = title
+
     card_info["folder_size"] = folder_size
     # root_path 必须保持为根目录路径（LOCAL/WORKSHOP），筛选逻辑依赖该语义
     card_info["root_path"] = item_root
@@ -587,7 +598,7 @@ func _resolve_item_create_time(root_path: String, folder_name: String) -> int:
         dir.list_dir_begin()
         var file_name = dir.get_next()
         while file_name != "":
-            if not dir.current_is_dir() and file_name.begins_with("preview."):
+            if not dir.current_is_dir() and file_name.to_lower().ends_with("mp4"):
                 var full_path = folder_path.path_join(file_name)
                 latest_ts = maxi(latest_ts, int(FileAccess.get_modified_time(full_path)))
             file_name = dir.get_next()
@@ -595,6 +606,7 @@ func _resolve_item_create_time(root_path: String, folder_name: String) -> int:
     
     # 如果没找到 preview.* 文件，回退到文件夹或 project.json 的修改时间
     if latest_ts == 0:
+        push_warning("未找到 mp4 文件，回退到文件夹或 project.json 的修改时间: %s" % folder_path)
         var project_json_path := folder_path.path_join("project.json")
         if FileAccess.file_exists(project_json_path):
             latest_ts = int(FileAccess.get_modified_time(project_json_path))
