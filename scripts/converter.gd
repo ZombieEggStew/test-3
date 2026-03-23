@@ -20,6 +20,8 @@ var progress_poll_interval := 0.2
 var selected_card_info: Dictionary = {}
 var converting_card_info: Dictionary = {}
 
+
+
 var is_auto_unsubscribe_and_delete := true
 
 func _ready() -> void:
@@ -96,6 +98,10 @@ func start_conversion(python_path: String, converter_script: String, input_file:
 	_set_convert_ui_state(true)
 	converting_card_info = selected_card_info.duplicate(true)
 	print("已启动转换进程, pid=%d" % pid)
+
+	# 发送信号让 UI 重新排序
+	SignalBus.conversion_started.emit(converting_card_info)
+
 
 	return true
 
@@ -234,12 +240,13 @@ func _on_stop_button_button_up() -> void:
 func _on_main_ui_on_card_selected(info: Dictionary) -> void:
 	selected_card_info = info
 
+	
 
 func _load_config() -> void:
 	preset.selected = int(MainManager.get_config_value("preset", 2))
 	cq.selected = int(MainManager.get_config_value("cq", 1))
 	maxrate.selected = int(MainManager.get_config_value("maxrate", 2))
-	is_h.selected = int(MainManager.get_config_value("width", 0))
+	# is_h.selected = int(MainManager.get_config_value("width", 0))
 
 func _on_preset_item_selected(index: int) -> void:
 	SignalBus.save_config.emit("preset", index)
@@ -252,4 +259,3 @@ func _on_maxrate_item_selected(index: int) -> void:
 
 func _on_is_h_item_selected(index: int) -> void:
 	SignalBus.save_config.emit("width", index)
-

@@ -6,13 +6,13 @@ signal card_left_clicked(card: Node, info: Dictionary)
 @export var tex : TextureRect
 @export var hover_duration := 0.15
 @export var inside_panel : Panel
-@export var inside_panel2 : Panel
 @export var label : Label
 
 @export var defalt_tex : Texture2D
 @export var res : MyRes
 @export var local_label: PanelContainer
-
+@export var tagged_label: PanelContainer
+@export var converting_label: PanelContainer
 
 var context_menu : Control
 var card_info: Dictionary = {}
@@ -26,9 +26,8 @@ const DEBUG_PREVIEW := true
 
 func _ready() -> void:
 	_set_selected(false)
-	set_converted(false)
+	
 	tex.texture = defalt_tex
-	inside_panel2.visible = false
 	var base_style := get_theme_stylebox("panel")
 	if base_style == null or not (base_style is StyleBoxFlat):
 		push_error("panel 样式不是 StyleBoxFlat，无法直接改 border_color")
@@ -39,7 +38,8 @@ func _ready() -> void:
 
 	normal_alpha = panel_style.border_color.a
 
-	local_label.visible = card_info.get("is_local", false)
+
+	
 
 func set_label_text(text: String) -> void:
 	if label:
@@ -96,6 +96,8 @@ func set_context_menu(cm: Control , cm_rename:AcceptDialog) -> void:
 func set_card_info(info: Dictionary, show_pic: bool = true) -> void:
 	card_info = info.duplicate(true)
 	_apply_card_texture(show_pic)
+	local_label.visible = not card_info.get("is_workshop", false)
+	tagged_label.visible = MainManager.has_tag(card_info)
 
 
 func get_card_info() -> Dictionary:
@@ -110,8 +112,12 @@ func _set_selected(selected: bool) -> void:
 	if inside_panel:
 		inside_panel.visible = selected
 
-func set_converted(converted: bool) -> void:
-	inside_panel2.visible = converted
+func set_converted() -> void:
+	converting_label.visible = false
+
+func set_converting() -> void:
+	converting_label.visible = true
+
 
 
 func _apply_card_texture(show_pic: bool) -> void:

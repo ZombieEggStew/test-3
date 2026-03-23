@@ -94,6 +94,8 @@ func _resolve_media_file_path() -> String:
 
 func _on_delete_button_up() -> void:
     MainManager.delete_and_unsubscribe(target_card_info)
+    hide()
+
 
 
 func _on_backup_button_up() -> void:
@@ -123,7 +125,7 @@ func _on_backup_button_up() -> void:
             push_warning("创建目录失败: %s" % dest_folder)
             hide()
             return
-    var item_path := MainManager.resolve_target_folder_path(target_card_info)
+    var item_path := MainManager.resolve_target_folder_path(target_card_info) 
     if not item_path.is_empty():
         print(MainManager.read_project_data(item_path))
         # 剪切所有文件到备份文件夹

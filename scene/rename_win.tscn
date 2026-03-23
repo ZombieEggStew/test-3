@@ -1,23 +1,74 @@
 [gd_scene format=3 uid="uid://dbxt26px8q0m3"]
 
 [ext_resource type="Script" uid="uid://dd56jagems5s" path="res://scripts/rename_script.gd" id="1_tvhmq"]
+[ext_resource type="PackedScene" uid="uid://c218jajnssh1x" path="res://scene/tag.tscn" id="2_7ydp3"]
+[ext_resource type="Script" uid="uid://um35xx1vq1a" path="res://scripts/my_res.gd" id="2_d2w8o"]
 
-[node name="AcceptDialog" type="AcceptDialog" unique_id=910249761 node_paths=PackedStringArray("line_edit")]
+[sub_resource type="Resource" id="Resource_aa1v6"]
+script = ExtResource("2_d2w8o")
+metadata/_custom_type_script = "uid://um35xx1vq1a"
+
+[sub_resource type="StyleBoxLine" id="StyleBoxLine_tvhmq"]
+content_margin_left = 4.0
+content_margin_top = 0.0
+content_margin_right = 4.0
+content_margin_bottom = 0.0
+color = Color(0.047058824, 0.34901962, 0.87058824, 1)
+
+[node name="AcceptDialog" type="AcceptDialog" unique_id=910249761 node_paths=PackedStringArray("rename_line_edit", "add_tag_line_edit", "tag_container")]
 oversampling_override = 1.0
 title = "重命名"
 position = Vector2i(0, 36)
-size = Vector2i(516, 192)
+size = Vector2i(516, 372)
 visible = true
 script = ExtResource("1_tvhmq")
-line_edit = NodePath("MarginContainer/LineEdit")
+rename_line_edit = NodePath("MarginContainer/VBoxContainer/LineEdit")
+add_tag_line_edit = NodePath("MarginContainer/VBoxContainer/add_tag/LineEdit2")
+tag_container = NodePath("MarginContainer/VBoxContainer/tags")
+tag_scene = ExtResource("2_7ydp3")
+res = SubResource("Resource_aa1v6")
 
 [node name="MarginContainer" type="MarginContainer" parent="." unique_id=769234865]
 offset_left = 8.0
 offset_top = 8.0
 offset_right = 508.0
-offset_bottom = 143.0
+offset_bottom = 323.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/margin_top = 10
 
-[node name="LineEdit" type="LineEdit" parent="MarginContainer" unique_id=1363390434]
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer" unique_id=910024447]
+layout_mode = 2
+
+[node name="LineEdit" type="LineEdit" parent="MarginContainer/VBoxContainer" unique_id=1363390434]
+layout_mode = 2
+
+[node name="sep" type="HBoxContainer" parent="MarginContainer/VBoxContainer" unique_id=1717911769]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/sep" unique_id=39483973]
+layout_mode = 2
+text = "快捷tag"
+
+[node name="HSeparator" type="HSeparator" parent="MarginContainer/VBoxContainer/sep" unique_id=214055234]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/separator = SubResource("StyleBoxLine_tvhmq")
+
+[node name="add_tag" type="HBoxContainer" parent="MarginContainer/VBoxContainer" unique_id=148536746]
+layout_mode = 2
+
+[node name="LineEdit2" type="LineEdit" parent="MarginContainer/VBoxContainer/add_tag" unique_id=1375782152]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+
+[node name="add_tag_button" type="Button" parent="MarginContainer/VBoxContainer/add_tag" unique_id=2106325127]
+layout_mode = 2
+text = "添加
+"
+
+[node name="tags" type="HFlowContainer" parent="MarginContainer/VBoxContainer" unique_id=96946521]
 layout_mode = 2
 
 [connection signal="confirmed" from="." to="." method="_on_confirmed"]
+[connection signal="button_up" from="MarginContainer/VBoxContainer/add_tag/add_tag_button" to="." method="_on_add_tag_button_button_up"]

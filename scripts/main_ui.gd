@@ -1,5 +1,5 @@
 #TO DO : 显示待转换列表 跳转到对应选项卡
-#TO DO : 过滤显示（tag）
+#TO DO : 
 #TO DO : 添加本地标识
 #TO DO : 显示steam连接状态
 #TO DO : 
@@ -11,8 +11,8 @@
 #TO DO : 每次重新加载区分出新加入的card
 #TO DO : 
 #TO DO : 
-#TO DO : 
-#TO DO : 
+#TO DO : 过滤显示（tag） !!!!!!!!下一步，在filter_panel中添加所有tag的checkbox，勾选后只显示包含该tag的项目
+#TO DO : filterpanel动画效果
 #TO DO : 
 #TO DO : 
 #TO DO : 
@@ -44,13 +44,13 @@ signal setup_pages(_total_items : int, max :int ,_current_page :int)
 @export var card_scene : PackedScene
 @export var folder_scene : PackedScene
 
-
-
 @export var context_menu_card : Control
 @export var context_menu_folder : Control
 @export var context_menu_rename : AcceptDialog
 @export var folder_selection_dialog : AcceptDialog
 
+@export var right_panel : MarginContainer
+@export var filter_panel : PanelContainer
 
 @export var res: MyRes
 
@@ -68,6 +68,7 @@ var is_show_workshop := true
 var search_keyword := ""
 
 var selected_card_node: Node = null
+var converting_item_key: String = ""
 
 
 ##关键参数
@@ -77,6 +78,7 @@ var is_show_pic = false
 
 func _ready() -> void:
 	SignalBus.load_workshop_cards.connect(_on_request_load_workshop_cards)
+	SignalBus.conversion_started.connect(_on_conversion_started)
 	SignalBus.conversion_finished.connect(_on_conversion_finished)
 	SignalBus.request_file_dialog.connect(_on_request_file_dialog)
 
@@ -94,14 +96,39 @@ func _ready() -> void:
 	_load_workshop_cards()
 
 func _on_conversion_finished(success: bool, message: String) -> void:
+	for child in card_container.get_children():
+		if child.has_method("get_card_info") and child.has_method("set_converted"):
+			if _get_item_unique_key(child.call("get_card_info")) == converting_item_key:
+				child.call("set_converted")
 	# 还原最小化的窗口并带到前台
 	DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
 	DisplayServer.window_move_to_foreground()
+	
+	converting_item_key = ""
 	_load_workshop_cards()
 
 	accept_dialog.title = "转换成功" if success else "转换失败"
 	accept_dialog.dialog_text = message
 	accept_dialog.popup_centered()
+
+
+func _on_conversion_started(info: Dictionary) -> void:
+	converting_item_key = _get_item_unique_key(info)
+	
+	# 如果当前页刚好显示了这张卡片，直接调用它的 set_converting
+	for child in card_container.get_children():
+		if child.has_method("get_card_info") and child.has_method("set_converting"):
+			if _get_item_unique_key(child.call("get_card_info")) == converting_item_key:
+				child.call("set_converting")
+	
+	_apply_sort_on_cached_items()
+	_render_current_page_from_cache()
+
+
+func _get_item_unique_key(info: Dictionary) -> String:
+	var root := str(info.get("root_path", ""))
+	var folder := str(info.get("folder_name", ""))
+	return "%s|%s" % [root, folder]
 
 func _load_workshop_cards() -> void:
 	if card_container == null:
@@ -142,14 +169,35 @@ func _preload_workshop_items_once() -> bool:
 func _apply_sort_on_cached_items() -> void:
 	sorted_items = cached_items.duplicate()
 
-	if current_sort_index == 1:
-		sorted_items.sort_custom(_compare_subscribe_time_desc)
-	elif current_sort_index == 2:
-		sorted_items.sort_custom(_compare_folder_size_desc)
-	elif current_sort_index == 3:
+	var custom_sort = func(a: Dictionary, b: Dictionary) -> bool:
+		# 正在转换的项目始终排在首位
+		if not converting_item_key.is_empty():
+			var key_a = _get_item_unique_key(a)
+			var key_b = _get_item_unique_key(b)
+			if key_a == converting_item_key: return true
+			if key_b == converting_item_key: return false
+
+		if current_sort_index == 1:
+			return _compare_subscribe_time_desc(a, b)
+		elif current_sort_index == 2:
+			return _compare_folder_size_desc(a, b)
+		elif current_sort_index == 3:
+			# 随机排序无法稳定保持首位，除非显式处理
+			return false 
+		else:
+			return _compare_publish_date_with_local_last(a, b)
+
+	if current_sort_index == 3:
 		sorted_items.shuffle()
+		# 随机排序后，如果存在正在转换的项目，手动移到开头
+		if not converting_item_key.is_empty():
+			for i in range(sorted_items.size()):
+				if _get_item_unique_key(sorted_items[i]) == converting_item_key:
+					var item = sorted_items.pop_at(i)
+					sorted_items.push_front(item)
+					break
 	else:
-		sorted_items.sort_custom(_compare_publish_date_with_local_last)
+		sorted_items.sort_custom(custom_sort)
 
 
 func _render_current_page_from_cache() -> void:
@@ -176,7 +224,11 @@ func _render_current_page_from_cache() -> void:
 		if _is_custom_folder_info(card_info):
 			_add_custom_folder_card(card_info, title)
 		else:
-			_add_card(card_info, title)
+			var card = _add_card(card_info, title)
+			# 如果该卡片正在转换，手动触发显示状态
+			if not converting_item_key.is_empty() and _get_item_unique_key(card_info) == converting_item_key:
+				if card.has_method("set_converting"):
+					card.call("set_converting")
 
 
 func _get_visible_items_from_sorted_cache() -> Array:
@@ -195,6 +247,10 @@ func _get_visible_items_from_sorted_cache() -> Array:
 
 		if not _is_item_match_search(info):
 			continue
+		if _get_item_unique_key(info) == converting_item_key:
+			_visible.insert(0, info)
+			continue
+		
 
 		_visible.append(info)
 
@@ -305,7 +361,7 @@ func _update_page_num(total_items: int) -> void:
 	# 	page_num_node.call("setup_pages", total_items, MAX_ONE_PAGE_COUNT, current_page)
 
 
-func _add_card(card_info: Dictionary, title: String) -> void:
+func _add_card(card_info: Dictionary, title: String) -> Node:
 	var card := card_scene.instantiate()
 	card_container.add_child(card)
 	# 注入 context_menu 实例到卡片，降低对单例的直接依赖
@@ -317,6 +373,7 @@ func _add_card(card_info: Dictionary, title: String) -> void:
 	if card.has_signal("card_left_clicked"):
 		card.connect("card_left_clicked", _on_card_left_clicked)
 	_set_card_label(card, title)
+	return card
 
 
 func _add_custom_folder_card(card_info: Dictionary, title: String) -> void:
@@ -482,7 +539,7 @@ func _build_card_info_for_item(item: Dictionary) -> Dictionary:
 	card_info["folder_size"] = folder_size
 	# root_path 必须保持为根目录路径（LOCAL/WORKSHOP），筛选逻辑依赖该语义
 	card_info["root_path"] = item_root
-	card_info["is_workshop"] = bool(item.get("is_workshop", item_root == res.WORKSHOP_ROOT))
+	card_info["is_workshop"] = bool(item.get("is_workshop"))
 	card_info["folder_name"] = folder_name
 	return card_info
 
@@ -719,8 +776,8 @@ func _save_custom_folders_to_local() -> void:
 	file.store_string(JSON.stringify(payload))
 
 
-func _on_request_load_workshop_cards(force: bool) -> void:
-	print("收到刷新工作坊卡片的信号，force=%s" % str(force))
+func _on_request_load_workshop_cards() -> void:
+	print("收到刷新工作坊卡片的信号")
 	_load_workshop_cards()
 
 
@@ -732,9 +789,18 @@ func _on_page_num_page_selected(page_index: int) -> void:
 
 func _on_rename_win_rename_confirmed(new_name: String, target_info: Dictionary) -> void:
 	rename_item(target_info, new_name)
+	_load_workshop_cards()
 
 func _on_request_file_dialog() -> void:
 	folder_selection_dialog.popup_centered()
 
 
-
+func _on_filter_toggled(toggled_on: bool) -> void:
+	if toggled_on:
+		filter_panel.visible = true
+		filter_panel.custom_minimum_size.x = right_panel.size.x
+		filter_panel.set_active()
+		
+		filter_panel.load_all_tags()
+	else:
+		filter_panel.set_inactive()

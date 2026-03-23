@@ -1,0 +1,43 @@
+[gd_scene format=3 uid="uid://c218jajnssh1x"]
+
+[ext_resource type="Script" uid="uid://bw07kbwuucqkf" path="res://scripts/tag.gd" id="1_04lc7"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_7ydp3"]
+content_margin_left = 10.0
+content_margin_top = 4.0
+content_margin_right = 10.0
+content_margin_bottom = 4.0
+bg_color = Color(0.28235295, 0.28235295, 0.28235295, 1)
+border_width_right = 1
+corner_detail = 5
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_tvhmq"]
+content_margin_left = 4.0
+content_margin_top = 4.0
+content_margin_right = 4.0
+content_margin_bottom = 4.0
+bg_color = Color(0.28235295, 0.28235295, 0.28235295, 1)
+border_width_left = 1
+corner_detail = 5
+
+[node name="tag" type="HBoxContainer" unique_id=961010931 node_paths=PackedStringArray("tag_label")]
+theme_override_constants/separation = 0
+script = ExtResource("1_04lc7")
+tag_label = NodePath("Button")
+
+[node name="Button" type="Button" parent="." unique_id=96663120]
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_7ydp3")
+text = "test"
+
+[node name="delete" type="Button" parent="." unique_id=1098069809]
+custom_minimum_size = Vector2(24, 0)
+layout_mode = 2
+theme_override_constants/icon_max_width = 15
+theme_override_styles/normal = SubResource("StyleBoxFlat_tvhmq")
+text = "x"
+icon_alignment = 1
+expand_icon = true
+
+[connection signal="button_up" from="Button" to="." method="_on_button_button_up"]
+[connection signal="button_up" from="delete" to="." method="_on_delete_button_up"]

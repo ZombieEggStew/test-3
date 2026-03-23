@@ -28,6 +28,21 @@ func _on_save_config(key: String, value: Variant) -> void:
 
 
 # ============ 工具函数 ============
+static func has_tag(card_info: Dictionary) -> bool:
+    var project_data := card_info.get("project_data", {}) as Dictionary
+    var tags := project_data.get("tags", []) as Array
+    return not tags.is_empty()
+
+
+static func delete_tag(tag_name: String) -> void:
+    var all_tags_data = MainManager.read_json_file(MyRes.TAGS_STORE_PATH)
+    var global_tags = all_tags_data.get("global_tags", [])
+    
+    if tag_name in global_tags:
+        global_tags.erase(tag_name)
+        all_tags_data["global_tags"] = global_tags
+        MainManager.save_json_file(MyRes.TAGS_STORE_PATH, all_tags_data)
+
 
 static func delete_and_unsubscribe(target_card_info: Dictionary) -> bool:
     if target_card_info.is_empty():
@@ -280,6 +295,14 @@ static func read_json_file(json_path: String) -> Dictionary:
         return {}
 
     return parsed
+
+
+## 保存 JSON 文件数据
+static func save_json_file(json_path: String, data: Variant) -> void:
+    var file := FileAccess.open(json_path, FileAccess.WRITE)
+    if file:
+        file.store_string(JSON.stringify(data, "  "))
+        file.close()
 
 
 ## 从 VDF 文件读取订阅时间

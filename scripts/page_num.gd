@@ -116,16 +116,16 @@ func _clear_pages() -> void:
 
 
 
-func _on_main_ui_setup_pages(_total_items: int, max: int, _current_page: int) -> void:
+func _on_main_ui_setup_pages(_total_items: int, _max: int, current_page: int) -> void:
 	_clear_pages()
 
-	if max <= 0 or _total_items <= 0:
+	if _max <= 0 or _total_items <= 0:
 		_total_pages = 0
-		_current_page = 1
+		current_page = 1
 		return
 
-	_total_pages = int(ceil(float(_total_items) / float(max)))
-	_current_page = clampi(_current_page, 1, _total_pages)
+	_total_pages = int(ceil(float(_total_items) / float(_max)))
+	current_page = clampi(current_page, 1, _total_pages)
 
 	var visible_pages := _build_visible_page_indexes()
 	var prev_page := -1

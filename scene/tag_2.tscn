@@ -1,0 +1,29 @@
+[gd_scene format=3 uid="uid://dp1fk6od5dys3"]
+
+[ext_resource type="Script" uid="uid://cbkmga22ufo8n" path="res://scripts/tag_2.gd" id="1_e1yhm"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_0d4pv"]
+content_margin_left = 4.0
+content_margin_top = 4.0
+content_margin_right = 4.0
+content_margin_bottom = 4.0
+bg_color = Color(0.28235295, 0.28235295, 0.28235295, 1)
+border_width_left = 1
+corner_detail = 5
+
+[node name="tag_2" type="HBoxContainer" unique_id=838878515 node_paths=PackedStringArray("tag_label")]
+theme_override_constants/separation = 0
+script = ExtResource("1_e1yhm")
+tag_label = NodePath("CheckBox")
+
+[node name="CheckBox" type="CheckBox" parent="." unique_id=1272770548]
+layout_mode = 2
+text = "qweqw"
+
+[node name="Button" type="Button" parent="." unique_id=1704756376]
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_0d4pv")
+text = " x "
+
+[connection signal="toggled" from="CheckBox" to="." method="_on_check_box_toggled"]
+[connection signal="button_up" from="Button" to="." method="_on_button_button_up"]

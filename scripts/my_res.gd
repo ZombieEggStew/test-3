@@ -26,6 +26,7 @@ var CONVERTER_PROGRESS_PATH := ProjectSettings.globalize_path("res://py/convert_
 
 # 缓存和配置文件路径
 const GIF_CACHE_DIR_PATH := "res://gif_cache/"
+const TAGS_STORE_PATH := "user://item_tags.json"
 const CUSTOM_FOLDER_STORE_PATH := "user://custom_folders.json"
 const CONFIG_PATH := "user://config.json"
 

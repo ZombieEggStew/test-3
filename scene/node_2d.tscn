@@ -63,7 +63,30 @@ corner_radius_bottom_right = 3
 corner_radius_bottom_left = 3
 corner_detail = 5
 
-[node name="PanelContainer" type="PanelContainer" unique_id=747637982 node_paths=PackedStringArray("tex", "inside_panel", "inside_panel2", "label", "local_label")]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_5qbti"]
+content_margin_left = 0.0
+content_margin_top = 0.0
+content_margin_right = 0.0
+content_margin_bottom = 0.0
+bg_color = Color(0, 0, 0, 0.39215687)
+corner_detail = 1
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_3cebx"]
+content_margin_left = 5.0
+content_margin_top = 0.0
+content_margin_right = 5.0
+content_margin_bottom = 0.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_462ap"]
+bg_color = Color(0, 0, 0, 0.39215687)
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_ppd22"]
+content_margin_left = 5.0
+content_margin_top = 0.0
+content_margin_right = 5.0
+content_margin_bottom = 0.0
+
+[node name="PanelContainer" type="PanelContainer" unique_id=747637982 node_paths=PackedStringArray("tex", "inside_panel", "label", "local_label", "tagged_label", "converting_label")]
 custom_minimum_size = Vector2(100, 100)
 offset_right = 202.0
 offset_bottom = 202.0
@@ -71,11 +94,12 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_drhme")
 script = ExtResource("1_guiot")
 tex = NodePath("TextureRect")
 inside_panel = NodePath("Panel")
-inside_panel2 = NodePath("Panel2")
 label = NodePath("PanelContainer/MarginContainer/Label")
 defalt_tex = ExtResource("2_guiot")
 res = SubResource("Resource_3cebx")
-local_label = NodePath("local")
+local_label = NodePath("HBoxContainer/local")
+tagged_label = NodePath("HBoxContainer/tagged")
+converting_label = NodePath("HBoxContainer/is_converting")
 
 [node name="TextureRect" type="TextureRect" parent="." unique_id=501766723]
 custom_minimum_size = Vector2(200, 200)
@@ -120,35 +144,48 @@ layout_mode = 2
 mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_3cebx")
 
-[node name="local" type="PanelContainer" parent="." unique_id=575508223]
+[node name="HBoxContainer" type="HBoxContainer" parent="." unique_id=1152180901]
 layout_mode = 2
-size_flags_horizontal = 8
 size_flags_vertical = 0
+theme_override_constants/separation = 0
 
-[node name="MarginContainer" type="MarginContainer" parent="local" unique_id=194200917]
+[node name="is_converting" type="PanelContainer" parent="HBoxContainer" unique_id=1762149736]
+visible = false
 layout_mode = 2
-theme_override_constants/margin_left = 10
-theme_override_constants/margin_right = 10
-
-[node name="Label" type="Label" parent="local/MarginContainer" unique_id=994574117]
-layout_mode = 2
-text = "本地"
-horizontal_alignment = 1
-
-[node name="is_converting" type="PanelContainer" parent="." unique_id=1762149736]
-layout_mode = 2
-size_flags_horizontal = 0
+size_flags_horizontal = 2
 size_flags_vertical = 0
 theme_override_styles/panel = SubResource("StyleBoxFlat_tytcy")
 
-[node name="MarginContainer" type="MarginContainer" parent="is_converting" unique_id=700476640]
+[node name="MarginContainer" type="MarginContainer" parent="HBoxContainer/is_converting" unique_id=700476640]
 layout_mode = 2
 theme_override_constants/margin_left = 10
 theme_override_constants/margin_right = 10
 
-[node name="Label" type="Label" parent="is_converting/MarginContainer" unique_id=1642285482]
+[node name="Label" type="Label" parent="HBoxContainer/is_converting/MarginContainer" unique_id=1642285482]
 layout_mode = 2
 text = "转换中"
+horizontal_alignment = 1
+
+[node name="tagged" type="PanelContainer" parent="HBoxContainer" unique_id=583877719]
+visible = false
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_5qbti")
+
+[node name="Label" type="Label" parent="HBoxContainer/tagged" unique_id=1474426244]
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxEmpty_3cebx")
+text = "标签"
+horizontal_alignment = 1
+
+[node name="local" type="PanelContainer" parent="HBoxContainer" unique_id=575508223]
+visible = false
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_462ap")
+
+[node name="Label" type="Label" parent="HBoxContainer/local" unique_id=994574117]
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxEmpty_ppd22")
+text = "本地"
 horizontal_alignment = 1
 
 [connection signal="gui_input" from="." to="." method="_on_gui_input"]
