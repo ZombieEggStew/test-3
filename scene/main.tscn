@@ -30,6 +30,7 @@
 [ext_resource type="PackedScene" uid="uid://bhbw5k2mfc2jp" path="res://scene/settings_dialog.tscn" id="21_fdqew"]
 [ext_resource type="Script" uid="uid://167jyo4wstle" path="res://scripts/tag_panel.gd" id="22_0d4pv"]
 [ext_resource type="PackedScene" uid="uid://dp1fk6od5dys3" path="res://scene/tag_2.tscn" id="23_gtqqq"]
+[ext_resource type="Script" uid="uid://c2iswfe1c23gp" path="res://scripts/vcodec.gd" id="24_rg6nf"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_wp4xf"]
 content_margin_left = 10.0
@@ -91,7 +92,7 @@ content_margin_right = 0.0
 content_margin_bottom = 0.0
 bg_color = Color(0.25490198, 0.5137255, 0.9607843, 1)
 
-[sub_resource type="ButtonGroup" id="ButtonGroup_vneqc"]
+[sub_resource type="ButtonGroup" id="ButtonGroup_rg6nf"]
 allow_unpress = true
 
 [sub_resource type="Theme" id="Theme_tqoya"]
@@ -340,7 +341,7 @@ page_card = ExtResource("7_k65ib")
 
 [node name="page_1" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/MarginContainer/HBoxContainer/page_num" unique_id=109932289 instance=ExtResource("7_k65ib")]
 layout_mode = 2
-button_group = SubResource("ButtonGroup_vneqc")
+button_group = SubResource("ButtonGroup_rg6nf")
 
 [node name="Button2" type="Button" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/MarginContainer/HBoxContainer" unique_id=924454259]
 layout_mode = 2
@@ -362,10 +363,10 @@ theme_override_constants/margin_right = 5
 theme_override_constants/margin_bottom = 5
 script = ExtResource("5_p1hux")
 title_label = NodePath("ScrollContainer/VBox/MarginContainer2/title_Label")
-resolution_label = NodePath("ScrollContainer/VBox/Attributes/VBoxContainer/resolution_Label2")
-bitrate_label = NodePath("ScrollContainer/VBox/Attributes/VBoxContainer/biterate_Label3")
-duration_label = NodePath("ScrollContainer/VBox/Attributes/VBoxContainer/duration_label")
-video_size_label = NodePath("ScrollContainer/VBox/Attributes/VBoxContainer/size_Label")
+resolution_label = NodePath("ScrollContainer/VBox/Attributes/VBoxContainer/HBoxContainer/resolution_Label2")
+bitrate_label = NodePath("ScrollContainer/VBox/Attributes/VBoxContainer/HBoxContainer2/biterate_Label3")
+duration_label = NodePath("ScrollContainer/VBox/Attributes/VBoxContainer/HBoxContainer2/duration_label")
+video_size_label = NodePath("ScrollContainer/VBox/Attributes/VBoxContainer/HBoxContainer/size_Label")
 res = SubResource("Resource_oldxj")
 
 [node name="ScrollContainer" type="ScrollContainer" parent="main_ui/HBoxContainer/right_panel" unique_id=549181938]
@@ -434,24 +435,34 @@ layout_mode = 2
 size_flags_vertical = 3
 theme_override_constants/separation = 4
 
-[node name="size_Label" type="Label" parent="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/Attributes/VBoxContainer" unique_id=5260522]
+[node name="HBoxContainer" type="HBoxContainer" parent="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/Attributes/VBoxContainer" unique_id=728896904]
 layout_mode = 2
-size_flags_horizontal = 3
+
+[node name="size_Label" type="Label" parent="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/Attributes/VBoxContainer/HBoxContainer" unique_id=5260522]
+layout_mode = 2
 size_flags_vertical = 0
 text = "文件大小："
 
-[node name="resolution_Label2" type="Label" parent="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/Attributes/VBoxContainer" unique_id=574732040]
+[node name="VSeparator" type="VSeparator" parent="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/Attributes/VBoxContainer/HBoxContainer" unique_id=2035509903]
+layout_mode = 2
+
+[node name="resolution_Label2" type="Label" parent="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/Attributes/VBoxContainer/HBoxContainer" unique_id=574732040]
 layout_mode = 2
 size_flags_vertical = 0
 text = "分辨率："
 
-[node name="biterate_Label3" type="Label" parent="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/Attributes/VBoxContainer" unique_id=636252279]
+[node name="HBoxContainer2" type="HBoxContainer" parent="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/Attributes/VBoxContainer" unique_id=1145541565]
 layout_mode = 2
-size_flags_horizontal = 3
+
+[node name="biterate_Label3" type="Label" parent="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/Attributes/VBoxContainer/HBoxContainer2" unique_id=636252279]
+layout_mode = 2
 size_flags_vertical = 0
 text = "平均码率："
 
-[node name="duration_label" type="Label" parent="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/Attributes/VBoxContainer" unique_id=2019144779]
+[node name="VSeparator" type="VSeparator" parent="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/Attributes/VBoxContainer/HBoxContainer2" unique_id=1202106579]
+layout_mode = 2
+
+[node name="duration_label" type="Label" parent="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/Attributes/VBoxContainer/HBoxContainer2" unique_id=2019144779]
 layout_mode = 2
 text = "时长："
 
@@ -468,7 +479,7 @@ layout_mode = 2
 size_flags_horizontal = 3
 theme_override_styles/separator = SubResource("StyleBoxLine_brvut")
 
-[node name="converter" type="MarginContainer" parent="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox" unique_id=1327560853 node_paths=PackedStringArray("preset", "cq", "maxrate", "progress_bar", "start_convert_button", "stop_convert_button", "delete_check_box")]
+[node name="converter" type="MarginContainer" parent="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox" unique_id=1327560853 node_paths=PackedStringArray("preset", "cq", "maxrate", "vcodec", "progress_bar", "start_convert_button", "stop_convert_button", "delete_check_box")]
 layout_mode = 2
 theme_override_constants/margin_left = 3
 theme_override_constants/margin_top = 6
@@ -478,6 +489,7 @@ script = ExtResource("7_of57s")
 preset = NodePath("VBoxContainer/HBoxContainer/preset")
 cq = NodePath("VBoxContainer/HBoxContainer/cq")
 maxrate = NodePath("VBoxContainer/HBoxContainer2/maxrate")
+vcodec = NodePath("VBoxContainer/HBoxContainer3/vcodec")
 progress_bar = NodePath("VBoxContainer/ProgressBar")
 start_convert_button = NodePath("VBoxContainer/start_convert")
 stop_convert_button = NodePath("VBoxContainer/stop_button")
@@ -550,6 +562,29 @@ popup/item_3/text = "15M"
 popup/item_3/id = 1
 popup/item_4/text = "20M"
 popup/item_4/id = 2
+
+[node name="HBoxContainer3" type="HBoxContainer" parent="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer" unique_id=334039621]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/HBoxContainer3" unique_id=90439238]
+layout_mode = 2
+text = "编码器："
+
+[node name="vcodec" type="OptionButton" parent="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/HBoxContainer3" unique_id=808549056]
+layout_mode = 2
+size_flags_horizontal = 3
+text_overrun_behavior = 3
+selected = 0
+item_count = 4
+popup/item_0/text = "hevc_nvenc（N卡）（性能）"
+popup/item_0/id = 0
+popup/item_1/text = "h264_nvenc（N卡）（兼容）"
+popup/item_1/id = 3
+popup/item_2/text = "av1_nvenc（40系及以上N卡）"
+popup/item_2/id = 3
+popup/item_3/text = "h264_amf （A卡）"
+popup/item_3/id = 1
+script = ExtResource("24_rg6nf")
 
 [node name="delete_checkbox" type="CheckBox" parent="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer" unique_id=195261960]
 layout_mode = 2
@@ -645,6 +680,7 @@ layout_mode = 2
 [connection signal="item_selected" from="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/HBoxContainer/preset" to="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter" method="_on_preset_item_selected"]
 [connection signal="item_selected" from="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/HBoxContainer/cq" to="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter" method="_on_cq_item_selected"]
 [connection signal="item_selected" from="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/HBoxContainer2/maxrate" to="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter" method="_on_maxrate_item_selected"]
+[connection signal="item_selected" from="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/HBoxContainer3/vcodec" to="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/HBoxContainer3/vcodec" method="_on_item_selected"]
 [connection signal="toggled" from="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/delete_checkbox" to="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/delete_checkbox" method="_on_toggled"]
 [connection signal="button_up" from="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/start_convert" to="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter" method="_on_start_convert_button_up"]
 [connection signal="button_up" from="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/stop_button" to="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter" method="_on_stop_button_button_up"]

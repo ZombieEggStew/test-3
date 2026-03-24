@@ -5,6 +5,7 @@ extends Node
 @export var preset :OptionButton
 @export var cq :OptionButton
 @export var maxrate :OptionButton
+@export var vcodec :OptionButton
 @export var progress_bar : ProgressBar
 @export var start_convert_button: Button
 @export var stop_convert_button: Button
@@ -67,14 +68,16 @@ func start_conversion(python_path: String, converter_script: String, input_file:
 	var preset_value := MainManager.get_option_selected_text(preset, "p7")
 	var cq_value := MainManager.get_option_selected_text(cq, "21")
 	var maxrate_value := MainManager.get_option_selected_text(maxrate, "10M")
-	# var orientation_text := MainManager.get_option_selected_text(is_h, "横屏")
-	# var width_value := res.PORTRAIT_WIDTH if orientation_text.find("竖") >= 0 else res.LANDSCAPE_WIDTH
+	var vcodec_index := vcodec.selected if vcodec else 0
+
 	if not FileAccess.file_exists(python_path):
 		SignalBus.request_popup_warning.emit("Python 可执行文件不存在: %s" % python_path)
 		return false
 	if not FileAccess.file_exists(converter_script):
 		SignalBus.request_popup_warning.emit("转换脚本不存在: %s" % converter_script)
 		return false
+
+	print(preset_value, cq_value, maxrate_value, vcodec_index)
 
 	var args := [
 		converter_script,
@@ -84,6 +87,7 @@ func start_conversion(python_path: String, converter_script: String, input_file:
 		"--cq", cq_value,
 		"--maxrate", maxrate_value,
 		"--progress-file", progress_file,
+		"--vcodec", str(vcodec_index),
 	]
 
 	var pid := OS.create_process(python_path, args)
@@ -174,11 +178,12 @@ func _update_progress_bar_from_file() -> void:
 		_finish_conversion_state(true)
 		SignalBus.conversion_finished.emit(true, "文件转换已完成！")
 
-		if delete_check_box and delete_check_box.pressed:
+		if delete_check_box and delete_check_box.button_pressed:
 			MainManager.delete_and_unsubscribe(converting_card_info)
 
 func _finish_conversion_state(success: bool) -> void:
 	is_converting = false
+	converting_card_info.clear()
 	converter_pid = -1
 	_set_convert_ui_state(false)
 	if success:
@@ -238,6 +243,8 @@ func _on_stop_button_button_up() -> void:
 
 	_finish_conversion_state(false)
 	print("已停止转换")
+
+	SignalBus.load_workshop_cards.emit()  # 刷新卡片状态，可能需要根据实际情况调整为更细粒度的信号
 
 func _on_main_ui_on_card_selected(info: Dictionary) -> void:
 	selected_card_info = info

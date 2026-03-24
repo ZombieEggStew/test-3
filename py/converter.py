@@ -34,6 +34,11 @@ def copy_project_and_preview_files(source_dir, target_dir, new_video_name):
                 project_data = json.load(f)
 
             if isinstance(project_data, dict):
+                # 删除指定的字段
+                for field in ['contentrating', 'ratingsex', 'ratingviolenc']:
+                    if field in project_data:
+                        del project_data[field]
+                
                 project_data['file'] = new_video_name
                 old_title = str(project_data.get('title', '')).strip()
                 if old_title:
@@ -55,7 +60,7 @@ def copy_project_and_preview_files(source_dir, target_dir, new_video_name):
 
 def get_video_stream(input_path):
     """获取视频流信息"""
-    try:
+    try: 
         probe = ffmpeg.probe(input_path)
         for stream in probe['streams']:
             if stream['codec_type'] == 'video':
@@ -64,7 +69,7 @@ def get_video_stream(input_path):
         print(f"获取视频信息失败: {e}")
     return None
 
-def test2(input_path, output_dir='', preset='p7', cq='21', maxrate='10M', callback=None, progress_file=None):
+def test2(input_path, output_dir='', preset='p7', cq='21', maxrate='10M', vcodec='0', callback=None, progress_file=None):
     file_dir = os.path.dirname(os.path.abspath(input_path))
     print(f"文件目录: {file_dir}")
     file_name = os.path.basename(input_path)
@@ -78,10 +83,11 @@ def test2(input_path, output_dir='', preset='p7', cq='21', maxrate='10M', callba
     print(f"临时文件路径: {temp_file}")
     backup_path = os.path.join(file_dir, f"{file_name}.bak")
     print(f"备份文件路径: {backup_path}")
+    copy_project_and_preview_files(file_dir, target_dir, os.path.basename(output_file))
 
     # 获取视频信息并计算缩放
     stream = get_video_stream(input_path)
-    vf_scale = "scale=1920:-2:flags=spline" # 默认值
+    vf_scale = "scale=1920:-2:flags=lanczos" # 默认值
     if stream:
         width = int(stream.get('width', 0))
         height = int(stream.get('height', 0))
@@ -89,10 +95,10 @@ def test2(input_path, output_dir='', preset='p7', cq='21', maxrate='10M', callba
             aspect_ratio = width / height
             target_ratio = 16.0 / 9.0
             if aspect_ratio >= target_ratio:
-                vf_scale = "scale=1920:-2:flags=spline"
+                vf_scale = "scale=1920:-2:flags=lanczos"
                 print(f"检测到宽屏/标准比例 ({aspect_ratio:.2f} >= {target_ratio:.2f})，固定宽度 1920")
             else:
-                vf_scale = "scale=-2:1080:flags=spline"
+                vf_scale = "scale=-2:1080:flags=lanczos"
                 print(f"检测到窄屏/竖屏比例 ({aspect_ratio:.2f} < {target_ratio:.2f})，固定高度 1080")
 
     print(f"质量:{preset}")
@@ -106,28 +112,93 @@ def test2(input_path, output_dir='', preset='p7', cq='21', maxrate='10M', callba
     print(f"最大码率: {maxrate_value}")
     print(f"缓冲区: {bufsize_value}")
     # 构建 FFmpeg 命令参数列表
-    cmd = [
+    cmd_0 = [
         'ffmpeg',
         '-i', input_path,           # 输入文件
-        '-vf', vf_scale,            # 使用动态计算的缩放滤镜
-        '-vcodec', 'h264_nvenc',    # 视频编码器
-        '-preset', preset,              # 编码预设
+        '-vf', vf_scale,  # 改进滤镜：使用 Lanczos 算法提升缩放画质
+        '-vcodec', 'hevc_nvenc',    # 视频编码器：HEVC
+        '-preset', preset,            # 预设：使用最高的 p7 预设（最慢，压缩率最高）
         '-rc:v', 'vbr',            # NVENC 码率控制模式
-        '-cq:v', cq,               # NVENC 恒定质量
-        '-profile', 'high',         # 编码档次
-        '-tune', 'hq',              # 调优设置
-        '-movflags', '+faststart',  # MP4优化
-        '-pix_fmt', 'yuv420p',      # 像素格式
+        '-cq:v', cq,               # 恒定质量：建议设置 24-28 以获得更小体积
+        '-multipass', 'fullres',   # 启用全分辨率多路编码，大幅提升质量/压缩比
+        '-rc-lookahead', '32',     # 启用码率控制展望 (0-32)，提升复杂场景画质
+        '-spatial-aq', '1',        # 启用空间自适应量化
+        '-aq-strength', '12',      # AQ 强度 (1-15)，增强平滑区域/边缘的细节保护
+        '-temporal-aq', '1',       # 启用时间自适应量化
+        '-bf', '3',                # 设置 B 帧数量，提升压缩率和画质
+        '-pix_fmt', 'p010le',      # 像素格式：使用 10-bit 提升色深，减少断层
         '-acodec', 'copy',          # 音频流复制
-        '-b:v', '0',                # 视频码率（CRF模式）
-        # '-b:v', bitrate if bitrate else '0',
-        '-maxrate', maxrate_value,  # 最大码率
+        '-b:v', '0',                # 强制使用 CQ 模式控制码率
+        '-maxrate', maxrate_value,  # 最大码率限制
         '-bufsize', bufsize_value,  # 缓冲区大小
-        '-y',                       # 覆盖输出文件（相当于overwrite_output）
+        '-y',                       # 覆盖输出文件
         temp_file                   # 输出文件
+    ]
+    cmd_1 = [
+        'ffmpeg',
+        '-i', input_path,
+        '-vf', vf_scale,  # 缩放到1080P
+        '-c:v', 'h264_nvenc',  # H264硬件编码器
+        '-preset', preset,    # 最慢预设，最高质量
+        '-cq:v', cq,         # 恒定质量，低值=高画质
+        '-multipass', 'fullres',  # 多路编码，提升质量
+        '-spatial-aq', '1',   # 空间自适应量化
+        '-temporal-aq', '1',  # 时间自适应量化
+        '-rc-lookahead', '32', # 展望帧，提升复杂场景画质
+        '-b:v', '0',          # 强制CQ模式
+        '-maxrate', maxrate_value,    # 最大码率限制体积
+        '-bufsize', bufsize_value,    # 缓冲区
+        '-pix_fmt', 'yuv420p', # 像素格式
+        '-c:a', 'copy',       # 复制音频
+        '-y', temp_file
+    ]
+    cmd_2 = [
+        'ffmpeg',
+        '-i', input_path,
+        '-vf', vf_scale,  # 缩放到1080P
+        '-c:v', 'av1_nvenc',  # AV1硬件编码器
+        '-preset', preset,    # 最慢预设，最高质量/压缩率
+        '-cq:v', cq,        # 恒定质量，低值=高画质
+        '-multipass', 'fullres',  # 多路编码，提升质量
+        '-spatial-aq', '1',   # 空间自适应量化
+        '-temporal-aq', '1',  # 时间自适应量化
+        '-rc-lookahead', '32', # 展望帧，提升复杂场景画质
+        '-b:v', '0',          # 强制CQ模式
+        '-maxrate', maxrate_value,    # 最大码率限制体积
+        '-bufsize', bufsize_value,    # 缓冲区
+        '-pix_fmt', 'yuv420p10le',  # 10-bit像素格式，提升色深
+        '-c:a', 'copy',       # 复制音频
+        '-y', temp_file
+    ]
+
+    cmd_3 = [
+        'ffmpeg',
+        '-i', input_path,
+        '-vf', vf_scale,  # 缩放到1080P
+        '-c:v', 'h264_amf',  # H264硬件编码器
+        '-usage', 'transcoding',  # 使用转码模式
+        '-quality', 'quality',    # 最高质量
+        '-crf', cq,         # 恒定质量，低值=高画质
+        '-maxrate', maxrate_value,    # 最大码率限制体积
+        '-bufsize', bufsize_value,    # 缓冲区
+        '-pix_fmt', 'yuv420p', # 像素格式
+        '-c:a', 'copy',       # 复制音频
+        '-y', temp_file
     ]
     
     try:
+        vcodec_int = int(vcodec)
+        if vcodec_int == 0:
+            cmd = cmd_0
+        elif vcodec_int == 1:
+            cmd = cmd_1
+        elif vcodec_int == 2:
+            cmd = cmd_2
+        elif vcodec_int == 3:
+            cmd = cmd_3
+        else:
+            cmd = cmd_0  # 默认
+
         total_seconds = 0.0
         write_progress(progress_file, 0)
 
@@ -177,7 +248,7 @@ def test2(input_path, output_dir='', preset='p7', cq='21', maxrate='10M', callba
             return False
 
         os.replace(temp_file, output_file)
-        copy_project_and_preview_files(file_dir, target_dir, os.path.basename(output_file))
+        
         print(f"✓ 转换完成: {output_file}")
         write_progress(progress_file, 100)
         return True
@@ -205,6 +276,7 @@ def _parse_args():
     parser.add_argument("--cq", default="21", help="CQ 值")
     parser.add_argument("--maxrate", default="10M", help="最大码率")
     parser.add_argument("--progress-file", default="", help="进度输出文件路径")
+    parser.add_argument("--vcodec", default="0", help="编码器索引: 0=hevc_nvenc, 1=h264_nvenc, 2=av1_nvenc")
     return parser.parse_args()
 
 
@@ -221,6 +293,7 @@ if __name__ == "__main__":
         preset=args.preset,
         cq=args.cq,
         maxrate=args.maxrate,
+        vcodec=args.vcodec,
         progress_file=args.progress_file,
     )
     raise SystemExit(0 if ok else 1)
