@@ -3,7 +3,8 @@ extends Node
 #FIX ME : 修复开始和结束转换按钮的信号
 
 @export var preset :OptionButton
-@export var cq :OptionButton
+# @export var cq :OptionButton
+@export var cq :LineEdit
 @export var maxrate :OptionButton
 @export var vcodec :OptionButton
 @export var progress_bar : ProgressBar
@@ -29,7 +30,7 @@ func _ready() -> void:
 	SignalBus.on_card_selected.connect(_on_main_ui_on_card_selected)
 	_set_convert_ui_state(false)
 	_reset_progress_bar()
-	_load_config()
+	# _load_config()
 
 func _process(delta: float) -> void:
 	if not is_converting:
@@ -66,7 +67,7 @@ func start_conversion(python_path: String, converter_script: String, input_file:
 	if progress_bar:
 		progress_bar.value = 0.0
 	var preset_value := MainManager.get_option_selected_text(preset, "p7")
-	var cq_value := MainManager.get_option_selected_text(cq, "21")
+	var cq_value := cq.text.strip_edges() if cq != null else "21"
 	var maxrate_value := MainManager.get_option_selected_text(maxrate, "10M")
 	var vcodec_index := vcodec.selected if vcodec else 0
 
@@ -253,20 +254,17 @@ func _on_main_ui_on_card_selected(info: Dictionary) -> void:
 
 	
 
-func _load_config() -> void:
-	preset.selected = int(MainManager.get_config_value("preset", 2))
-	cq.selected = int(MainManager.get_config_value("cq", 1))
-	maxrate.selected = int(MainManager.get_config_value("maxrate", 2))
+# func _load_config() -> void:
+# 	preset.selected = int(MainManager.get_config_value("preset", 2))
+	# cq.selected = int(MainManager.get_config_value("cq", 1))
+	
 	# is_h.selected = int(MainManager.get_config_value("width", 0))
 
-func _on_preset_item_selected(index: int) -> void:
-	SignalBus.save_config.emit("preset", index)
+# func _on_preset_item_selected(index: int) -> void:
+# 	SignalBus.save_config.emit("preset", index)
 
-func _on_cq_item_selected(index: int) -> void:
-	SignalBus.save_config.emit("cq", index)
+# func _on_cq_item_selected(index: int) -> void:
+# 	SignalBus.save_config.emit("cq", index)
 
-func _on_maxrate_item_selected(index: int) -> void:
-	SignalBus.save_config.emit("maxrate", index)
-
-func _on_is_h_item_selected(index: int) -> void:
-	SignalBus.save_config.emit("width", index)
+# func _on_is_h_item_selected(index: int) -> void:
+# 	SignalBus.save_config.emit("width", index)

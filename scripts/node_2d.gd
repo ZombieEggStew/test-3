@@ -45,7 +45,7 @@ func set_label_text(text: String) -> void:
 		if res.IS_SHOW_NAME:
 			label.text = text
 		else:
-			label.text = "name"
+			label.text = "演示壁纸"
 
 func _on_mouse_entered() -> void:
 	_tween_border_alpha(1.0)  # 255 对应 1.0

@@ -2,7 +2,7 @@ extends Resource
 class_name MyRes
 
 
-const IS_SHOW_NAME := true
+const IS_SHOW_NAME := false
 
 const MAX_TEST_FOLDER_COUNT := 10000
 
@@ -18,7 +18,7 @@ var LOCAL_PROJECTS_ROOT := ""
 # const CONVERTER_SCRIPT_PATH := "D:/AGodotProjects/test-3/py/converter.py"
 # const SPLIT_GIF_SCRIPT_PATH := "res://py/split_gif.py"
 # const CONVERTER_PROGRESS_PATH := "D:/AGodotProjects/test-3/py/convert_progress.txt"
-var PYTHON_EXE_PATH := ProjectSettings.globalize_path("res://py/.venv/Scripts/python.exe")
+var PYTHON_EXE_PATH := ProjectSettings.globalize_path("res://py/python_embed/python.exe")
 var CONVERTER_SCRIPT_PATH := ProjectSettings.globalize_path("res://py/converter.py")
 var SPLIT_GIF_SCRIPT_PATH := ProjectSettings.globalize_path("res://py/split_gif.py")
 var CONVERTER_PROGRESS_PATH := ProjectSettings.globalize_path("res://py/convert_progress.txt")
