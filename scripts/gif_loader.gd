@@ -2,20 +2,19 @@ extends Node
 class_name GIFToAnimatedTexture
 
 ## 调用 split_gif.py 并生成 AnimatedTexture 资源
-func convert_gif_to_animated_texture(gif_path: String, output_dir_path: String) -> AnimatedTexture:
-	var metadata_path = output_dir_path.path_join("metadata.json")
+func convert_gif_to_animated_texture(gif_path: String, output_dir: String) -> AnimatedTexture:
+	var metadata_path = output_dir.path_join("metadata.json")
 	
 	# --- 缓存检测逻辑 ---
 	# 如果 metadata.json 存在，说明之前已经转换过了，直接加载即可
 	if FileAccess.file_exists(metadata_path):
 		if _is_cache_valid(gif_path, metadata_path):
-			var cached_at = _load_from_cache(output_dir_path)
+			var cached_at = _load_from_cache(output_dir)
 			if cached_at:
 				if OS.is_stdout_verbose(): print("GIF 命中缓存: ", gif_path)
 				return cached_at
 	# --------------------
 
-	var output_dir = ProjectSettings.globalize_path(output_dir_path)
 	var abs_gif_path = ProjectSettings.globalize_path(gif_path)
 	# 从资源脚本读取路径配置，确保脚本已被加载
 	var res = preload("res://resources/my_res.tres")
@@ -26,16 +25,20 @@ func convert_gif_to_animated_texture(gif_path: String, output_dir_path: String) 
 	if not DirAccess.dir_exists_absolute(output_dir):
 		var err = DirAccess.make_dir_recursive_absolute(output_dir)
 		if err != OK:
-			SignalBus.request_popup_warning.emit("无法创建目录: " + output_dir_path + " 错误码: " + str(err))
+			SignalBus.request_popup_warning.emit("无法创建目录: " + output_dir + " 错误码: " + str(err))
 			return null
 	
 	# 调用 Python 脚本
 	var args = [script_path, abs_gif_path, output_dir]
 	var output = []
+	print("[GIF] 准备转换: ", abs_gif_path)
+	print("[GIF] 转换命令: ", python_path, " ", args)
 	var exit_code = OS.execute(python_path, args, output, true)
 	
 	if exit_code != 0:
-		SignalBus.request_popup_warning.emit("GIF 转换失败: " + str(output))
+		var error_msg = "GIF 转换失败 (Code %d): %s" % [exit_code, str(output)]
+		print("[GIF] " + error_msg)
+		SignalBus.request_popup_warning.emit(error_msg)
 		return null
 	
 	# 读取 metadata.json
@@ -57,7 +60,7 @@ func convert_gif_to_animated_texture(gif_path: String, output_dir_path: String) 
 	
 	for i in range(json_data.size()):
 		var frame_info = json_data[i]
-		var frame_file = output_dir_path.path_join(frame_info["file"])
+		var frame_file = output_dir.path_join(frame_info["file"])
 		var img = Image.load_from_file(frame_file)
 		if img:
 			var tex = ImageTexture.create_from_image(img)
@@ -75,8 +78,8 @@ func _is_cache_valid(_gif_path: String, _metadata_path: String) -> bool:
 	return true
 
 ## 从缓存目录加载现有的 AnimatedTexture
-func _load_from_cache(output_dir_path: String) -> AnimatedTexture:
-	var metadata_path = output_dir_path.path_join("metadata.json")
+func _load_from_cache(output_dir: String) -> AnimatedTexture:
+	var metadata_path = output_dir.path_join("metadata.json")
 	var file = FileAccess.open(metadata_path, FileAccess.READ)
 	var json_data = JSON.parse_string(file.get_as_text())
 	file.close()
@@ -89,7 +92,7 @@ func _load_from_cache(output_dir_path: String) -> AnimatedTexture:
 	
 	for i in range(json_data.size()):
 		var frame_info = json_data[i]
-		var frame_file = output_dir_path.path_join(frame_info["file"])
+		var frame_file = output_dir.path_join(frame_info["file"])
 		if not FileAccess.file_exists(frame_file):
 			return null
 		var img = Image.load_from_file(frame_file)

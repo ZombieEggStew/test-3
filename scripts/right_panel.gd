@@ -30,6 +30,7 @@ func clear_info() -> void:
 
 func _on_main_ui_on_card_selected(info: Dictionary) -> void:
     if title_label:
+        # title_label.text = MainManager.extract_card_title(info)
         if res.IS_SHOW_NAME:
             title_label.text = MainManager.extract_card_title(info)
         else:

@@ -352,8 +352,10 @@ static func clear_directory_contents(dir_path: String) -> void:
     if dir == null:
         return
 
-    # 删除所有文件
+    # 删除所有文件（保留 .gdignore）
     for file_name in dir.get_files():
+        if str(file_name) == ".gdignore":
+            continue
         dir.remove(file_name)
     
     # 递归删除所有子目录
@@ -432,7 +434,15 @@ static func read_mp4_metadata(file_path: String) -> Dictionary:
         "-of", "json",
         file_path,
     ]
-    var exit_code := OS.execute("ffprobe", args, output, true)
+    
+    var res_data = load("res://resources/my_res.tres")
+    var ffprobe_exe = "ffprobe"
+    if res_data and res_data is MyRes:
+        ffprobe_exe = res_data.FFPROBE_PATH
+        if not FileAccess.file_exists(ffprobe_exe):
+            ffprobe_exe = "ffprobe" # 退回到系统路径
+
+    var exit_code := OS.execute(ffprobe_exe, args, output, true)
     if exit_code != 0 or output.is_empty():
         return result
 

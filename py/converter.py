@@ -1,10 +1,14 @@
 import ffmpeg
 import os
-import tempfile
 import subprocess
 import argparse
 import json
 import shutil
+
+# 自动将项目 bin 目录加入 PATH，以便 ffmpeg-python 能找到 ffmpeg.exe/ffprobe.exe
+bin_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "bin"))
+if os.path.exists(bin_dir):
+    os.environ["PATH"] = bin_dir + os.pathsep + os.environ.get("PATH", "")
 
 
 def write_progress(progress_file, value):

@@ -23,6 +23,9 @@ var CONVERTER_SCRIPT_PATH := ProjectSettings.globalize_path("res://py/converter.
 var SPLIT_GIF_SCRIPT_PATH := ProjectSettings.globalize_path("res://py/split_gif.py")
 var CONVERTER_PROGRESS_PATH := ProjectSettings.globalize_path("res://py/convert_progress.txt")
 
+var FFPROBE_PATH := ProjectSettings.globalize_path("res://bin/ffprobe.exe")
+var FFMPEG_PATH := ProjectSettings.globalize_path("res://bin/ffmpeg.exe")
+
 # 缓存和配置文件路径
 const GIF_CACHE_DIR_PATH := "res://gif_cache/"
 const TAGS_STORE_PATH := "user://item_tags.json"

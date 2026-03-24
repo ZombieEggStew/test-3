@@ -191,7 +191,7 @@ func _load_texture_from_path(file_path: String , _name:String) -> Texture2D:
 	if file_path.to_lower().ends_with(".gif"):
 		var loader = GIFToAnimatedTexture.new()
 		# 缓存目录：使用 base_name 区分不同的 GIF
-		var cache_dir = res.GIF_CACHE_DIR_PATH + _name
+		var cache_dir = ProjectSettings.globalize_path(res.GIF_CACHE_DIR_PATH + _name)
 		var at = loader.convert_gif_to_animated_texture(file_path, cache_dir)
 		if at:
 			return at
