@@ -4,3 +4,5 @@
 py/convert_progress.txt
 gif_cache/
 TO DO.txt
+py/__pycache__
+py/python_embed
