@@ -171,7 +171,7 @@ custom_minimum_size = Vector2(200, 0)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/margin_left = 5
-theme_override_constants/margin_top = 5
+theme_override_constants/margin_top = 15
 theme_override_constants/margin_right = 0
 theme_override_constants/margin_bottom = 5
 
@@ -298,8 +298,8 @@ size_flags_vertical = 3
 [node name="MarginContainer" type="MarginContainer" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/ScrollContainer2" unique_id=765039720]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/margin_top = 25
-theme_override_constants/margin_bottom = 25
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_bottom = 10
 
 [node name="Card_container" type="HFlowContainer" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/ScrollContainer2/MarginContainer" unique_id=1796475393]
 layout_mode = 2
@@ -314,9 +314,9 @@ layout_mode = 2
 [node name="MarginContainer" type="MarginContainer" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer" unique_id=712038022]
 layout_mode = 2
 theme_override_constants/margin_left = 0
-theme_override_constants/margin_top = 20
+theme_override_constants/margin_top = 10
 theme_override_constants/margin_right = 0
-theme_override_constants/margin_bottom = 20
+theme_override_constants/margin_bottom = 5
 
 [node name="HBoxContainer" type="HBoxContainer" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/MarginContainer" unique_id=581211235]
 layout_mode = 2
