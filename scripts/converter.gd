@@ -171,6 +171,7 @@ func _update_progress_bar_from_file() -> void:
 		_finish_conversion_state(false)
 		SignalBus.request_popup_warning.emit("转换失败: 进程已退出且进度未完成")
 		SignalBus.conversion_finished.emit(false, "转换进程异常终止或进度文件读取失败")
+		converting_card_info.clear()
 		return
 
 	progress_bar.value = value
@@ -181,9 +182,10 @@ func _update_progress_bar_from_file() -> void:
 		if delete_check_box and delete_check_box.button_pressed:
 			MainManager.delete_and_unsubscribe(converting_card_info)
 
+		
+
 func _finish_conversion_state(success: bool) -> void:
 	is_converting = false
-	converting_card_info.clear()
 	converter_pid = -1
 	_set_convert_ui_state(false)
 	if success:
@@ -243,7 +245,7 @@ func _on_stop_button_button_up() -> void:
 
 	_finish_conversion_state(false)
 	print("已停止转换")
-
+	converting_card_info.clear()
 	SignalBus.load_workshop_cards.emit()  # 刷新卡片状态，可能需要根据实际情况调整为更细粒度的信号
 
 func _on_main_ui_on_card_selected(info: Dictionary) -> void:
