@@ -185,8 +185,10 @@ layout_mode = 2
 
 [node name="HBoxContainer" type="HBoxContainer" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer" unique_id=1582054126]
 layout_mode = 2
+alignment = 2
 
 [node name="TabBar" type="TabBar" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer" unique_id=1849870455]
+visible = false
 custom_minimum_size = Vector2(0, 50)
 layout_mode = 2
 size_flags_horizontal = 3

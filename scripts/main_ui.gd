@@ -844,9 +844,7 @@ func _on_request_file_dialog() -> void:
 func _on_filter_toggled(toggled_on: bool) -> void:
     if toggled_on:
         filter_panel.size.x = right_panel.size.x
-        filter_panel.set_active()
-        
-        filter_panel.load_all_tags()
+        filter_panel.set_active(active_tags)
     else:
         filter_panel.set_inactive()
 

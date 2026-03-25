@@ -6,10 +6,13 @@ extends PanelContainer
 @export var group_scene: PackedScene
 var tw: Tween
 
+var avtive_tags : Array[String] = []
 
-func set_active() -> void:
+func set_active(tags:Array[String]) -> void:
 	# show()
+	avtive_tags = tags
 	_tween_position(position.x - size.x)
+	load_all_tags()
 
 func set_inactive() -> void:
 	_tween_position(position.x + size.x)
@@ -42,6 +45,7 @@ func load_all_tags() -> void:
 	var ungrouped_tags = tags_json.get("ungrouped_tags", [])
 	for tag_name in ungrouped_tags:
 		_add_tag_to_container(tag_name, default_group_node)
+			
 	
 	# 3. 加载其他扁平化分组
 	for group_name in tags_json.keys():
@@ -64,6 +68,9 @@ func _add_tag_to_container(tag_name: String, container: Node) -> void:
 	var new_tag = container.add_tag(tag_name)
 	new_tag.set_delete_button_disabled()
 	new_tag.tag_clicked.connect(_on_tag_filter_clicked)
+	if tag_name in avtive_tags:
+		new_tag.set_toggled(true)
+	
 
 func _on_tag_filter_clicked(tag_name: String, toggled_on: bool) -> void:
 	# 触发过滤逻辑

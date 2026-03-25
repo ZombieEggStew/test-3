@@ -11,6 +11,7 @@ var context_menu : AcceptDialog
 func _ready() -> void: 
 	hide()
 
+
 func _input(event: InputEvent) -> void:
 	if not visible:
 		return
@@ -152,9 +153,14 @@ func _on_rename_button_up() -> void:
 		SignalBus.request_popup_warning.emit("注入rename_context_menu失败，无法显示重命名菜单")
 		hide()
 		return
+
+	var screen_height = get_viewport_rect().size.y
+	context_menu.size.y = screen_height * 0.7
 	
 	context_menu.call("set_target_info", target_card_info)
 	context_menu.popup_centered()
+	# 设置高度为窗口高度的 70%
+
 	hide()
 
 
