@@ -88,6 +88,8 @@ func _move_tag_in_storage(tag_name: String, target_group_name: String) -> void:
 
 
 func _on_delete_button_button_up() -> void:
+	if not delete_button.get_global_rect().has_point(get_global_mouse_position()):
+		return
 	var group_name = toggle_button.text
 	if group_name == "默认分组":
 		return # 默认分组不允许删除

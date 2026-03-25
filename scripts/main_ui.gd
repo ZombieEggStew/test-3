@@ -843,8 +843,7 @@ func _on_request_file_dialog() -> void:
 
 func _on_filter_toggled(toggled_on: bool) -> void:
     if toggled_on:
-        filter_panel.visible = true
-        filter_panel.custom_minimum_size.x = right_panel.size.x
+        filter_panel.size.x = right_panel.size.x
         filter_panel.set_active()
         
         filter_panel.load_all_tags()
