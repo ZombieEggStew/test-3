@@ -34,6 +34,7 @@
 [ext_resource type="Script" uid="uid://d4g1xk001y2hv" path="res://scripts/cq_2.gd" id="24_mjuaj"]
 [ext_resource type="Script" uid="uid://c2iswfe1c23gp" path="res://scripts/vcodec.gd" id="24_rg6nf"]
 [ext_resource type="Script" uid="uid://dgbpcpxk22oxu" path="res://scripts/maxrate.gd" id="26_7ty4q"]
+[ext_resource type="Script" uid="uid://dd5gx5j561dkp" path="res://scripts/instruction.gd" id="28_7ty4q"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_wp4xf"]
 content_margin_left = 10.0
@@ -95,7 +96,7 @@ content_margin_right = 0.0
 content_margin_bottom = 0.0
 bg_color = Color(0.25490198, 0.5137255, 0.9607843, 1)
 
-[sub_resource type="ButtonGroup" id="ButtonGroup_rg6nf"]
+[sub_resource type="ButtonGroup" id="ButtonGroup_bmc2w"]
 allow_unpress = true
 
 [sub_resource type="Theme" id="Theme_tqoya"]
@@ -344,7 +345,7 @@ page_card = ExtResource("7_k65ib")
 
 [node name="page_1" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/MarginContainer/HBoxContainer/page_num" unique_id=109932289 instance=ExtResource("7_k65ib")]
 layout_mode = 2
-button_group = SubResource("ButtonGroup_rg6nf")
+button_group = SubResource("ButtonGroup_bmc2w")
 
 [node name="Button2" type="Button" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/MarginContainer/HBoxContainer" unique_id=924454259]
 layout_mode = 2
@@ -574,6 +575,11 @@ popup/item_4/text = "20M"
 popup/item_4/id = 2
 script = ExtResource("26_7ty4q")
 
+[node name="instruction" type="Button" parent="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/HBoxContainer2" unique_id=1245809854]
+layout_mode = 2
+text = "参数说明"
+script = ExtResource("28_7ty4q")
+
 [node name="HBoxContainer3" type="HBoxContainer" parent="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer" unique_id=334039621]
 layout_mode = 2
 
@@ -692,6 +698,7 @@ layout_mode = 2
 [connection signal="item_selected" from="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/HBoxContainer/cq" to="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter" method="_on_cq_item_selected"]
 [connection signal="text_changed" from="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/HBoxContainer/cq2" to="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/HBoxContainer/cq2" method="_on_text_changed"]
 [connection signal="item_selected" from="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/HBoxContainer2/maxrate" to="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/HBoxContainer2/maxrate" method="_on_item_selected"]
+[connection signal="button_up" from="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/HBoxContainer2/instruction" to="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/HBoxContainer2/instruction" method="_on_button_up"]
 [connection signal="item_selected" from="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/HBoxContainer3/vcodec" to="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/HBoxContainer3/vcodec" method="_on_item_selected"]
 [connection signal="toggled" from="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/delete_checkbox" to="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/delete_checkbox" method="_on_toggled"]
 [connection signal="button_up" from="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/start_convert" to="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter" method="_on_start_convert_button_up"]
