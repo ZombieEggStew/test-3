@@ -100,6 +100,7 @@ func _on_delete_button_up() -> void:
 
 func _on_backup_button_up() -> void:
     if not target_card_info.get("is_workshop",false):
+        SignalBus.request_popup_warning.emit("本地项目不需要备份")
         hide()
         return
 
@@ -143,19 +144,11 @@ func _on_backup_button_up() -> void:
 
 
 func _on_rename_button_up() -> void:
-    # if target_card_info.get("is_workshop", false):
-    #     var acceptDialog = AcceptDialog.new()
-    #     add_child(acceptDialog)
-    #     acceptDialog.dialog_text = "工坊项目不支持重命名,先转为本地再重命名"
-    #     acceptDialog.popup_centered()
-    #     SignalBus.request_popup_warning.emit("工坊项目不支持重命名")
-    #     hide()
-    #     return
     if context_menu == null:
         SignalBus.request_popup_warning.emit("注入rename_context_menu失败，无法显示重命名菜单")
         hide()
         return
-    context_menu.call("set_default_name", target_card_info.get("title", ""))
+    
     context_menu.call("set_target_info", target_card_info)
     context_menu.popup_centered()
     hide()

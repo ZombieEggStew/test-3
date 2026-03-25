@@ -47,7 +47,7 @@ alignment = 0
 
 [node name="backup" type="Button" parent="MarginContainer/VBoxContainer" unique_id=1060994932]
 layout_mode = 2
-text = "  备份"
+text = "  备份到本地"
 alignment = 0
 
 [node name="rename" type="Button" parent="MarginContainer/VBoxContainer" unique_id=1817887081]

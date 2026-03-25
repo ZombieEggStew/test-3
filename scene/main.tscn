@@ -29,12 +29,13 @@
 [ext_resource type="Script" uid="uid://pooi8l4c1iu5" path="res://scripts/delete_checkbox.gd" id="20_oldxj"]
 [ext_resource type="PackedScene" uid="uid://bhbw5k2mfc2jp" path="res://scene/settings_dialog.tscn" id="21_fdqew"]
 [ext_resource type="Script" uid="uid://167jyo4wstle" path="res://scripts/tag_panel.gd" id="22_0d4pv"]
-[ext_resource type="PackedScene" uid="uid://dp1fk6od5dys3" path="res://scene/tag_2.tscn" id="23_gtqqq"]
+[ext_resource type="PackedScene" uid="uid://c218jajnssh1x" path="res://scene/tag.tscn" id="23_gtqqq"]
 [ext_resource type="Script" uid="uid://cs4dvwaaxrl0r" path="res://scripts/preset.gd" id="24_bmc2w"]
 [ext_resource type="Script" uid="uid://d4g1xk001y2hv" path="res://scripts/cq_2.gd" id="24_mjuaj"]
 [ext_resource type="Script" uid="uid://c2iswfe1c23gp" path="res://scripts/vcodec.gd" id="24_rg6nf"]
 [ext_resource type="Script" uid="uid://dgbpcpxk22oxu" path="res://scripts/maxrate.gd" id="26_7ty4q"]
 [ext_resource type="Script" uid="uid://dd5gx5j561dkp" path="res://scripts/instruction.gd" id="28_7ty4q"]
+[ext_resource type="PackedScene" uid="uid://bpqrex604bu13" path="res://scene/group.tscn" id="36_7xrs8"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_wp4xf"]
 content_margin_left = 10.0
@@ -96,7 +97,7 @@ content_margin_right = 0.0
 content_margin_bottom = 0.0
 bg_color = Color(0.25490198, 0.5137255, 0.9607843, 1)
 
-[sub_resource type="ButtonGroup" id="ButtonGroup_bmc2w"]
+[sub_resource type="ButtonGroup" id="ButtonGroup_7xrs8"]
 allow_unpress = true
 
 [sub_resource type="Theme" id="Theme_tqoya"]
@@ -345,7 +346,7 @@ page_card = ExtResource("7_k65ib")
 
 [node name="page_1" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/MarginContainer/HBoxContainer/page_num" unique_id=109932289 instance=ExtResource("7_k65ib")]
 layout_mode = 2
-button_group = SubResource("ButtonGroup_bmc2w")
+button_group = SubResource("ButtonGroup_7xrs8")
 
 [node name="Button2" type="Button" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/MarginContainer/HBoxContainer" unique_id=924454259]
 layout_mode = 2
@@ -561,18 +562,26 @@ text = "maxrate : "
 [node name="maxrate" type="OptionButton" parent="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/HBoxContainer2" unique_id=1455187944]
 layout_mode = 2
 size_flags_horizontal = 3
-selected = 1
-item_count = 5
+selected = 5
+item_count = 9
 popup/item_0/text = "5M"
 popup/item_0/id = 3
-popup/item_1/text = "10M"
-popup/item_1/id = 0
-popup/item_2/text = "12M"
-popup/item_2/id = 4
-popup/item_3/text = "15M"
-popup/item_3/id = 1
-popup/item_4/text = "20M"
-popup/item_4/id = 2
+popup/item_1/text = "6M"
+popup/item_1/id = 5
+popup/item_2/text = "7M"
+popup/item_2/id = 6
+popup/item_3/text = "8M"
+popup/item_3/id = 7
+popup/item_4/text = "9M"
+popup/item_4/id = 8
+popup/item_5/text = "10M"
+popup/item_5/id = 0
+popup/item_6/text = "12M"
+popup/item_6/id = 4
+popup/item_7/text = "15M"
+popup/item_7/id = 1
+popup/item_8/text = "20M"
+popup/item_8/id = 2
 script = ExtResource("26_7ty4q")
 
 [node name="instruction" type="Button" parent="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/HBoxContainer2" unique_id=1245809854]
@@ -649,13 +658,12 @@ visible = false
 [node name="AcceptDialog" type="AcceptDialog" parent="main_ui" unique_id=1252112133]
 oversampling_override = 1.0
 title = "弹窗"
-position = Vector2i(0, 36)
 dialog_text = "default"
 
 [node name="settings_dialog" parent="main_ui" unique_id=714392010 instance=ExtResource("21_fdqew")]
 visible = false
 
-[node name="tag_panel" type="PanelContainer" parent="main_ui" unique_id=1131897239 node_paths=PackedStringArray("tag_container")]
+[node name="tag_panel" type="PanelContainer" parent="main_ui" unique_id=1131897239 node_paths=PackedStringArray("group_container_root")]
 anchors_preset = 11
 anchor_left = 1.0
 anchor_right = 1.0
@@ -666,8 +674,9 @@ grow_vertical = 2
 size_flags_vertical = 3
 theme_override_styles/panel = SubResource("StyleBoxFlat_fdqew")
 script = ExtResource("22_0d4pv")
-tag_container = NodePath("MarginContainer/HFlowContainer")
 tag_scene = ExtResource("23_gtqqq")
+group_container_root = NodePath("MarginContainer/ScrollContainer/VBoxContainer")
+group_scene = ExtResource("36_7xrs8")
 
 [node name="MarginContainer" type="MarginContainer" parent="main_ui/tag_panel" unique_id=845735414]
 layout_mode = 2
@@ -676,8 +685,13 @@ theme_override_constants/margin_top = 10
 theme_override_constants/margin_right = 10
 theme_override_constants/margin_bottom = 10
 
-[node name="HFlowContainer" type="HFlowContainer" parent="main_ui/tag_panel/MarginContainer" unique_id=798016032]
+[node name="ScrollContainer" type="ScrollContainer" parent="main_ui/tag_panel/MarginContainer" unique_id=1866504765]
 layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="main_ui/tag_panel/MarginContainer/ScrollContainer" unique_id=361157028]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
 
 [connection signal="setup_pages" from="main_ui" to="main_ui/HBoxContainer/MarginContainer/VBoxContainer/MarginContainer/HBoxContainer/page_num" method="_on_main_ui_setup_pages"]
 [connection signal="toggled" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer6/preview" to="main_ui/HBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer6/preview" method="_on_toggled"]

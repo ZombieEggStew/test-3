@@ -60,7 +60,7 @@ func _ready() -> void:
     SignalBus.conversion_started.connect(_on_conversion_started)
     SignalBus.conversion_finished.connect(_on_conversion_finished)
     SignalBus.request_file_dialog.connect(_on_request_file_dialog)
-    SignalBus.tag_2_clicked.connect(_on_tag_2_toggled)
+    SignalBus.update_filter.connect(_on_update_filter)
     SignalBus.request_popup_dialog.connect(_popup_dialog)
     SignalBus.toggle_show_tag_before_name.connect(_on_toggle_show_tag)
     SignalBus.request_popup_warning.connect(_popup_warning)
@@ -98,7 +98,7 @@ func _on_toggle_show_tag(toggled_on: bool) -> void:
     _render_current_page_from_cache()
 
 
-func _on_tag_2_toggled(tag_name: String , toggled_on: bool) -> void:
+func _on_update_filter(tag_name: String , toggled_on: bool) -> void:
     if toggled_on:
         if not tag_name in active_tags:
             active_tags.append(tag_name)

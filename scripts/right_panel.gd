@@ -34,7 +34,7 @@ func _on_main_ui_on_card_selected(info: Dictionary) -> void:
         if res.IS_SHOW_NAME:
             title_label.text = MainManager.extract_card_title(info)
         else:
-            title_label.text = "name"
+            title_label.text = "不予展示"
 
     if resolution_label:
         var resolution := str(info.get("video_resolution", "")).strip_edges()

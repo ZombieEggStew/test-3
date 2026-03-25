@@ -1,21 +1,14 @@
 extends PanelContainer
 
-@export var tag_container: HFlowContainer
 @export var tag_scene: PackedScene
 
+@export var group_container_root: VBoxContainer	
+@export var group_scene: PackedScene
 var tw: Tween
 
-# func _input(event: InputEvent) -> void:
-#     if not visible:
-#         return
-#     if event is InputEventMouseButton \
-#     and event.button_index == MOUSE_BUTTON_LEFT \
-#     and event.pressed:
-#         if not get_global_rect().has_point(event.position):
-#             set_inactive()
 
 func set_active() -> void:
-	show()
+	# show()
 	_tween_position(position.x - size.x)
 
 func set_inactive() -> void:
@@ -34,42 +27,45 @@ func _tween_position(target_pos_x:float) -> void:
 
 
 func load_all_tags() -> void:
-	for child in tag_container.get_children():
+	# 彻底清理所有旧分组 UI
+	for child in group_container_root.get_children():
 		child.queue_free()
 
-
-
 	var tags_json := MainManager.read_json_file(MyRes.TAGS_STORE_PATH)
-	var all_tags := tags_json.get("global_tags", []) as Array
 	
-
-	# # 路径列表：遍历工坊根目录和本地根目录
-	# var roots = [MyRes.MY_WORKSHOP_ROOT, MyRes.MY_LOCAL_PROJECTS_ROOT]
-	# var all_tags: Array[String] = []
-	# for root in roots:
-	#     if not DirAccess.dir_exists_absolute(root):
-	#         continue
-			
-	#     var dir := DirAccess.open(root)
-	#     if dir == null:
-	#         continue
-			
-	#     var folders := dir.get_directories()
-	#     for folder_name in folders:
-	#         var project_json_path = "%s/%s/project.json" % [root, folder_name]
-	#         if FileAccess.file_exists(project_json_path):
-	#             var project_data = MainManager.read_json_file(project_json_path)
-	#             var my_tags = project_data.get("my_tags", [])
-	#             if my_tags is Array:
-	#                 for tag in my_tags:
-	#                     var tag_name = str(tag).strip_edges()
-	#                     if not tag_name.is_empty() and not tag_name in all_tags:
-	#                         all_tags.append(tag_name)
+	# 1. 动态创建默认分组
+	var default_group_node = _create_group_ui("默认分组")
+	if default_group_node.has_method("set_default_group"):
+		default_group_node.set_default_group()
 	
-	# # 按照字母顺序排序
-	# all_tags.sort()
+	# 2. 加载默认分组标签 (ungrouped_tags)
+	var ungrouped_tags = tags_json.get("ungrouped_tags", [])
+	for tag_name in ungrouped_tags:
+		_add_tag_to_container(tag_name, default_group_node)
+	
+	# 3. 加载其他扁平化分组
+	for group_name in tags_json.keys():
+		if group_name == "ungrouped_tags" or group_name == "global_tags":
+			continue
+			
+		var group_node = _create_group_ui(group_name)
+		var tags = tags_json[group_name]
+		if tags is Array:
+			for tag_name in tags:
+				_add_tag_to_container(tag_name, group_node)
 
-	for tag_name in all_tags:
-		var new_tag := tag_scene.instantiate()
-		tag_container.add_child(new_tag)
-		new_tag.set_tag_name(tag_name)
+func _create_group_ui(group_name: String) -> Node:
+	var new_group = group_scene.instantiate()
+	group_container_root.add_child(new_group)
+	new_group.set_label_name(group_name)
+	return new_group
+
+func _add_tag_to_container(tag_name: String, container: Node) -> void:
+	var new_tag = container.add_tag(tag_name)
+	new_tag.set_delete_button_disabled()
+	new_tag.tag_clicked.connect(_on_tag_filter_clicked)
+
+func _on_tag_filter_clicked(tag_name: String, toggled_on: bool) -> void:
+	# 触发过滤逻辑
+	SignalBus.update_filter.emit(tag_name , toggled_on)
+	print("Filter tag: ", tag_name, " state: ", toggled_on)
