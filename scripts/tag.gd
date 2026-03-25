@@ -72,6 +72,8 @@ func _get_drag_data(_at_position: Vector2):
 	return data
 
 func _on_delete_button_up() -> void:
+	if not delete_button.get_global_rect().has_point(get_global_mouse_position()):
+		return
 	var tag_name = get_tag_name()
 	
 	# 1. 从全局存储中移除（支持扁平化结构）
