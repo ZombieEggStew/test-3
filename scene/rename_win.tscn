@@ -15,7 +15,7 @@ content_margin_right = 4.0
 content_margin_bottom = 0.0
 color = Color(0.047058824, 0.34901962, 0.87058824, 1)
 
-[node name="rename_dialog" type="AcceptDialog" unique_id=338288176 node_paths=PackedStringArray("rename_line_edit", "add_tag_line_edit", "add_group_line_edit", "tag_group_container_root")]
+[node name="rename_dialog" type="AcceptDialog" unique_id=338288176 node_paths=PackedStringArray("rename_line_edit", "add_tag_line_edit", "add_group_line_edit", "group_container_root")]
 oversampling_override = 1.0
 title = "重命名"
 position = Vector2i(0, 36)
@@ -23,9 +23,9 @@ size = Vector2i(600, 400)
 visible = true
 script = ExtResource("1_tvhmq")
 rename_line_edit = NodePath("MarginContainer/VBoxContainer/LineEdit")
-add_tag_line_edit = NodePath("MarginContainer/VBoxContainer/add_tag/HBoxContainer/LineEdit2")
+add_tag_line_edit = NodePath("MarginContainer/VBoxContainer/add_tag/add_tag/LineEdit2")
 add_group_line_edit = NodePath("MarginContainer/VBoxContainer/add_tag/HBoxContainer2/group_LineEdit")
-tag_group_container_root = NodePath("MarginContainer/VBoxContainer/ScrollContainer/groups_container")
+group_container_root = NodePath("MarginContainer/VBoxContainer/ScrollContainer/groups_container")
 group_scene = ExtResource("4_aa1v6")
 res = SubResource("Resource_aa1v6")
 
@@ -64,20 +64,20 @@ theme_override_styles/separator = SubResource("StyleBoxLine_tvhmq")
 layout_mode = 2
 theme_override_constants/separation = 20
 
-[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/VBoxContainer/add_tag" unique_id=1460255328]
+[node name="add_tag" type="HBoxContainer" parent="MarginContainer/VBoxContainer/add_tag" unique_id=1460255328]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_stretch_ratio = 0.5
 
-[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/add_tag/HBoxContainer" unique_id=949912182]
+[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/add_tag/add_tag" unique_id=949912182]
 layout_mode = 2
 text = "创建tag："
 
-[node name="LineEdit2" type="LineEdit" parent="MarginContainer/VBoxContainer/add_tag/HBoxContainer" unique_id=1375782152]
+[node name="LineEdit2" type="LineEdit" parent="MarginContainer/VBoxContainer/add_tag/add_tag" unique_id=1375782152]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="add_tag_button" type="Button" parent="MarginContainer/VBoxContainer/add_tag/HBoxContainer" unique_id=2106325127]
+[node name="add_tag_button" type="Button" parent="MarginContainer/VBoxContainer/add_tag/add_tag" unique_id=2106325127]
 layout_mode = 2
 text = "添加
 "
@@ -108,5 +108,5 @@ layout_mode = 2
 size_flags_horizontal = 3
 
 [connection signal="confirmed" from="." to="." method="_on_confirmed"]
-[connection signal="button_up" from="MarginContainer/VBoxContainer/add_tag/HBoxContainer/add_tag_button" to="." method="_on_add_tag_button_button_up"]
+[connection signal="button_up" from="MarginContainer/VBoxContainer/add_tag/add_tag/add_tag_button" to="." method="_on_add_tag_button_button_up"]
 [connection signal="button_up" from="MarginContainer/VBoxContainer/add_tag/HBoxContainer2/add_group_button" to="." method="_on_add_group_button_button_up"]

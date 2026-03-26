@@ -27,3 +27,5 @@ signal toggle_show_local(toggled_on: bool)
 signal toggle_show_workshop(toggled_on: bool)
 
 signal request_save_tag_order()
+
+signal new_tag_created(tag_name: String)

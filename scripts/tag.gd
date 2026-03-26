@@ -40,6 +40,7 @@ func _drop_data(_at_position: Vector2, data) -> void:
 		
 		# 使用 SignalBus 广播保存请求
 		SignalBus.request_save_tag_order.emit()
+		print("Tag order changed within the same group, saving...")
 	else:
 		# 跨组排序交给 group 处理
 		var target_group = parent.get_parent().get_parent()
@@ -87,6 +88,7 @@ func _on_delete_button_up() -> void:
 			changed = true
 	
 	if changed:
+		print("Tag deleted from storage: ", tag_name)
 		MainManager.save_json_file(MyRes.TAGS_STORE_PATH, all_data)
 		print("Tag deleted and saved to local: ", tag_name)
 	
