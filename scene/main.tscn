@@ -37,10 +37,6 @@
 [ext_resource type="Script" uid="uid://dd5gx5j561dkp" path="res://scripts/instruction.gd" id="28_7ty4q"]
 [ext_resource type="PackedScene" uid="uid://bpqrex604bu13" path="res://scene/group.tscn" id="36_7xrs8"]
 
-[sub_resource type="Resource" id="Resource_7xrs8"]
-script = ExtResource("16_gn2wi")
-metadata/_custom_type_script = "uid://um35xx1vq1a"
-
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_wp4xf"]
 content_margin_left = 10.0
 content_margin_top = 4.0
@@ -143,8 +139,6 @@ bg_color = Color(0.13333334, 0.1254902, 0.13333334, 0.85490197)
 
 [node name="Node2D" type="Node2D" unique_id=1929871842]
 script = ExtResource("8_main")
-res = SubResource("Resource_7xrs8")
-group_scene = ExtResource("36_7xrs8")
 
 [node name="main_ui" type="CanvasLayer" parent="." unique_id=1938298878 node_paths=PackedStringArray("card_container", "context_menu_card", "context_menu_folder", "context_menu_rename", "folder_selection_dialog", "right_panel", "filter_panel", "accept_dialog")]
 script = ExtResource("1_v0l8b")

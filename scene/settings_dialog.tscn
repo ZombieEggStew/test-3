@@ -7,7 +7,7 @@
 oversampling_override = 1.0
 title = "项目设置"
 position = Vector2i(0, 36)
-size = Vector2i(717, 143)
+size = Vector2i(717, 177)
 visible = true
 ok_button_text = "保存"
 script = ExtResource("1_6axaj")
@@ -22,7 +22,7 @@ custom_minimum_size = Vector2(200, 0)
 offset_left = 8.0
 offset_top = 8.0
 offset_right = 709.0
-offset_bottom = 94.0
+offset_bottom = 128.0
 
 [node name="HBoxContainer2" type="HBoxContainer" parent="VBoxContainer" unique_id=1875096646]
 layout_mode = 2
@@ -39,6 +39,10 @@ size_flags_horizontal = 3
 layout_mode = 2
 text = "浏览文件"
 
+[node name="Label" type="Label" parent="VBoxContainer" unique_id=1949472704]
+layout_mode = 2
+text = "示例：D:/Steam/steamapps/common/wallpaper_engine/"
+
 [node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer" unique_id=719534591]
 layout_mode = 2
 
@@ -53,6 +57,10 @@ size_flags_horizontal = 3
 [node name="workshop" type="Button" parent="VBoxContainer/HBoxContainer" unique_id=1066827160]
 layout_mode = 2
 text = "浏览文件"
+
+[node name="Label2" type="Label" parent="VBoxContainer" unique_id=1035482506]
+layout_mode = 2
+text = "示例：D:/Steam/steamapps/workshop/content/431960"
 
 [node name="wallpaper_dia" type="FileDialog" parent="." unique_id=1030082400]
 oversampling_override = 1.0
