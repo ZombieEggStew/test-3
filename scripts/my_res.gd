@@ -2,7 +2,7 @@ extends Resource
 class_name MyRes
 
 
-const IS_SHOW_NAME := false
+const IS_SHOW_NAME := true
 
 const MAX_TEST_FOLDER_COUNT := 10000
 

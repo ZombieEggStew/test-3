@@ -171,7 +171,7 @@ func _update_progress_bar_from_file() -> void:
 		# 进程确实没了，且进度没到 100，判定为异常终止
 		_finish_conversion_state(false)
 		SignalBus.request_popup_warning.emit("转换失败: 进程已退出且进度未完成")
-		SignalBus.conversion_finished.emit(false, "转换进程异常终止或进度文件读取失败")
+		SignalBus.conversion_finished.emit(false, "转换进程异常终止或进度文件读取失败" + converting_card_info.get("title", ""))
 		converting_card_info.clear()
 		return
 
