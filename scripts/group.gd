@@ -151,6 +151,22 @@ func _move_tag_in_storage(tag_name: String, target_group_name: String) -> void:
 func _on_delete_button_button_up() -> void:
 	if not delete_button.get_global_rect().has_point(get_global_mouse_position()):
 		return
+	var confirm := ConfirmationDialog.new()
+	confirm.dialog_text = "确定要删除这个组吗？此操作不可撤销！"
+	confirm.exclusive = true
+
+	confirm.confirmed.connect(delete_self.bind(confirm))
+	# 当窗口关闭（无论是确认还是取消）时销毁对象，防止内存泄漏
+	confirm.visibility_changed.connect(func(): if not confirm.visible: confirm.queue_free())
+	
+	# 确保弹窗显示在最前端
+	add_child(confirm)
+	confirm.popup_centered()
+
+
+func delete_self(confirm_dialog: ConfirmationDialog) -> void:
+	if confirm_dialog:
+		confirm_dialog.queue_free()
 	var group_name = toggle_button.text
 	if group_name == "默认分组":
 		return # 默认分组不允许删除
@@ -180,6 +196,8 @@ func _on_delete_button_button_up() -> void:
 	var parent_dialog = get_parent()
 	while parent_dialog and not parent_dialog is AcceptDialog:
 		parent_dialog = parent_dialog.get_parent()
+
+
 	
 	if parent_dialog and parent_dialog.has_method("_load_existing_groups"):
 		parent_dialog._load_existing_groups()

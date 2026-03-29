@@ -1,5 +1,7 @@
 ﻿extends Node
 
+static var instance: SignalBus = null
+
 signal load_workshop_cards()
 
 signal on_card_selected(card_info: Dictionary)
@@ -29,3 +31,5 @@ signal toggle_show_workshop(toggled_on: bool)
 signal request_save_tag_order()
 
 signal new_tag_created(tag_name: String)
+
+signal delete_all_meta_data()

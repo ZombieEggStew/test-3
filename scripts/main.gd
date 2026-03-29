@@ -1,4 +1,4 @@
-﻿extends Node
+extends Node
 class_name MainManager
 
 static var instance: MainManager 
@@ -299,23 +299,23 @@ static func _submit_unsubscribe_request(steam: Object, published_id: int) -> boo
 
 
 ## 计算目录总大小（字节）
-static func calculate_dir_size_bytes(dir_path: String) -> int:
-	var dir := DirAccess.open(dir_path)
-	if dir == null:
-		return 0
+# static func calculate_dir_size_bytes(dir_path: String) -> int:
+# 	var dir := DirAccess.open(dir_path)
+# 	if dir == null:
+# 		return 0
 
-	var total_size := 0
-	for file_name in dir.get_files():
-		var file_path := "%s/%s" % [dir_path, file_name]
-		var f := FileAccess.open(file_path, FileAccess.READ)
-		if f:
-			total_size += f.get_length()
+# 	var total_size := 0
+# 	for file_name in dir.get_files():
+# 		var file_path := "%s/%s" % [dir_path, file_name]
+# 		var f := FileAccess.open(file_path, FileAccess.READ)
+# 		if f:
+# 			total_size += f.get_length()
 
-	for sub_dir_name in dir.get_directories():
-		var sub_dir_path := "%s/%s" % [dir_path, sub_dir_name]
-		total_size += calculate_dir_size_bytes(sub_dir_path)
+# 	for sub_dir_name in dir.get_directories():
+# 		var sub_dir_path := "%s/%s" % [dir_path, sub_dir_name]
+# 		total_size += calculate_dir_size_bytes(sub_dir_path)
 
-	return total_size
+# 	return total_size
 
 
 ## 读取 JSON 文件数据
@@ -411,8 +411,24 @@ static func extract_vdf_number(line: String, key: String) -> String:
 	return match.get_string(1)
 
 
-## 读取 MP4 文件元数据（需要 ffprobe）
+
+
+## 读取 MP4 文件元数据（需要 ffprobe），并增加 JSON 缓存机制
 static func read_mp4_metadata(file_path: String) -> Dictionary:
+	var cache_path := file_path.get_base_dir().path_join("video_meta.json")
+	
+	# 1. 尝试从缓存读取
+	if FileAccess.file_exists(cache_path):
+		var cache_data := read_json_file(cache_path)
+		if not cache_data.is_empty():
+			# 校验缓存是否过期（简单检查文件大小是否一致）
+			var f_temp := FileAccess.open(file_path, FileAccess.READ)
+			if f_temp and int(cache_data.get("size_bytes", 0)) == f_temp.get_length():
+				f_temp.close()
+				# print("视频元数据命中缓存: %s" % cache_path)
+				return cache_data
+			if f_temp: f_temp.close()
+
 	var result := {
 		"resolution": "",
 		"bitrate_kbps": 0,
@@ -423,11 +439,12 @@ static func read_mp4_metadata(file_path: String) -> Dictionary:
 	if not FileAccess.file_exists(file_path):
 		return result
 
-	# 首先获取文件物理大小
-	var f := FileAccess.open(file_path, FileAccess.READ)
-	if f:
-		result["size_bytes"] = f.get_length()
-		f.close()
+	if FileAccess.file_exists(file_path):
+		var f := FileAccess.open(file_path, FileAccess.READ)
+		if f:
+			var video_file_size = f.get_length()
+			result["size_bytes"] = video_file_size # 用作校验缓存有效性的简单手段
+			f.close()
 
 	var output: Array = []
 	var args := [
@@ -447,43 +464,98 @@ static func read_mp4_metadata(file_path: String) -> Dictionary:
 			ffprobe_exe = "ffprobe" # 退回到系统路径
 
 	var exit_code := OS.execute(ffprobe_exe, args, output, true)
-	if exit_code != 0 or output.is_empty():
-		return result
+	if exit_code == 0 and not output.is_empty():
+		var parsed := JSON.parse_string(str(output[0])) as Dictionary
+		if typeof(parsed) == TYPE_DICTIONARY:
+			var data := parsed as Dictionary
+			var streams := data.get("streams", []) as Array
+			if not streams.is_empty() and streams[0] is Dictionary:
+				var stream := streams[0] as Dictionary
+				var width := int(stream.get("width", 0))
+				var height := int(stream.get("height", 0))
+				if width > 0 and height > 0:
+					result["resolution"] = "%dx%d" % [width, height]
 
-	var parsed := JSON.parse_string(str(output[0])) as Dictionary
-	if typeof(parsed) != TYPE_DICTIONARY:
-		return result
+				var stream_bitrate := int(str(stream.get("bit_rate", "0")))
+				if stream_bitrate > 0:
+					result["bitrate_kbps"] = int(round(stream_bitrate / 1000.0))
+				
+				var stream_duration := float(str(stream.get("duration", "0.0")))
+				if stream_duration > 0:
+					result["duration"] = stream_duration
 
-	var data := parsed as Dictionary
-	var streams := data.get("streams", []) as Array
-	if not streams.is_empty() and streams[0] is Dictionary:
-		var stream := streams[0] as Dictionary
-		var width := int(stream.get("width", 0))
-		var height := int(stream.get("height", 0))
-		if width > 0 and height > 0:
-			result["resolution"] = "%dx%d" % [width, height]
+			if int(result.get("bitrate_kbps", 0)) <= 0:
+				var format_data := data.get("format", {}) as Dictionary
+				var format_bitrate := int(str(format_data.get("bit_rate", "0")))
+				if format_bitrate > 0:
+					result["bitrate_kbps"] = int(round(format_bitrate / 1000.0))
 
-		var stream_bitrate := int(str(stream.get("bit_rate", "0")))
-		if stream_bitrate > 0:
-			result["bitrate_kbps"] = int(round(stream_bitrate / 1000.0))
-		
-		var stream_duration := float(str(stream.get("duration", "0.0")))
-		if stream_duration > 0:
-			result["duration"] = stream_duration
+			if float(result.get("duration", 0.0)) <= 0.0:
+				var format_data := data.get("format", {}) as Dictionary
+				var format_duration := float(str(format_data.get("duration", "0.0")))
+				if format_duration > 0:
+					result["duration"] = format_duration
 
-	if int(result.get("bitrate_kbps", 0)) <= 0:
-		var format_data := data.get("format", {}) as Dictionary
-		var format_bitrate := int(str(format_data.get("bit_rate", "0")))
-		if format_bitrate > 0:
-			result["bitrate_kbps"] = int(round(format_bitrate / 1000.0))
-
-	if float(result.get("duration", 0.0)) <= 0.0:
-		var format_data := data.get("format", {}) as Dictionary
-		var format_duration := float(str(format_data.get("duration", "0.0")))
-		if format_duration > 0:
-			result["duration"] = format_duration
-
+	# 2. 写入缓存
+	save_json_file(cache_path, result)
 	return result
+
+
+## 在后台线程中为所有项目预生成元数据缓存
+static func background_cache_metadata(items: Array, progress_callback: Callable = Callable(), finished_callback: Callable = Callable()) -> void:
+	if items.is_empty():
+		if not finished_callback.is_null():
+			finished_callback.call()
+		return
+		
+	# 创建一个副本，避免主线程修改数组导致迭代冲突
+	var items_copy := items.duplicate()
+	
+	# 后台线程处理
+	WorkerThreadPool.add_task(func():
+		var count := 0
+		var total := items_copy.size()
+		for item in items_copy:
+			if not item is Dictionary:
+				count += 1
+				continue
+				
+			var media_file_path = item.get("media_file_path", "")
+			if not str(media_file_path).is_empty() and str(media_file_path).to_lower().ends_with(".mp4"):
+				# read_mp4_metadata 内部已经处理了：如果存在有效缓存就不重新获取
+				read_mp4_metadata(media_file_path)
+			
+			count += 1
+			
+			# 更新进度回调
+			if not progress_callback.is_null():
+				progress_callback.call_deferred(count, total)
+				
+		print("元数据后台扫描完成，共处理: %d 项" % total)
+		if not finished_callback.is_null():
+			finished_callback.call_deferred()
+	)
+
+
+## 一键删除所有项目的元数据缓存文件 (video_meta.json)
+static func delete_all_metadata_cache(items: Array) -> int:
+	var deleted_count := 0
+	for item in items:
+		if not item is Dictionary:
+			continue
+			
+		var media_file_path = item.get("media_file_path", "")
+		if str(media_file_path).is_empty():
+			continue
+			
+		var cache_path := str(media_file_path).get_base_dir().path_join("video_meta.json")
+		if FileAccess.file_exists(cache_path):
+			var err := DirAccess.remove_absolute(cache_path)
+			if err == OK:
+				deleted_count += 1
+	
+	print("已清除 %d 个元数据缓存文件" % deleted_count)
+	return deleted_count
 
 
 ## 格式化文件大小为可读文本
@@ -576,8 +648,3 @@ static func remove_dir_recursive(path: String) -> Error:
 static func get_config_value(key: String, default_value: Variant = 0) -> Variant:
 	var config := read_json_file(MyRes.CONFIG_PATH)
 	return config.get(key, default_value)
-
-
-
-
-

@@ -2,7 +2,7 @@ extends Node
 class_name GIFToAnimatedTexture
 
 ## 调用 split_gif.py 并生成 AnimatedTexture 资源
-func convert_gif_to_animated_texture(gif_path: String, output_dir: String) -> AnimatedTexture:
+static func convert_gif_to_animated_texture(gif_path: String, output_dir: String) -> AnimatedTexture:
 	var metadata_path = output_dir.path_join("metadata.json")
 	
 	# --- 缓存检测逻辑 ---
@@ -72,13 +72,13 @@ func convert_gif_to_animated_texture(gif_path: String, output_dir: String) -> An
 # ----------------- 缓存助手方法 -----------------
 
 ## 检查缓存是否仍然有效（简单通过文件大小或修改时间，这里演示基本逻辑）
-func _is_cache_valid(_gif_path: String, _metadata_path: String) -> bool:
+static func _is_cache_valid(_gif_path: String, _metadata_path: String) -> bool:
 	# 简单认为只要 metadata.json 还在就算有效。
 	# 如果需要更严格，可以对比 ProjectSettings.globalize_path(gif_path) 的最后修改时间
 	return true
 
 ## 从缓存目录加载现有的 AnimatedTexture
-func _load_from_cache(output_dir: String) -> AnimatedTexture:
+static func _load_from_cache(output_dir: String) -> AnimatedTexture:
 	var metadata_path = output_dir.path_join("metadata.json")
 	var file = FileAccess.open(metadata_path, FileAccess.READ)
 	var json_data = JSON.parse_string(file.get_as_text())
@@ -105,7 +105,7 @@ func _load_from_cache(output_dir: String) -> AnimatedTexture:
 # -----------------------------------------------
 
 ## 工具方法：创建一个显示该 GIF 的 Sprite2D (使用 AnimatedTexture)
-func create_gif_sprite(gif_path: String, target_parent: Node) -> Sprite2D:
+static func create_gif_sprite(gif_path: String, target_parent: Node) -> Sprite2D:
 	var base_name = gif_path.get_file().get_basename()
 	var temp_output = "res://temp_gif_frames/" + base_name
 	

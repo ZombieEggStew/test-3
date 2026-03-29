@@ -75,6 +75,23 @@ func _get_drag_data(_at_position: Vector2):
 func _on_delete_button_up() -> void:
 	if not delete_button.get_global_rect().has_point(get_global_mouse_position()):
 		return
+	var confirm := ConfirmationDialog.new()
+	confirm.dialog_text = "确定要删除这个标签吗？此操作不可撤销！"
+	confirm.exclusive = true
+
+	confirm.confirmed.connect(delete_self.bind(confirm))
+	# 当窗口关闭（无论是确认还是取消）时销毁对象，防止内存泄漏
+	confirm.visibility_changed.connect(func(): if not confirm.visible: confirm.queue_free())
+	
+	# 确保弹窗显示在最前端
+	add_child(confirm)
+	confirm.popup_centered()
+	
+
+
+func delete_self(confirm_dialog: ConfirmationDialog) -> void:
+	if confirm_dialog:
+		confirm_dialog.queue_free()
 	var tag_name = get_tag_name()
 	
 	# 1. 从全局存储中移除（支持扁平化结构）
@@ -91,10 +108,11 @@ func _on_delete_button_up() -> void:
 		print("Tag deleted from storage: ", tag_name)
 		MainManager.save_json_file(MyRes.TAGS_STORE_PATH, all_data)
 		print("Tag deleted and saved to local: ", tag_name)
+
+
 	
 	# 2. 从界面移除
 	queue_free()
-
 
 func set_toggled(on: bool) -> void:
 	tag_label.button_pressed = on

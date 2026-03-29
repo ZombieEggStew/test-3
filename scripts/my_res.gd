@@ -2,7 +2,9 @@ extends Resource
 class_name MyRes
 
 
-const IS_SHOW_NAME := true
+const IS_SHOW_NAME := false
+
+const IS_TEST := false
 
 const MAX_TEST_FOLDER_COUNT := 10000
 
@@ -11,6 +13,7 @@ const MY_LOCAL_PROJECTS_ROOT := "D:/Steam/steamapps/common/wallpaper_engine/proj
 
 var WORKSHOP_ROOT := ""
 var LOCAL_PROJECTS_ROOT := ""
+const TEST_ROOT := "D:/AGodotProjects/test-3/test_video"
 
 
 # python相关路径

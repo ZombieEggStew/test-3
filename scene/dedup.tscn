@@ -1,0 +1,19 @@
+[gd_scene format=3 uid="uid://dmtlv641hdua0"]
+
+[ext_resource type="PackedScene" uid="uid://bmyhw36fx17qy" path="res://scene/node_2d.tscn" id="1_pmtph"]
+
+[node name="dedup" type="VBoxContainer" unique_id=301759678]
+offset_right = 915.0
+offset_bottom = 210.0
+
+[node name="HFlowContainer" type="HFlowContainer" parent="." unique_id=1584798376]
+layout_mode = 2
+
+[node name="PanelContainer" parent="HFlowContainer" unique_id=747637982 instance=ExtResource("1_pmtph")]
+layout_mode = 2
+
+[node name="PanelContainer2" parent="HFlowContainer" unique_id=1919846930 instance=ExtResource("1_pmtph")]
+layout_mode = 2
+
+[node name="HSeparator" type="HSeparator" parent="." unique_id=1655481029]
+layout_mode = 2

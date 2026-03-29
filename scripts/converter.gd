@@ -1,4 +1,4 @@
-extends Node
+extends Control
 
 #FIX ME : 修复开始和结束转换按钮的信号
 
@@ -199,6 +199,9 @@ func _set_convert_ui_state(running: bool) -> void:
 		stop_convert_button.disabled = not running
 
 func _on_start_convert_button_up() -> void:
+	if not start_convert_button.get_global_rect().has_point(get_global_mouse_position()):
+		return
+
 	if is_converting:
 		SignalBus.request_popup_warning.emit("已有转换任务正在进行")
 		return
@@ -233,6 +236,8 @@ func _on_start_convert_button_up() -> void:
 	start_conversion(res.PYTHON_EXE_PATH, res.CONVERTER_SCRIPT_PATH, input_file, output_dir, res.CONVERTER_PROGRESS_PATH)
 	
 func _on_stop_button_button_up() -> void:
+	if not stop_convert_button.get_global_rect().has_point(get_global_mouse_position()):
+		return
 	if not is_converting:
 		return
 

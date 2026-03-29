@@ -7,6 +7,7 @@ var target_card_info: Dictionary = {}
 var context_menu : AcceptDialog
 
 @export var delete_button : Button
+@export var backup_button : Button
 
 func _ready() -> void: 
 	hide()
@@ -98,12 +99,46 @@ func _resolve_media_file_path() -> String:
 func _on_delete_button_up() -> void:
 	if not delete_button.get_global_rect().has_point(get_global_mouse_position()):
 		return
-	MainManager.delete_and_unsubscribe(target_card_info)
+
+	var confirm := ConfirmationDialog.new()
+	confirm.dialog_text = "确定要删除这个项目吗？此操作不可撤销！"
+	confirm.exclusive = true
+	confirm.confirmed.connect(_delete_target_card.bind(confirm))
+	# 当窗口关闭（无论是确认还是取消）时销毁对象，防止内存泄漏
+	confirm.visibility_changed.connect(func(): if not confirm.visible: confirm.queue_free())
+	
+	add_child(confirm)
+	confirm.popup_centered()
 	hide()
+
+
+func _delete_target_card(confirm_dialog: ConfirmationDialog) -> void:
+	if confirm_dialog:
+		confirm_dialog.queue_free()
+	MainManager.delete_and_unsubscribe(target_card_info)
+
 
 
 
 func _on_backup_button_up() -> void:
+	if not backup_button.get_global_rect().has_point(get_global_mouse_position()):
+		return
+
+	var confirm := ConfirmationDialog.new()
+	confirm.dialog_text = "确定要备份这个项目吗？此操作不可撤销！"
+	confirm.exclusive = true
+	confirm.confirmed.connect(backup_item.bind(confirm))
+	# 当窗口关闭（无论是确认还是取消）时销毁对象，防止内存泄漏
+	confirm.visibility_changed.connect(func(): if not confirm.visible: confirm.queue_free())
+	
+	add_child(confirm)
+	confirm.popup_centered()
+	hide()
+
+func backup_item(confirm_dialog: ConfirmationDialog) -> void:
+	if confirm_dialog:
+		confirm_dialog.queue_free()
+		
 	if not target_card_info.get("is_workshop",false):
 		SignalBus.request_popup_warning.emit("本地项目不需要备份")
 		hide()
@@ -144,8 +179,6 @@ func _on_backup_button_up() -> void:
 	MainManager.unsubscribe_workshop_item_2(target_card_info)
 	
 	hide()
-
-
 
 
 func _on_rename_button_up() -> void:

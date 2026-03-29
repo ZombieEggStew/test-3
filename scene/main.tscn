@@ -1,7 +1,6 @@
 [gd_scene format=3 uid="uid://c0xw48rf51h8k"]
 
 [ext_resource type="Script" uid="uid://cwp6sx5187trt" path="res://scripts/main_ui.gd" id="1_v0l8b"]
-[ext_resource type="Script" uid="uid://cqd108gyswuu1" path="res://scripts/tab_bar.gd" id="2_0ha60"]
 [ext_resource type="PackedScene" uid="uid://bmyhw36fx17qy" path="res://scene/node_2d.tscn" id="3_4j5ol"]
 [ext_resource type="Texture2D" uid="uid://bacarg6uviypr" path="res://tex/preview_3.jpg" id="3_wp4xf"]
 [ext_resource type="PackedScene" uid="uid://8i0frwpx4bec" path="res://scene/control.tscn" id="4_brvut"]
@@ -24,7 +23,9 @@
 [ext_resource type="PackedScene" uid="uid://besmajj3fj03t" path="res://scene/folder_context_menu.tscn" id="13_mswub"]
 [ext_resource type="PackedScene" uid="uid://dbxt26px8q0m3" path="res://scene/rename_win.tscn" id="14_hybxs"]
 [ext_resource type="Script" uid="uid://cvqb4ldn08orp" path="res://scripts/is_show_local.gd" id="15_fa8t4"]
+[ext_resource type="PackedScene" uid="uid://dmtlv641hdua0" path="res://scene/dedup.tscn" id="16_7xrs8"]
 [ext_resource type="Script" uid="uid://um35xx1vq1a" path="res://scripts/my_res.gd" id="16_gn2wi"]
+[ext_resource type="Script" uid="uid://d37q4463ajyi" path="res://scripts/delete_meta_data.gd" id="16_kpobt"]
 [ext_resource type="Script" uid="uid://dc8yhmb7pbdqm" path="res://scripts/is_show_workshop.gd" id="16_rg6nf"]
 [ext_resource type="Script" uid="uid://pooi8l4c1iu5" path="res://scripts/delete_checkbox.gd" id="20_oldxj"]
 [ext_resource type="PackedScene" uid="uid://bhbw5k2mfc2jp" path="res://scene/settings_dialog.tscn" id="21_fdqew"]
@@ -140,9 +141,10 @@ bg_color = Color(0.13333334, 0.1254902, 0.13333334, 0.85490197)
 [node name="Node2D" type="Node2D" unique_id=1929871842]
 script = ExtResource("8_main")
 
-[node name="main_ui" type="CanvasLayer" parent="." unique_id=1938298878 node_paths=PackedStringArray("card_container", "context_menu_card", "context_menu_folder", "context_menu_rename", "folder_selection_dialog", "right_panel", "filter_panel", "accept_dialog")]
+[node name="main_ui" type="CanvasLayer" parent="." unique_id=1938298878 node_paths=PackedStringArray("card_container", "dedup_container", "context_menu_card", "context_menu_folder", "context_menu_rename", "folder_selection_dialog", "right_panel", "filter_panel", "accept_dialog", "get_meta_data_progress_bar", "sort_option_button")]
 script = ExtResource("1_v0l8b")
 card_container = NodePath("HBoxContainer/MarginContainer/VBoxContainer/ScrollContainer2/MarginContainer/Card_container")
+dedup_container = NodePath("HBoxContainer/MarginContainer/VBoxContainer/ScrollContainer2/MarginContainer/dedup_container")
 card_scene = ExtResource("3_4j5ol")
 folder_scene = ExtResource("4_k65ib")
 context_menu_card = NodePath("Control")
@@ -153,6 +155,8 @@ right_panel = NodePath("HBoxContainer/right_panel")
 filter_panel = NodePath("tag_panel")
 res = ExtResource("5_v2gmf")
 accept_dialog = NodePath("AcceptDialog")
+get_meta_data_progress_bar = NodePath("HBoxContainer/MarginContainer/VBoxContainer/header_2/ProgressBar")
+sort_option_button = NodePath("HBoxContainer/MarginContainer/VBoxContainer/head_bar/VBoxContainer3/OptionButton")
 
 [node name="ColorRect" type="ColorRect" parent="main_ui" unique_id=98198692]
 anchors_preset = 15
@@ -201,7 +205,6 @@ current_tab = 0
 tab_count = 2
 tab_0/title = "tab_1"
 tab_1/title = "tab_2"
-script = ExtResource("2_0ha60")
 
 [node name="VBoxContainer6" type="VBoxContainer" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/head_bar" unique_id=1028192030]
 layout_mode = 2
@@ -252,7 +255,7 @@ custom_minimum_size = Vector2(110, 0)
 layout_mode = 2
 alignment = 1
 selected = 1
-item_count = 4
+item_count = 5
 popup/item_0/text = "发布日期"
 popup/item_0/id = 0
 popup/item_1/text = "下载日期"
@@ -261,6 +264,9 @@ popup/item_2/text = "文件大小"
 popup/item_2/id = 2
 popup/item_3/text = "随机"
 popup/item_3/id = 3
+popup/item_4/text = "按时长排序"
+popup/item_4/id = 4
+popup/item_4/disabled = true
 script = ExtResource("9_0vlqb")
 
 [node name="toggle_tag" type="CheckBox" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/head_bar/VBoxContainer3" unique_id=753716488]
@@ -297,6 +303,18 @@ theme_override_styles/hover = SubResource("StyleBoxFlat_p8adh")
 theme_override_styles/hover_pressed = SubResource("StyleBoxFlat_oldxj")
 text = "  过滤  "
 
+[node name="header_2" type="HBoxContainer" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer" unique_id=20771510]
+layout_mode = 2
+
+[node name="delete_meta_data" type="Button" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/header_2" unique_id=1317555581]
+layout_mode = 2
+text = "删除"
+script = ExtResource("16_kpobt")
+
+[node name="ProgressBar" type="ProgressBar" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/header_2" unique_id=1525794122]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+
 [node name="ScrollContainer2" type="ScrollContainer" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer" unique_id=778066209]
 layout_mode = 2
 size_flags_vertical = 3
@@ -304,6 +322,7 @@ size_flags_vertical = 3
 [node name="MarginContainer" type="MarginContainer" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/ScrollContainer2" unique_id=765039720]
 layout_mode = 2
 size_flags_horizontal = 3
+size_flags_vertical = 3
 theme_override_constants/margin_top = 10
 theme_override_constants/margin_bottom = 10
 
@@ -315,6 +334,13 @@ layout_mode = 2
 res = ExtResource("5_v2gmf")
 
 [node name="PanelContainer" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/ScrollContainer2/MarginContainer/Card_container" unique_id=1147595711 instance=ExtResource("4_k65ib")]
+layout_mode = 2
+
+[node name="dedup_container" type="VBoxContainer" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/ScrollContainer2/MarginContainer" unique_id=713086145]
+visible = false
+layout_mode = 2
+
+[node name="dedup" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/ScrollContainer2/MarginContainer/dedup_container" unique_id=301759678 instance=ExtResource("16_7xrs8")]
 layout_mode = 2
 
 [node name="page" type="MarginContainer" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer" unique_id=712038022]
@@ -695,6 +721,7 @@ size_flags_horizontal = 3
 size_flags_vertical = 3
 
 [connection signal="setup_pages" from="main_ui" to="main_ui/HBoxContainer/MarginContainer/VBoxContainer/page/HBoxContainer/page_num" method="_on_main_ui_setup_pages"]
+[connection signal="tab_selected" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/head_bar/TabBar" to="main_ui" method="_on_tab_bar_tab_selected"]
 [connection signal="toggled" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/head_bar/VBoxContainer6/preview" to="main_ui/HBoxContainer/MarginContainer/VBoxContainer/head_bar/VBoxContainer6/preview" method="_on_toggled"]
 [connection signal="button_up" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/head_bar/VBoxContainer6/delete_gif_cache" to="main_ui/HBoxContainer/MarginContainer/VBoxContainer/head_bar/VBoxContainer6/delete_gif_cache" method="_on_button_up"]
 [connection signal="button_up" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/head_bar/VBoxContainer2/open_local_button" to="main_ui/HBoxContainer/MarginContainer/VBoxContainer/head_bar/VBoxContainer2/open_local_button" method="_on_button_up"]
@@ -708,6 +735,7 @@ size_flags_vertical = 3
 [connection signal="toggled" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/head_bar/VBoxContainer5/is_show_workshop" to="main_ui/HBoxContainer/MarginContainer/VBoxContainer/head_bar/VBoxContainer5/is_show_workshop" method="_on_toggled"]
 [connection signal="text_submitted" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/head_bar/LineEdit" to="main_ui" method="_on_line_edit_text_submitted"]
 [connection signal="toggled" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/head_bar/filter" to="main_ui" method="_on_filter_toggled"]
+[connection signal="button_up" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/header_2/delete_meta_data" to="main_ui/HBoxContainer/MarginContainer/VBoxContainer/header_2/delete_meta_data" method="_on_button_up"]
 [connection signal="page_selected" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/page/HBoxContainer/page_num" to="main_ui" method="_on_page_num_page_selected"]
 [connection signal="item_selected" from="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/HBoxContainer/preset" to="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/HBoxContainer/preset" method="_on_item_selected"]
 [connection signal="item_selected" from="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/HBoxContainer/cq" to="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter" method="_on_cq_item_selected"]

@@ -177,26 +177,14 @@ func _find_preview_file_path() -> String:
 
 
 func _load_texture_from_path(file_path: String , _name:String) -> Texture2D:
-	# var loader = GIFToAnimatedTexture.new()
-	# var cache_dir = "user://gif_cache/" + "test"
-	# var at = loader.convert_gif_to_animated_texture("D:/AGodotProjects/test-3/tex/preview.gif", cache_dir)
-	# if at:
-	# 	return at
-
-	# return null
-
-
 
 	# 如果是 GIF 文件，使用 GIFToAnimatedTexture 进行转换加载
 	if file_path.to_lower().ends_with(".gif"):
-		var loader = GIFToAnimatedTexture.new()
 		# 缓存目录：使用 base_name 区分不同的 GIF
 		var cache_dir = ProjectSettings.globalize_path(res.GIF_CACHE_DIR_PATH + _name)
-		var at = loader.convert_gif_to_animated_texture(file_path, cache_dir)
+		var at = GIFToAnimatedTexture.convert_gif_to_animated_texture(file_path, cache_dir)
 		if at:
 			return at
-
-
 
 
 
@@ -206,7 +194,6 @@ func _load_texture_from_path(file_path: String , _name:String) -> Texture2D:
 		if loaded is Texture2D:
 			return loaded as Texture2D
 	
-
 
 	# 再尝试从本地绝对路径读取图片文件
 	var image := Image.new()

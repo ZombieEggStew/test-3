@@ -22,13 +22,14 @@ corner_detail = 5
 script = ExtResource("2_j0f1v")
 metadata/_custom_type_script = "uid://um35xx1vq1a"
 
-[node name="PanelContainer" type="PanelContainer" unique_id=1028343036 node_paths=PackedStringArray("delete_button")]
+[node name="PanelContainer" type="PanelContainer" unique_id=1028343036 node_paths=PackedStringArray("delete_button", "backup_button")]
 offset_right = 204.0
 offset_bottom = 156.0
 theme_override_styles/panel = SubResource("StyleBoxFlat_vrdfc")
 script = ExtResource("1_ctxmn")
 res = SubResource("Resource_p0pm5")
 delete_button = NodePath("MarginContainer/VBoxContainer/delete")
+backup_button = NodePath("MarginContainer/VBoxContainer/backup")
 
 [node name="MarginContainer" type="MarginContainer" parent="." unique_id=1032066858]
 layout_mode = 2
