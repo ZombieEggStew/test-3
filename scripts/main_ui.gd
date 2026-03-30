@@ -132,7 +132,7 @@ func _on_toggle_show_cards_dont_have_tags(toggled_on: bool) -> void:
 	_render_current_page_from_cache()
 
 func _on_and_or_toggled(toggled_on: bool) -> void:
-	is_tag_filter_and = toggled_on
+	is_tag_filter_and = not toggled_on
 	current_page = 1
 	_render_current_page_from_cache()
 
