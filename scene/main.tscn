@@ -326,11 +326,13 @@ script = ExtResource("16_kpobt")
 
 [node name="dont_have_tags" type="CheckButton" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/header_2" unique_id=1068120978]
 layout_mode = 2
+button_pressed = true
 text = "无tags"
 script = ExtResource("17_jey2d")
 
 [node name="have_tags" type="CheckButton" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/header_2" unique_id=1896460279]
 layout_mode = 2
+button_pressed = true
 text = "有tags"
 script = ExtResource("18_vc5kc")
 
