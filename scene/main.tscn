@@ -27,6 +27,8 @@
 [ext_resource type="Script" uid="uid://um35xx1vq1a" path="res://scripts/my_res.gd" id="16_gn2wi"]
 [ext_resource type="Script" uid="uid://d37q4463ajyi" path="res://scripts/delete_meta_data.gd" id="16_kpobt"]
 [ext_resource type="Script" uid="uid://dc8yhmb7pbdqm" path="res://scripts/is_show_workshop.gd" id="16_rg6nf"]
+[ext_resource type="Script" uid="uid://7wy405gmm1o0" path="res://scripts/dont_have_tags.gd" id="17_jey2d"]
+[ext_resource type="Script" uid="uid://c0qd7j8f25cin" path="res://scripts/have_tags.gd" id="18_vc5kc"]
 [ext_resource type="Script" uid="uid://pooi8l4c1iu5" path="res://scripts/delete_checkbox.gd" id="20_oldxj"]
 [ext_resource type="PackedScene" uid="uid://bhbw5k2mfc2jp" path="res://scene/settings_dialog.tscn" id="21_fdqew"]
 [ext_resource type="Script" uid="uid://167jyo4wstle" path="res://scripts/tag_panel.gd" id="22_0d4pv"]
@@ -155,7 +157,7 @@ right_panel = NodePath("HBoxContainer/right_panel")
 filter_panel = NodePath("tag_panel")
 res = ExtResource("5_v2gmf")
 accept_dialog = NodePath("AcceptDialog")
-get_meta_data_progress_bar = NodePath("HBoxContainer/MarginContainer/VBoxContainer/header_2/ProgressBar")
+get_meta_data_progress_bar = NodePath("HBoxContainer/MarginContainer/VBoxContainer/header_2/HBoxContainer/ProgressBar")
 sort_option_button = NodePath("HBoxContainer/MarginContainer/VBoxContainer/head_bar/VBoxContainer3/OptionButton")
 
 [node name="ColorRect" type="ColorRect" parent="main_ui" unique_id=98198692]
@@ -306,14 +308,31 @@ text = "  过滤  "
 [node name="header_2" type="HBoxContainer" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer" unique_id=20771510]
 layout_mode = 2
 
-[node name="delete_meta_data" type="Button" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/header_2" unique_id=1317555581]
+[node name="HBoxContainer" type="HBoxContainer" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/header_2" unique_id=1917835939]
 layout_mode = 2
-text = "删除"
-script = ExtResource("16_kpobt")
 
-[node name="ProgressBar" type="ProgressBar" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/header_2" unique_id=1525794122]
+[node name="Label" type="Label" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/header_2/HBoxContainer" unique_id=684245190]
+layout_mode = 2
+text = "元数据读取进度："
+
+[node name="ProgressBar" type="ProgressBar" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/header_2/HBoxContainer" unique_id=1525794122]
 custom_minimum_size = Vector2(200, 0)
 layout_mode = 2
+
+[node name="delete_meta_data" type="Button" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/header_2" unique_id=1317555581]
+layout_mode = 2
+text = " 删除元数据缓存 "
+script = ExtResource("16_kpobt")
+
+[node name="dont_have_tags" type="CheckButton" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/header_2" unique_id=1068120978]
+layout_mode = 2
+text = "无tags"
+script = ExtResource("17_jey2d")
+
+[node name="have_tags" type="CheckButton" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/header_2" unique_id=1896460279]
+layout_mode = 2
+text = "有tags"
+script = ExtResource("18_vc5kc")
 
 [node name="ScrollContainer2" type="ScrollContainer" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer" unique_id=778066209]
 layout_mode = 2
@@ -702,7 +721,7 @@ size_flags_vertical = 3
 theme_override_styles/panel = SubResource("StyleBoxFlat_fdqew")
 script = ExtResource("22_0d4pv")
 tag_scene = ExtResource("23_gtqqq")
-group_container_root = NodePath("MarginContainer/ScrollContainer/VBoxContainer")
+group_container_root = NodePath("MarginContainer/VBoxContainer/ScrollContainer/VBoxContainer")
 group_scene = ExtResource("36_7xrs8")
 
 [node name="MarginContainer" type="MarginContainer" parent="main_ui/tag_panel" unique_id=845735414]
@@ -712,10 +731,30 @@ theme_override_constants/margin_top = 10
 theme_override_constants/margin_right = 10
 theme_override_constants/margin_bottom = 10
 
-[node name="ScrollContainer" type="ScrollContainer" parent="main_ui/tag_panel/MarginContainer" unique_id=1866504765]
+[node name="VBoxContainer" type="VBoxContainer" parent="main_ui/tag_panel/MarginContainer" unique_id=1347663571]
 layout_mode = 2
 
-[node name="VBoxContainer" type="VBoxContainer" parent="main_ui/tag_panel/MarginContainer/ScrollContainer" unique_id=361157028]
+[node name="HBoxContainer" type="HBoxContainer" parent="main_ui/tag_panel/MarginContainer/VBoxContainer" unique_id=2029102076]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="main_ui/tag_panel/MarginContainer/VBoxContainer/HBoxContainer" unique_id=1657577096]
+layout_mode = 2
+text = "与"
+
+[node name="and_or" type="CheckButton" parent="main_ui/tag_panel/MarginContainer/VBoxContainer/HBoxContainer" unique_id=1010109660]
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 0
+
+[node name="Label2" type="Label" parent="main_ui/tag_panel/MarginContainer/VBoxContainer/HBoxContainer" unique_id=1342010404]
+layout_mode = 2
+text = "或"
+
+[node name="ScrollContainer" type="ScrollContainer" parent="main_ui/tag_panel/MarginContainer/VBoxContainer" unique_id=1866504765]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="VBoxContainer" type="VBoxContainer" parent="main_ui/tag_panel/MarginContainer/VBoxContainer/ScrollContainer" unique_id=361157028]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
@@ -736,6 +775,8 @@ size_flags_vertical = 3
 [connection signal="text_submitted" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/head_bar/LineEdit" to="main_ui" method="_on_line_edit_text_submitted"]
 [connection signal="toggled" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/head_bar/filter" to="main_ui" method="_on_filter_toggled"]
 [connection signal="button_up" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/header_2/delete_meta_data" to="main_ui/HBoxContainer/MarginContainer/VBoxContainer/header_2/delete_meta_data" method="_on_button_up"]
+[connection signal="toggled" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/header_2/dont_have_tags" to="main_ui/HBoxContainer/MarginContainer/VBoxContainer/header_2/dont_have_tags" method="_on_toggled"]
+[connection signal="toggled" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/header_2/have_tags" to="main_ui/HBoxContainer/MarginContainer/VBoxContainer/header_2/have_tags" method="_on_toggled"]
 [connection signal="page_selected" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/page/HBoxContainer/page_num" to="main_ui" method="_on_page_num_page_selected"]
 [connection signal="item_selected" from="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/HBoxContainer/preset" to="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/HBoxContainer/preset" method="_on_item_selected"]
 [connection signal="item_selected" from="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/HBoxContainer/cq" to="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter" method="_on_cq_item_selected"]
@@ -748,3 +789,4 @@ size_flags_vertical = 3
 [connection signal="button_up" from="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/stop_button" to="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter" method="_on_stop_button_button_up"]
 [connection signal="button_up" from="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/test_button" to="main_ui" method="_on_test_button_button_up"]
 [connection signal="rename_confirmed" from="main_ui/rename_win" to="main_ui" method="_on_rename_win_rename_confirmed"]
+[connection signal="toggled" from="main_ui/tag_panel/MarginContainer/VBoxContainer/HBoxContainer/and_or" to="main_ui" method="_on_and_or_toggled"]

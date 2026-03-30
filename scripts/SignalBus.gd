@@ -39,3 +39,7 @@ signal update_card_info(card_info: Dictionary)
 signal request_item_deletion(card_info: Dictionary)
 
 signal request_add_item_by_path(folder_full_path: String)
+
+signal toggle_show_cards_have_tags(toggled_on: bool)
+
+signal toggle_show_cards_dont_have_tags(toggled_on: bool)

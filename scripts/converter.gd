@@ -168,16 +168,21 @@ func _update_progress_bar_from_file() -> void:
 		_finish_conversion_state(false)
 		SignalBus.request_popup_warning.emit("转换失败: 进程已退出且进度未完成")
 		SignalBus.conversion_finished.emit(false, "转换进程异常终止或进度文件读取失败" + converting_card_info.get("title", ""))
+		SignalBus.load_workshop_cards.emit()  # 刷新卡片状态，可能需要根据实际情况调整为更细粒度的信号
 		converting_card_info.clear()
 		return
 
 	progress_bar.value = value
 	if value >= 100.0:
 		_finish_conversion_state(true)
+
+		SignalBus.request_add_item_by_path.emit(res.LOCAL_PROJECTS_ROOT + "/" + converting_card_info.get("title", "") + "_my_convert")
 		SignalBus.conversion_finished.emit(true, "文件转换已完成！")
 
 		if delete_check_box and delete_check_box.button_pressed:
 			MainManager.delete_and_unsubscribe(converting_card_info)
+		converting_card_info.clear()
+
 
 		
 

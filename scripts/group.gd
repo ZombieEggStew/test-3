@@ -6,12 +6,13 @@ extends VBoxContainer
 
 @export var tag_scene : PackedScene
 
-
 @export var delete_button : Button
+
+@export var check_box : CheckBox
 
 func _ready() -> void:
 	SignalBus.request_save_tag_order.connect(_update_group_order_in_storage)
-
+	check_box.visible = false
 
 func set_label_name(_name: String) -> void:
 
@@ -19,6 +20,9 @@ func set_label_name(_name: String) -> void:
 
 func get_label_name() -> String:
 	return toggle_button.text
+
+func set_selectable() -> void:
+	check_box.visible = true
 
 func add_tag(tag_name: String) -> Node:
 

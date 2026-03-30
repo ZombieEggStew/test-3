@@ -1,11 +1,7 @@
 #TO DO : 使用gif第一帧作为预览图
-#TO DO : 按时长排序，查重
 #TO DO : 
-#TO DO : 转换过后的metadata更新逻辑
+#TO DO : 视频首帧查重，先时长查重；或者只通过时长查重
 #TO DO : 
-#TO DO : 
-#TO DO : 
-#TO DO : 测试转换输出的文件名
 #TO DO : 
 
 
@@ -50,6 +46,10 @@ var search_keyword := ""
 
 var active_tags: Array[String] = []
 
+var is_show_cards_have_tags := true
+var is_show_cards_dont_have_tags := true
+var is_tag_filter_and := true
+
 var selected_card_node: Node = null
 var converting_item_key: String = ""
 
@@ -87,6 +87,8 @@ func _ready() -> void:
 	SignalBus.update_card_info.connect(_update_card_info)
 	SignalBus.request_item_deletion.connect(_on_request_item_deletion)
 	SignalBus.request_add_item_by_path.connect(_add_or_update_item_by_path)
+	SignalBus.toggle_show_cards_have_tags.connect(_on_toggle_show_cards_have_tags)
+	SignalBus.toggle_show_cards_dont_have_tags.connect(_on_toggle_show_cards_dont_have_tags)
 
 	var wallpaper := MainManager.get_config_value("wallpaper_root" , "") as String
 	var workshop := MainManager.get_config_value("workshop_root" , "") as String
@@ -94,8 +96,8 @@ func _ready() -> void:
 		_on_request_file_dialog()
 		return
 
-	res.WORKSHOP_ROOT = workshop
-	res.LOCAL_PROJECTS_ROOT = (wallpaper + "/projects/myprojects").replace("\\", "/")
+	res.WORKSHOP_ROOT = workshop.replace("\\", "/").strip_edges()
+	res.LOCAL_PROJECTS_ROOT = (wallpaper + "/projects/myprojects").replace("\\", "/").strip_edges()
 	print(res.LOCAL_PROJECTS_ROOT)
 	set_process(true)
 	_clear_detail_labels()
@@ -116,20 +118,37 @@ func _ready() -> void:
 	# 开始后台查重扫描
 	# if VideoDedup:
 	# 	VideoDedup.start_background_scan(cached_items)
+
+
+
+func _on_toggle_show_cards_have_tags(toggled_on: bool) -> void:
+	is_show_cards_have_tags = toggled_on
+	current_page = 1
+	_render_current_page_from_cache()
+
+func _on_toggle_show_cards_dont_have_tags(toggled_on: bool) -> void:
+	is_show_cards_dont_have_tags = toggled_on
+	current_page = 1
+	_render_current_page_from_cache()
+
+func _on_and_or_toggled(toggled_on: bool) -> void:
+	is_tag_filter_and = toggled_on
+	current_page = 1
+	_render_current_page_from_cache()
+
 func upddata_progress_bar(current: int, total: int) -> void:
 	_is_load_meta_data_in_progress = true
-	if get_meta_data_progress_bar:
-		get_meta_data_progress_bar.max_value = total
-		get_meta_data_progress_bar.value = current
+	get_meta_data_progress_bar.max_value = total
+	get_meta_data_progress_bar.value = current
+	sort_option_button.set_item_disabled(4, true) #在扫描过程中禁用时长排序选项，避免用户点击后因为缺乏时长数据而导致排序异常
+	
 
 
 func on_finish_callback() -> void:
 	_is_load_meta_data_in_progress = false
-	if get_meta_data_progress_bar:
-		get_meta_data_progress_bar.visible = false
-	if sort_option_button and sort_option_button.item_count > 4:
-		sort_option_button.set_item_disabled(4, false)
-		print("元数据扫描完成，已启用时长排序选项")
+	# get_meta_data_progress_bar.visible = false
+	sort_option_button.set_item_disabled(4, false)
+	print("元数据扫描完成，已启用时长排序选项")
 
 
 func _on_tab_bar_tab_selected(tab: int) -> void:
@@ -165,16 +184,13 @@ func _on_update_filter(tag_name: String , toggled_on: bool) -> void:
 	_render_current_page_from_cache()
 
 func _on_conversion_finished(success: bool, message: String) -> void:
+
+	converting_item_key = ""
+	
+	_popup_dialog("转换成功" if success else "转换失败", message)
 	# 还原最小化的窗口并带到前台
 	DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
 	DisplayServer.window_move_to_foreground()
-	
-	converting_item_key = ""
-	
-	# 如果转换成功，我们需要刷新缓存以显示新转换的本地项目
-	_load_workshop_cards()
-
-	_popup_dialog("转换成功" if success else "转换失败", message)
 
 func _popup_dialog(title: String, message: String) -> void:
 	accept_dialog.title = title
@@ -444,17 +460,37 @@ func _get_visible_items_from_sorted_cache() -> Array:
 
 
 func _is_item_match_search(info: Dictionary) -> bool:
-	# 1. 标签过滤 (AND 逻辑：必须包含所有选中的标签)
+	var project_data = info.get("project_data", {})
+	var my_tags = project_data.get("my_tags", [])
+	var has_tags = my_tags is Array and not my_tags.is_empty()
+
+	# 1. 过滤“有标签”和“无标签”的项目
+	if not is_show_cards_have_tags and has_tags:
+		return false
+	if not is_show_cards_dont_have_tags and not has_tags:
+		return false
+
+	# 2. 标签过滤
 	if not active_tags.is_empty():
-		var project_data = info.get("project_data", {})
-		var my_tags = project_data.get("my_tags", [])
 		if not my_tags is Array:
 			return false
-		for req_tag in active_tags:
-			if not req_tag in my_tags:
+		
+		if is_tag_filter_and:
+			# AND 逻辑：必须包含所有选中的标签
+			for req_tag in active_tags:
+				if not req_tag in my_tags:
+					return false
+		else:
+			# OR 逻辑：包含任意一个选中的标签即可
+			var has_any_match = false
+			for req_tag in active_tags:
+				if req_tag in my_tags:
+					has_any_match = true
+					break
+			if not has_any_match:
 				return false
 
-	# 2. 搜索词过滤
+	# 3. 搜索词过滤
 	var keyword := search_keyword.strip_edges().to_lower()
 	if keyword.is_empty():
 		return true
@@ -475,7 +511,6 @@ func _is_item_match_search(info: Dictionary) -> bool:
 	if published_id.find(keyword) >= 0:
 		return true
 
-	var project_data := info.get("project_data", {}) as Dictionary
 	var project_title := str(project_data.get("title", "")).strip_edges().to_lower()
 	if project_title.find(keyword) >= 0:
 		return true
@@ -640,9 +675,8 @@ func rename_item(info: Dictionary, new_title: String) -> void:
 					write_file.close()
 					print("已更新项目文件: %s" % json_path)
 
-	# 3. 持久化缓存到磁盘并刷新 UI
-	_apply_sort_on_cached_items()
-	_render_current_page_from_cache()
+	_add_or_update_item_by_path(info.get("item_path", ""))
+
 
 func _set_card_label(card: Node, title: String) -> void:
 	card.call("set_label_text", title)
@@ -944,7 +978,7 @@ func _on_page_num_page_selected(page_index: int) -> void:
 
 func _on_rename_win_rename_confirmed(new_name: String, target_info: Dictionary) -> void:
 	rename_item(target_info, new_name)
-	_load_workshop_cards()
+	# _load_workshop_cards()
 
 func _on_request_file_dialog() -> void:
 	folder_selection_dialog.popup_centered()
