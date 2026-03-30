@@ -98,7 +98,7 @@ content_margin_right = 0.0
 content_margin_bottom = 0.0
 bg_color = Color(0.25490198, 0.5137255, 0.9607843, 1)
 
-[sub_resource type="ButtonGroup" id="ButtonGroup_7xrs8"]
+[sub_resource type="ButtonGroup" id="ButtonGroup_kpobt"]
 allow_unpress = true
 
 [sub_resource type="Theme" id="Theme_tqoya"]
@@ -373,7 +373,7 @@ page_card = ExtResource("7_k65ib")
 
 [node name="page_1" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/page/HBoxContainer/page_num" unique_id=109932289 instance=ExtResource("7_k65ib")]
 layout_mode = 2
-button_group = SubResource("ButtonGroup_7xrs8")
+button_group = SubResource("ButtonGroup_kpobt")
 
 [node name="Button2" type="Button" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/page/HBoxContainer" unique_id=924454259]
 layout_mode = 2

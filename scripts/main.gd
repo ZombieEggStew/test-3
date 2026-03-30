@@ -72,7 +72,7 @@ static func delete_and_unsubscribe(target_card_info: Dictionary) -> bool:
 	# 接着如果是工坊项，提交取消订阅请求
 
 
-	SignalBus.load_workshop_cards.emit()
+	SignalBus.request_item_deletion.emit(target_card_info)
 	return true
 
 		
@@ -523,7 +523,11 @@ static func background_cache_metadata(items: Array, progress_callback: Callable 
 			var media_file_path = item.get("media_file_path", "")
 			if not str(media_file_path).is_empty() and str(media_file_path).to_lower().ends_with(".mp4"):
 				# read_mp4_metadata 内部已经处理了：如果存在有效缓存就不重新获取
-				read_mp4_metadata(media_file_path)
+				var meta := read_mp4_metadata(media_file_path)
+				# 将读取到的元数据存回原始字典以便后续快速访问
+				item["video_resolution"] = str(meta.get("resolution", ""))
+				item["video_bitrate_kbps"] = int(meta.get("bitrate_kbps", 0))
+				item["video_duration"] = float(meta.get("duration", 0.0))
 			
 			count += 1
 			
@@ -541,14 +545,10 @@ static func background_cache_metadata(items: Array, progress_callback: Callable 
 static func delete_all_metadata_cache(items: Array) -> int:
 	var deleted_count := 0
 	for item in items:
-		if not item is Dictionary:
-			continue
+
 			
-		var media_file_path = item.get("media_file_path", "")
-		if str(media_file_path).is_empty():
-			continue
-			
-		var cache_path := str(media_file_path).get_base_dir().path_join("video_meta.json")
+		var cache_path := str(item).path_join("video_meta.json")
+		# print("尝试删除元数据缓存: %s" % cache_path)
 		if FileAccess.file_exists(cache_path):
 			var err := DirAccess.remove_absolute(cache_path)
 			if err == OK:
@@ -557,6 +557,22 @@ static func delete_all_metadata_cache(items: Array) -> int:
 	print("已清除 %d 个元数据缓存文件" % deleted_count)
 	return deleted_count
 
+static func deleta_meta_data(item:Dictionary) -> void:
+	var media_file_path = item.get("media_file_path", "")
+	if str(media_file_path).is_empty():
+		SignalBus.request_popup_warning.emit("项目缺少 media_file_path，无法删除元数据缓存")
+		return
+		
+	var cache_path := str(media_file_path).get_base_dir().path_join("video_meta.json")
+	if FileAccess.file_exists(cache_path):
+		var err := DirAccess.remove_absolute(cache_path)
+		if err == OK:
+			print("已删除元数据缓存: %s" % cache_path)
+			# SignalBus.request_popup_warning.emit("已删除元数据缓存文件")
+		else:
+			SignalBus.request_popup_warning.emit("删除元数据缓存失败: %s, err=%d" % [cache_path, err])
+	else:
+		SignalBus.request_popup_warning.emit("未找到元数据缓存文件: %s" % cache_path)
 
 ## 格式化文件大小为可读文本
 static func format_size_text(size_bytes: int) -> String:
@@ -573,7 +589,7 @@ static func format_size_text(size_bytes: int) -> String:
 
 
 ## 递归移动（剪切）目录下的所有内容到目标路径
-static func move_folder_contents(src_dir_path: String, dest_dir_path: String) -> bool:
+static func backup_folder_contents(src_dir_path: String, dest_dir_path: String) -> bool:
 	if src_dir_path == dest_dir_path:
 		return false
 		
@@ -598,10 +614,12 @@ static func move_folder_contents(src_dir_path: String, dest_dir_path: String) ->
 	for sub_dir_name in src_dir.get_directories():
 		var old_sub_path := src_dir_path.path_join(sub_dir_name)
 		var new_sub_path := dest_dir_path.path_join(sub_dir_name)
-		move_folder_contents(old_sub_path, new_sub_path)
+		backup_folder_contents(old_sub_path, new_sub_path)
 		
 		# 移动后尝试删除源子目录
 		DirAccess.remove_absolute(old_sub_path)
+	SignalBus.request_add_item_by_path.emit(dest_dir_path)
+	
 
 	return true
 
@@ -648,3 +666,8 @@ static func remove_dir_recursive(path: String) -> Error:
 static func get_config_value(key: String, default_value: Variant = 0) -> Variant:
 	var config := read_json_file(MyRes.CONFIG_PATH)
 	return config.get(key, default_value)
+
+static func get_item_unique_key(info: Dictionary) -> String:
+	var root := str(info.get("root_path", "")).replace("\\", "/").strip_edges()
+	var folder := str(info.get("folder_name", "")).replace("\\", "/").strip_edges()
+	return "%s/%s" % [root, folder]

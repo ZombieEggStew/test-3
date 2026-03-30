@@ -51,12 +51,8 @@ func _reset_progress_bar() -> void:
 	progress_bar.step = 0.1
 	progress_bar.value = 0.0
 
-func prepare_output_dir(local_root: String, input_file: String) -> String:
-	var input_file_name := input_file.get_file().get_basename().strip_edges()
-	if input_file_name.is_empty():
-		input_file_name = "converted"
-
-	var output_dir := "%s/%s_my_convert" % [local_root, input_file_name]
+func prepare_output_dir(local_root: String,title : String) -> String:
+	var output_dir := "%s/%s_my_convert" % [local_root, title]
 	var err := DirAccess.make_dir_recursive_absolute(output_dir)
 	if err != OK:
 		return ""
@@ -219,7 +215,11 @@ func _on_start_convert_button_up() -> void:
 		SignalBus.request_popup_warning.emit("文件不存在: %s" % input_file)
 		return
 
-	var output_dir := prepare_output_dir(res.LOCAL_PROJECTS_ROOT, input_file) as String
+	var title := str(selected_card_info.get("title", "")).strip_edges()
+	if title.is_empty():
+		SignalBus.request_popup_warning.emit("当前 card 没有有效的标题")
+
+	var output_dir := prepare_output_dir(res.LOCAL_PROJECTS_ROOT, title) as String
 	if output_dir.is_empty():
 		SignalBus.request_popup_warning.emit("创建输出目录失败")
 		return

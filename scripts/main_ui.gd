@@ -2,9 +2,10 @@
 #TO DO : 按时长排序，查重
 #TO DO : 
 #TO DO : 转换过后的metadata更新逻辑
-#TO DO : 右键菜单添加手动更新metadata
-#TO DO : 按时长排序卡顿严重
 #TO DO : 
+#TO DO : 
+#TO DO : 
+#TO DO : 测试转换输出的文件名
 #TO DO : 
 
 
@@ -39,7 +40,8 @@ const MAX_ONE_PAGE_COUNT := 100
 
 var current_sort_index := 0
 var current_page := 1
-var cached_items: Array = []
+# cached_items 改为字典，key 为 unique_key，value 为 card_info
+var cached_items: Dictionary = {}
 var sorted_items: Array = []
 var custom_folders: Array = []
 var is_show_local := true
@@ -54,6 +56,8 @@ var converting_item_key: String = ""
 
 var is_show_tag_before_name = false
 var IS_SHOW_PREVIEW := false
+
+var _is_load_meta_data_in_progress := false
 
 func _ready() -> void:
 	var steam := Engine.get_singleton("Steam")
@@ -80,6 +84,9 @@ func _ready() -> void:
 	SignalBus.toggle_show_local.connect(_on_is_show_local_toggled)
 	SignalBus.toggle_show_workshop.connect(_on_is_show_workshop_toggled)
 	SignalBus.delete_all_meta_data.connect(_delete_all_meta_data)
+	SignalBus.update_card_info.connect(_update_card_info)
+	SignalBus.request_item_deletion.connect(_on_request_item_deletion)
+	SignalBus.request_add_item_by_path.connect(_add_or_update_item_by_path)
 
 	var wallpaper := MainManager.get_config_value("wallpaper_root" , "") as String
 	var workshop := MainManager.get_config_value("workshop_root" , "") as String
@@ -88,7 +95,8 @@ func _ready() -> void:
 		return
 
 	res.WORKSHOP_ROOT = workshop
-	res.LOCAL_PROJECTS_ROOT = (wallpaper + "/projects/myprojects")
+	res.LOCAL_PROJECTS_ROOT = (wallpaper + "/projects/myprojects").replace("\\", "/")
+	print(res.LOCAL_PROJECTS_ROOT)
 	set_process(true)
 	_clear_detail_labels()
 	
@@ -102,21 +110,27 @@ func _ready() -> void:
 		get_meta_data_progress_bar.visible = true
 		get_meta_data_progress_bar.value = 0
 		
-	MainManager.background_cache_metadata(cached_items, upddata_progress_bar,on_finish_callback)
+	MainManager.background_cache_metadata(cached_items.values(), upddata_progress_bar,on_finish_callback)
 	
+
 	# 开始后台查重扫描
 	# if VideoDedup:
 	# 	VideoDedup.start_background_scan(cached_items)
 func upddata_progress_bar(current: int, total: int) -> void:
+	_is_load_meta_data_in_progress = true
 	if get_meta_data_progress_bar:
 		get_meta_data_progress_bar.max_value = total
 		get_meta_data_progress_bar.value = current
+
+
 func on_finish_callback() -> void:
+	_is_load_meta_data_in_progress = false
 	if get_meta_data_progress_bar:
 		get_meta_data_progress_bar.visible = false
 	if sort_option_button and sort_option_button.item_count > 4:
 		sort_option_button.set_item_disabled(4, false)
 		print("元数据扫描完成，已启用时长排序选项")
+
 
 func _on_tab_bar_tab_selected(tab: int) -> void:
 	if tab == 0:
@@ -151,16 +165,13 @@ func _on_update_filter(tag_name: String , toggled_on: bool) -> void:
 	_render_current_page_from_cache()
 
 func _on_conversion_finished(success: bool, message: String) -> void:
-	for child in card_container.get_children():
-		if child.has_method("get_card_info") and child.has_method("set_converted"):
-			if _get_item_unique_key(child.call("get_card_info")) == converting_item_key:
-				child.call("set_converted")
-				break
 	# 还原最小化的窗口并带到前台
 	DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
 	DisplayServer.window_move_to_foreground()
 	
 	converting_item_key = ""
+	
+	# 如果转换成功，我们需要刷新缓存以显示新转换的本地项目
 	_load_workshop_cards()
 
 	_popup_dialog("转换成功" if success else "转换失败", message)
@@ -176,22 +187,123 @@ func _popup_warning(message: String) -> void:
 	accept_dialog.popup_centered()
 
 func _on_conversion_started(info: Dictionary) -> void:
-	converting_item_key = _get_item_unique_key(info)
+	converting_item_key = MainManager.get_item_unique_key(info)
 	
 	# 如果当前页刚好显示了这张卡片，直接调用它的 set_converting
 	for child in card_container.get_children():
 		if child.has_method("get_card_info") and child.has_method("set_converting"):
-			if _get_item_unique_key(child.call("get_card_info")) == converting_item_key:
+			if MainManager.get_item_unique_key(child.call("get_card_info")) == converting_item_key:
 				child.call("set_converting")
 	
 	_apply_sort_on_cached_items()
 	_render_current_page_from_cache()
 
 
-func _get_item_unique_key(info: Dictionary) -> String:
-	var root := str(info.get("root_path", ""))
-	var folder := str(info.get("folder_name", ""))
-	return "%s|%s" % [root, folder]
+func _update_card_info(info: Dictionary) -> void:
+	var key = MainManager.get_item_unique_key(info)
+	if cached_items.has(key):
+		cached_items[key] = info
+		_apply_sort_on_cached_items()
+		_render_current_page_from_cache()
+
+func _on_request_item_deletion(info: Dictionary) -> void:
+	var key = MainManager.get_item_unique_key(info)
+	if cached_items.has(key):
+		cached_items.erase(key)
+		_apply_sort_on_cached_items()
+		_render_current_page_from_cache()
+	else:
+		# 如果缓存里找不到，可能需要全量刷新
+		_load_workshop_cards()
+
+
+## 核心项目信息构建函数：根据文件夹路径构建完整的 card_info 字典
+func _build_item_info_from_folder(folder_full_path: String) -> Dictionary:
+	folder_full_path = folder_full_path.replace("\\", "/")
+	if not DirAccess.dir_exists_absolute(folder_full_path):
+		push_warning("目录不存在: %s" % folder_full_path)
+		return {}
+
+	var folder_name := folder_full_path.get_file()
+	var root_path := folder_full_path.get_base_dir()
+	var project_json_path := folder_full_path.path_join("project.json")
+	
+	if not FileAccess.file_exists(project_json_path):
+		return {}
+
+	var project_data := MainManager.read_json_file(project_json_path)
+	var type_text := str(project_data.get("type", "")).strip_edges().to_lower()
+	if type_text != "video":
+		return {}
+
+	var media_file_name := str(project_data.get("file", "")).strip_edges()
+	var media_file_path := folder_full_path.path_join(media_file_name)
+	var title := str(project_data.get("title", "")).strip_edges()
+	if title.is_empty():
+		title = folder_name
+
+	var is_workshop := folder_full_path.begins_with(res.WORKSHOP_ROOT)
+	var published_id := int(folder_name) if folder_name.is_valid_int() else 0
+	var subscribe_time := _resolve_item_create_time(root_path, folder_name)
+	
+	var video_file_size := 0
+	if FileAccess.file_exists(media_file_path):
+		var f := FileAccess.open(media_file_path, FileAccess.READ)
+		if f:
+			video_file_size = f.get_length()
+			f.close()
+
+	return {
+		"folder_name": folder_name,
+		"published_id": published_id,
+		"subscribe_time": subscribe_time,
+		"video_file_size": video_file_size,
+		"root_path": root_path,
+		"item_path": folder_full_path,
+		"is_workshop": is_workshop,
+		"project_json_path": project_json_path,
+		"project_data": project_data,
+		"title": title,
+		"media_file_name": media_file_name,
+		"media_file_path": media_file_path
+	}
+
+
+func _scan_root_for_items(root_path: String) -> Array:
+	var items: Array = []
+	var dir := DirAccess.open(root_path)
+	if dir == null:
+		return items
+
+	for folder_name in dir.get_directories():
+		var folder_path := root_path.path_join(folder_name)
+		var info := _build_item_info_from_folder(folder_path)
+		if not info.is_empty():
+			items.append(info)
+	return items
+
+
+## 细粒度添加或更新单个项目
+## folder_full_path: 项目的绝对路径
+func _add_or_update_item_by_path(folder_full_path: String) -> void:
+	var info := _build_item_info_from_folder(folder_full_path)
+	if info.is_empty():
+		return
+
+	var key = MainManager.get_item_unique_key(info)
+	cached_items[key] = info
+	
+	# 如果没有时长元数据，触发一次静默读取（后台扫描）
+	MainManager.background_cache_metadata([info])
+	
+	# 重新排序并渲染
+	_apply_sort_on_cached_items()
+	_render_current_page_from_cache()
+	
+
+
+
+
 
 func _load_workshop_cards() -> void:
 	if card_container == null:
@@ -203,9 +315,12 @@ func _load_workshop_cards() -> void:
 
 	_preload_workshop_items_once()
 
+	if not _is_load_meta_data_in_progress: 
+		MainManager.background_cache_metadata(cached_items.values(), upddata_progress_bar,on_finish_callback)
+
 	_apply_sort_on_cached_items()
 	_render_current_page_from_cache()
-	MainManager.background_cache_metadata(cached_items, upddata_progress_bar,on_finish_callback)
+	
 
 
 func _preload_workshop_items_once() -> bool:
@@ -216,27 +331,31 @@ func _preload_workshop_items_once() -> bool:
 	# 本地项目优先加载，合并时把本地放前面
 
 	if res.IS_TEST:
-		var test_vedio := _scan_root_for_items(res.TEST_ROOT, false)
+		var test_vedio := _scan_root_for_items(res.TEST_ROOT)
 		items = test_vedio
 	else:
-		var items_workshop := _scan_root_for_items(res.WORKSHOP_ROOT , true)
-		var items_local := _scan_root_for_items(res.LOCAL_PROJECTS_ROOT , false)
+		var items_workshop := _scan_root_for_items(res.WORKSHOP_ROOT)
+		var items_local := _scan_root_for_items(res.LOCAL_PROJECTS_ROOT)
 		items = items_local + items_workshop
 
 	if res.MAX_TEST_FOLDER_COUNT > 0 and items.size() > res.MAX_TEST_FOLDER_COUNT:
 		items = items.slice(0, res.MAX_TEST_FOLDER_COUNT)
 
 	for item in items:
-		var card_info := _build_card_info_for_item(item)
-		if card_info.is_empty():
+		if item.is_empty():
 			continue
-		cached_items.append(card_info)
+		var key = MainManager.get_item_unique_key(item)
+
+		if cached_items.has(key):
+			print("检测到重复项目，已跳过: %s" % key)
+			continue
+		cached_items[key] = item
 
 	return true
 
 
 func _apply_sort_on_cached_items() -> void:
-	sorted_items = cached_items.duplicate()
+	sorted_items = cached_items.values()
 
 	var custom_sort = func(a: Dictionary, b: Dictionary) -> bool:
 		if current_sort_index == 1:
@@ -295,7 +414,7 @@ func _render_current_page_from_cache() -> void:
 			var card = _add_card(card_info, title)
 			card.call("apply_card_texture", IS_SHOW_PREVIEW)
 			# 如果该卡片正在转换，手动触发显示状态
-			if not converting_item_key.is_empty() and _get_item_unique_key(card_info) == converting_item_key:
+			if not converting_item_key.is_empty() and MainManager.get_item_unique_key(card_info) == converting_item_key:
 				if card.has_method("set_converting"):
 					card.call("set_converting")
 
@@ -539,101 +658,6 @@ func _clear_cards() -> void:
 		child.queue_free()
 
 
-
-func _scan_root_for_items(root_path: String , is_wrokshop:bool) -> Array:
-	var items: Array = []
-	var dir := DirAccess.open(root_path)
-	if dir == null:
-		return items
-
-	var folders := dir.get_directories() as Array
-	for folder_name in folders:
-		var folder_id_str := str(folder_name)
-		var published_id := int(folder_id_str) if folder_id_str.is_valid_int() else 0
-
-		var project_json_path := "%s/%s/project.json" % [root_path, folder_name]
-		var project_data := MainManager.read_json_file(project_json_path)
-		var type_text := str(project_data.get("type", "")).strip_edges().to_lower()
-		if type_text != "video":
-			continue
-		var media_file_name := str(project_data.get("file", "")).strip_edges()
-		# if media_file_name.is_empty():
-		#     continue
-		var media_file_path := "%s/%s/%s" % [root_path, folder_name, media_file_name]
-		# if not FileAccess.file_exists(media_file_path):
-		#     continue
-
-		var title := str(project_data.get("title", "")).strip_edges()
-		if title.is_empty():
-			title = folder_name
-
-		var subscribe_time := _resolve_item_create_time(root_path, folder_id_str)
-		# var folder_path := "%s/%s" % [root_path, folder_id_str]
-		# var folder_size := MainManager.calculate_dir_size_bytes(folder_path)
-		
-		var video_file_size := 0
-		if FileAccess.file_exists(media_file_path):
-			var f := FileAccess.open(media_file_path, FileAccess.READ)
-			if f:
-				video_file_size = f.get_length()
-				f.close()
-
-		items.append({
-			"folder_name": folder_id_str,
-			"published_id": published_id,
-			"subscribe_time": subscribe_time,
-			# "folder_size": folder_size,
-			"video_file_size": video_file_size,
-			"root_path": root_path,
-			"is_workshop": is_wrokshop,
-			"project_json_path" : project_json_path,
-			"project_data" : project_data,
-			"title" : title,
-			"media_file_name": media_file_name,
-			"media_file_path": media_file_path
-		})
-	return items
-
-
-func _build_card_info_for_item(item: Dictionary) -> Dictionary:
-	var folder_name := str(item.get("folder_name", "")).strip_edges()
-	var item_root := str(item.get("root_path", res.WORKSHOP_ROOT)).strip_edges()
-	if folder_name.is_empty() or item_root.is_empty():
-		return {}
-
-
-	var item_path := "%s/%s" % [item_root, folder_name]
-
-	# var folder_size := int(item.get("video_file_size", -1))
-	# if folder_size < 0:
-	# 	var folder_path := "%s/%s" % [item_root, folder_name]
-	# 	folder_size = MainManager.calculate_dir_size_bytes(folder_path)
-
-
-	# var video_resolution := ""
-	# var video_bitrate_kbps := 0
-	# 移除这里的元数据读取，改为在点击卡片时按需获取
-	# if media_file_name.to_lower().ends_with(".mp4"):
-	# 	var meta := MainManager.read_mp4_metadata(media_file_path)
-	# 	video_resolution = str(meta.get("resolution", ""))
-	# 	video_bitrate_kbps = int(meta.get("bitrate_kbps", 0))
-
-	var card_info := item.duplicate(true) as Dictionary
-
-	
-	
-	card_info["item_path"] = item_path
-	# card_info["video_resolution"] = video_resolution
-	# card_info["video_bitrate_kbps"] = video_bitrate_kbps
-
-	# card_info["folder_size"] = folder_size
-	# root_path 必须保持为根目录路径（LOCAL/WORKSHOP），筛选逻辑依赖该语义
-	card_info["root_path"] = item_root
-	card_info["is_workshop"] = bool(item.get("is_workshop"))
-	card_info["folder_name"] = folder_name
-	return card_info
-
-
 func _resolve_item_create_time(root_path: String, folder_name: String) -> int:
 	var folder_path := "%s/%s" % [root_path, folder_name]
 	var dir := DirAccess.open(folder_path)
@@ -706,12 +730,21 @@ func _compare_folder_size_desc(a: Dictionary, b: Dictionary) -> bool:
 
 
 func _compare_video_duration_desc(a: Dictionary, b: Dictionary) -> bool:
-	# 优先从 project_data 获取时长（如果后台扫描已存入），否则尝试读取缓存文件
+	# 优先从字典获取时长（如果后台扫描已存入或点击过卡片），否则尝试读取缓存文件
 	var get_duration = func(info: Dictionary) -> float:
+		# 1. 尝试直接从缓存字典获取（最快）
+		if info.has("video_duration"):
+			return float(info.get("video_duration", 0.0))
+			
+		# 2. 只有在没有缓存时才尝试读取元数据（可能触发 ffprobe 或读取 JSON 缓存）
 		var media_path = info.get("media_file_path", "")
 		if media_path.is_empty(): return 0.0
 		var meta = MainManager.read_mp4_metadata(media_path)
-		return float(meta.get("duration", 0.0))
+		
+		# 顺便存回字典，提升下次比较性能
+		var dur = float(meta.get("duration", 0.0))
+		info["video_duration"] = dur
+		return dur
 	
 	var dur_a = get_duration.call(a)
 	var dur_b = get_duration.call(b)
@@ -755,9 +788,16 @@ func _on_card_left_clicked(card: Node, info: Dictionary) -> void:
 	var media_file_path = selected_card_info.get("media_file_path", "")
 	if not str(media_file_path).is_empty() and str(media_file_path).to_lower().ends_with(".mp4"):
 		var meta := MainManager.read_mp4_metadata(media_file_path)
+		
+		# 更新当前持有的字典（用于传递给面板）
 		selected_card_info["video_resolution"] = str(meta.get("resolution", ""))
 		selected_card_info["video_bitrate_kbps"] = int(meta.get("bitrate_kbps", 0))
 		selected_card_info["video_duration"] = float(meta.get("duration", 0.0))
+		
+		# 同时更新原始缓存字典（info 为原始引用），确保后续排序能直接取到
+		info["video_resolution"] = selected_card_info["video_resolution"]
+		info["video_bitrate_kbps"] = selected_card_info["video_bitrate_kbps"]
+		info["video_duration"] = selected_card_info["video_duration"]
 		# video_file_size 已经在软件开启扫描时从文件系统读取并缓存在 info 中
 
 	SignalBus.on_card_selected.emit(selected_card_info)
@@ -926,7 +966,7 @@ func _delete_all_meta_data() -> void:
 		_popup_warning("当前没有检测到任何项目")
 		return
 
-	var count = MainManager.delete_all_metadata_cache(cached_items)
+	var count = MainManager.delete_all_metadata_cache(cached_items.keys())
 	_popup_dialog("删除成功", "已成功删除 %d 个 video_meta.json 缓存文件。列表显示的元数据将在后续重新获取。" % count)
 	
 	# 重置当前选中卡片的信息显示，强迫下次点击重新读取

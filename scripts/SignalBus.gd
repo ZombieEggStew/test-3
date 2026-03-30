@@ -33,3 +33,9 @@ signal request_save_tag_order()
 signal new_tag_created(tag_name: String)
 
 signal delete_all_meta_data()
+
+signal update_card_info(card_info: Dictionary)
+
+signal request_item_deletion(card_info: Dictionary)
+
+signal request_add_item_by_path(folder_full_path: String)

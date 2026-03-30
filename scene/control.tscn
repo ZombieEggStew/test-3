@@ -63,6 +63,11 @@ layout_mode = 2
 text = "  重命名"
 alignment = 0
 
+[node name="updata_meta_data" type="Button" parent="MarginContainer/VBoxContainer" unique_id=310663421]
+layout_mode = 2
+text = "  更新元数据"
+alignment = 0
+
 [node name="delete" type="Button" parent="MarginContainer/VBoxContainer" unique_id=860491599]
 layout_mode = 2
 theme = ExtResource("4_8g54p")
@@ -73,4 +78,5 @@ alignment = 0
 [connection signal="button_up" from="MarginContainer/VBoxContainer/play" to="." method="_on_play_button_up"]
 [connection signal="button_up" from="MarginContainer/VBoxContainer/backup" to="." method="_on_backup_button_up"]
 [connection signal="button_up" from="MarginContainer/VBoxContainer/rename" to="." method="_on_rename_button_up"]
+[connection signal="button_up" from="MarginContainer/VBoxContainer/updata_meta_data" to="." method="_on_updata_meta_data_button_up"]
 [connection signal="button_up" from="MarginContainer/VBoxContainer/delete" to="." method="_on_delete_button_up"]

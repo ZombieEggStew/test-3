@@ -149,14 +149,15 @@ func backup_item(confirm_dialog: ConfirmationDialog) -> void:
 		hide()
 		return
 
-	var video_name := str(target_card_info.get("media_file_name", "")).strip_edges()
+	var title := str(target_card_info.get("title", "")).strip_edges()
 
-	if video_name.is_empty():
+	if title.is_empty():
 		SignalBus.request_popup_warning.emit("未找到视频文件名或项目名，无法创建备份文件夹")
 		hide()
 		return
 
-	var dest_folder := "%s/%s" % [res.LOCAL_PROJECTS_ROOT, video_name]
+	var dest_folder_name := title + "_my_backup"
+	var dest_folder := "%s/%s" % [res.LOCAL_PROJECTS_ROOT, dest_folder_name]
 	dest_folder = dest_folder.replace("\\", "/")
 
 	var dir := DirAccess.open(res.LOCAL_PROJECTS_ROOT)
@@ -166,13 +167,20 @@ func backup_item(confirm_dialog: ConfirmationDialog) -> void:
 			SignalBus.request_popup_warning.emit("创建目录失败: %s" % dest_folder)
 			hide()
 			return
+	
 	var item_path := MainManager.resolve_target_folder_path(target_card_info) 
 	if not item_path.is_empty():
-		print(MainManager.read_project_data(item_path))
-		# 剪切所有文件到备份文件夹
-		MainManager.move_folder_contents(item_path, dest_folder)
-		# 备份完成后刷新 UI
-		SignalBus.load_workshop_cards.emit()
+		# 1. 首先移动文件
+		MainManager.backup_folder_contents(item_path, dest_folder)
+		
+		# 2. 修改 project.json 中的 title
+		var project_json_path := dest_folder.path_join("project.json")
+		if FileAccess.file_exists(project_json_path):
+			var project_data := MainManager.read_json_file(project_json_path)
+			if not project_data.is_empty():
+				project_data["title"] = dest_folder_name
+				MainManager.save_json_file(project_json_path, project_data)
+				print("已更新备份项目的 project.json title: %s" % dest_folder_name)
 
 	print("已备份并移动文件到: %s" % dest_folder)
 
@@ -197,3 +205,17 @@ func _on_rename_button_up() -> void:
 	hide()
 
 
+
+
+func _on_updata_meta_data_button_up() -> void:
+	MainManager.deleta_meta_data(target_card_info)
+	var media_file_path = target_card_info.get("media_file_path", "")
+	if not str(media_file_path).is_empty() and str(media_file_path).to_lower().ends_with(".mp4"):
+		# read_mp4_metadata 内部已经处理了：如果存在有效缓存就不重新获取
+		var meta := MainManager.read_mp4_metadata(media_file_path)
+		# 将读取到的元数据存回原始字典以便后续快速访问
+		target_card_info["video_resolution"] = str(meta.get("resolution", ""))
+		target_card_info["video_bitrate_kbps"] = int(meta.get("bitrate_kbps", 0))
+		target_card_info["video_duration"] = float(meta.get("duration", 0.0))
+	SignalBus.update_card_info.emit(target_card_info)
+	hide()
