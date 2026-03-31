@@ -43,3 +43,5 @@ signal request_add_item_by_path(folder_full_path: String)
 signal toggle_show_cards_have_tags(toggled_on: bool)
 
 signal toggle_show_cards_dont_have_tags(toggled_on: bool)
+
+signal submit_search_keyword(new_text: String)

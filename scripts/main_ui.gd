@@ -89,6 +89,7 @@ func _ready() -> void:
 	SignalBus.request_add_item_by_path.connect(_add_or_update_item_by_path)
 	SignalBus.toggle_show_cards_have_tags.connect(_on_toggle_show_cards_have_tags)
 	SignalBus.toggle_show_cards_dont_have_tags.connect(_on_toggle_show_cards_dont_have_tags)
+	SignalBus.submit_search_keyword.connect(_on_search_text_submitted)
 
 	var wallpaper := MainManager.get_config_value("wallpaper_root" , "") as String
 	var workshop := MainManager.get_config_value("workshop_root" , "") as String
@@ -870,7 +871,7 @@ func _on_is_show_workshop_toggled(toggled_on: bool) -> void:
 	_render_current_page_from_cache()
 
 
-func _on_line_edit_text_submitted(new_text: String) -> void:
+func _on_search_text_submitted(new_text: String) -> void:
 	search_keyword = new_text.strip_edges()
 	current_page = 1
 	_render_current_page_from_cache()
@@ -1006,3 +1007,7 @@ func _delete_all_meta_data() -> void:
 	# 重置当前选中卡片的信息显示，强迫下次点击重新读取
 	if selected_card_node:
 		_on_card_left_clicked(selected_card_node, selected_card_node.call("get_card_info") if selected_card_node.has_method("get_card_info") else {})
+
+
+func _on_reset_search_button_button_up() -> void:
+	pass # Replace with function body.

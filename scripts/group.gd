@@ -35,6 +35,10 @@ func clear_tags() -> void:
 	for child in tags_container.get_children():
 		child.queue_free()
 
+func set_tags_untoggled() -> void:
+	for child in tags_container.get_children():
+		child.set_toggled(false)
+
 func set_default_group():
 	delete_button.visible = false
 

@@ -43,3 +43,8 @@ func _on_tag_filter_clicked(tag_name: String, toggled_on: bool) -> void:
 	# 触发过滤逻辑
 	SignalBus.update_filter.emit(tag_name , toggled_on)
 	print("Filter tag: ", tag_name, " state: ", toggled_on)
+
+
+func _on_button_button_up() -> void:
+	for group in group_container_root.get_children():
+		group.set_tags_untoggled()
