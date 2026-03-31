@@ -1,7 +1,7 @@
 #TO DO : 使用gif第一帧作为预览图
 #TO DO : 
-#TO DO : 视频首帧查重，先时长查重；或者只通过时长查重
-#TO DO : 
+#TO DO : 视频先时长查重，再首帧画面查重，；或者只通过时长查重
+#TO DO : 音频查重 + 画面查重
 #TO DO : 
 
 
@@ -31,6 +31,7 @@ signal setup_pages(_total_items : int, max :int ,_current_page :int)
 @export var get_meta_data_progress_bar : ProgressBar
 
 @export var sort_option_button : OptionButton
+
 
 const MAX_ONE_PAGE_COUNT := 100
 
@@ -90,6 +91,7 @@ func _ready() -> void:
 	SignalBus.toggle_show_cards_have_tags.connect(_on_toggle_show_cards_have_tags)
 	SignalBus.toggle_show_cards_dont_have_tags.connect(_on_toggle_show_cards_dont_have_tags)
 	SignalBus.submit_search_keyword.connect(_on_search_text_submitted)
+	SignalBus.reset_all_filters.connect(_on_reset_all_filters)
 
 	var wallpaper := MainManager.get_config_value("wallpaper_root" , "") as String
 	var workshop := MainManager.get_config_value("workshop_root" , "") as String
@@ -150,6 +152,68 @@ func on_finish_callback() -> void:
 	# get_meta_data_progress_bar.visible = false
 	sort_option_button.set_item_disabled(4, false)
 	print("元数据扫描完成，已启用时长排序选项")
+	#查重########################################################################################
+	# 时长扫描完成后，开始进行时长相近查重
+	# _perform_duration_based_dedup()
+
+
+func _perform_duration_based_dedup():
+	print("开始基于时长和音频进行快速查重扫描...")
+	var items = cached_items.values()
+	var groups = {} # duration_key -> Array of items
+	
+	# 1. 按照时长分组 (允许 1 秒以内的误差)
+	for item in items:
+		var duration = float(item.get("video_duration", 0.0))
+		if duration <= 0: continue
+		
+		var key = int(duration) # 使用整数秒作为基础键
+		if not groups.has(key): groups[key] = []
+		groups[key].append(item)
+		
+		# 同时也加入到相邻秒的组中，以处理跨秒边界的情况
+		var key_plus = key + 1
+		if not groups.has(key_plus): groups[key_plus] = []
+		groups[key_plus].append(item)
+
+	# 2. 找出成员大于 1 的组进行音频对比
+	var checked_pairs = {} # "key1-key2" -> true
+	
+	for key in groups:
+		var group_items = groups[key]
+		if group_items.size() < 2: continue
+		
+		for i in range(group_items.size()):
+			for j in range(i + 1, group_items.size()):
+				var item1 = group_items[i]
+				var item2 = group_items[j]
+				
+				var path1 = _get_video_full_path(item1)
+				var path2 = _get_video_full_path(item2)
+				
+				# 确保不重复比对
+				var pair_key = [path1, path2]
+				pair_key.sort()
+				var pair_str = "-".join(pair_key)
+				if checked_pairs.has(pair_str): continue
+				checked_pairs[pair_str] = true
+				
+				# 检查时长是否真的足够接近 (<= 1.0s)
+				if abs(float(item1.get("video_duration")) - float(item2.get("video_duration"))) > 1.0:
+					continue
+					
+				# 3. 使用音频查重（比画面查重快得多）
+				var similarity = VideoDedup.compare_audio(path1, path2)
+				if similarity > 0.95: # 音频匹配阈值通常需要高一些
+					var title1 = item1.get("title", "未知")
+					var title2 = item2.get("title", "未知")
+					print("[音频查重发现] 高度相似视频 (%.2f%%): \n  - %s \n  - %s" % [similarity * 100.0, title1, title2])
+
+func _get_video_full_path(item: Dictionary) -> String:
+	var root = item.get("root_path", "")
+	var folder = item.get("folder_name", "")
+	var media = item.get("media_file_name", "")
+	return root + "/" + folder + "/" + media
 
 
 func _on_tab_bar_tab_selected(tab: int) -> void:
@@ -181,6 +245,11 @@ func _on_update_filter(tag_name: String , toggled_on: bool) -> void:
 	else:
 		active_tags.erase(tag_name)
 	
+	current_page = 1
+	_render_current_page_from_cache()
+
+func _on_reset_all_filters() -> void:
+	active_tags.clear()
 	current_page = 1
 	_render_current_page_from_cache()
 

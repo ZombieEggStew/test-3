@@ -16,6 +16,8 @@ signal request_file_dialog()
 
 signal update_filter(tag_name: String , toggled_on: bool)
 
+signal reset_all_filters()
+
 signal request_popup_dialog(title: String, message: String)
 
 signal request_popup_warning(message: String)

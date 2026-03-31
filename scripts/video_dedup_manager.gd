@@ -5,8 +5,10 @@ extends Node
 
 const VIDEO_DEDUP_PY = "res://py/video_dedup.py"
 const DEDUP_CACHE_FILE = "user://video_hashes_cache.json"
+const AUDIO_CACHE_FILE = "user://audio_hashes_cache.json"
 
 var hash_cache: Dictionary = {}
+var audio_hash_cache: Dictionary = {}
 
 signal dedup_progress_updated(current: int, total: int, current_name: String)
 signal dedup_finished()
@@ -24,11 +26,21 @@ func _load_cache():
 		var json = JSON.parse_string(text)
 		if json is Dictionary:
 			hash_cache = json
+			
+	if FileAccess.file_exists(AUDIO_CACHE_FILE):
+		var file = FileAccess.open(AUDIO_CACHE_FILE, FileAccess.READ)
+		var text = file.get_as_text()
+		var json = JSON.parse_string(text)
+		if json is Dictionary:
+			audio_hash_cache = json
 
 func _save_cache():
 	var file = FileAccess.open(DEDUP_CACHE_FILE, FileAccess.WRITE)
 	var text = JSON.stringify(hash_cache)
 	file.store_string(text)
+	
+	var a_file = FileAccess.open(AUDIO_CACHE_FILE, FileAccess.WRITE)
+	a_file.store_string(JSON.stringify(audio_hash_cache))
 
 # 获取视频哈希（异步调用）
 func get_video_hash(video_path: String) -> Array:
@@ -59,6 +71,29 @@ func get_video_hash(video_path: String) -> Array:
 			else:
 				print("哈希提取失败，返回值不是数组: %s" % str(json))
 	
+	return []
+
+# 获取视频音频哈希（异步调用）
+func get_audio_hash(video_path: String) -> Array:
+	if audio_hash_cache.has(video_path):
+		return audio_hash_cache[video_path]
+	
+	var python_exe = ProjectSettings.globalize_path("res://py/python_embed/python.exe")
+	var global_path = ProjectSettings.globalize_path(video_path)
+	var py_script = ProjectSettings.globalize_path(VIDEO_DEDUP_PY)
+	
+	var args = [py_script, "--action", "get_audio_hash", "--file1", global_path]
+	var output = []
+	var result = OS.execute(python_exe, args, output, true) 
+	
+	if result == 0 and output.size() > 0:
+		var json = JSON.parse_string(output[0])
+		if json is Dictionary and json.has("audio_hashes"):
+			var h_list = json["audio_hashes"]
+			if h_list is Array:
+				audio_hash_cache[video_path] = h_list
+				_save_cache()
+				return h_list
 	return []
 
 # 后台扫描所有视频项
@@ -113,7 +148,11 @@ func _scan_task(items: Array):
 # 比较两个视频
 func compare_videos(path1: String, path2: String) -> float:
 	var h1 = get_video_hash(path1)
+	if h1.size() == 0:
+		print("视频1哈希提取失败，路径: ", path1)
 	var h2 = get_video_hash(path2)
+	if h2.size() == 0:
+		print("视频2哈希提取失败，路径: ", path2)
 	
 	if h1.is_empty() or h2.is_empty():
 		return 0.0
@@ -123,6 +162,33 @@ func compare_videos(path1: String, path2: String) -> float:
 	var args = [
 		py_script, 
 		"--action", "compare", 
+		"--hashes1", JSON.stringify(h1), 
+		"--hashes2", JSON.stringify(h2)
+	]
+	
+	var output = []
+	var result = OS.execute(python_exe, args, output, true)
+	
+	if result == 0 and output.size() > 0:
+		var json = JSON.parse_string(output[0])
+		if json is Dictionary and json.has("similarity"):
+			return json["similarity"]
+	
+	return 0.0
+
+# 比较两个视频的音频相似度
+func compare_audio(path1: String, path2: String) -> float:
+	var h1 = get_audio_hash(path1)
+	var h2 = get_audio_hash(path2)
+	
+	if h1.is_empty() or h2.is_empty():
+		return 0.0
+	
+	var python_exe = ProjectSettings.globalize_path("res://py/python_embed/python.exe")
+	var py_script = ProjectSettings.globalize_path(VIDEO_DEDUP_PY)
+	var args = [
+		py_script, 
+		"--action", "compare_audio", 
 		"--hashes1", JSON.stringify(h1), 
 		"--hashes2", JSON.stringify(h2)
 	]

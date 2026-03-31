@@ -45,6 +45,7 @@ func _on_tag_filter_clicked(tag_name: String, toggled_on: bool) -> void:
 	print("Filter tag: ", tag_name, " state: ", toggled_on)
 
 
-func _on_button_button_up() -> void:
+func _on_set_untoggled_button_button_up() -> void:
 	for group in group_container_root.get_children():
 		group.set_tags_untoggled()
+	SignalBus.reset_all_filters.emit()

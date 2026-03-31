@@ -606,8 +606,8 @@ cq = NodePath("VBoxContainer/HBoxContainer/cq")
 maxrate = NodePath("VBoxContainer/HBoxContainer2/maxrate")
 vcodec = NodePath("VBoxContainer/HBoxContainer3/vcodec")
 progress_bar = NodePath("VBoxContainer/ProgressBar")
-start_convert_button = NodePath("VBoxContainer/start_convert")
-stop_convert_button = NodePath("VBoxContainer/stop_button")
+start_convert_button = NodePath("VBoxContainer/HBoxContainer4/start_convert")
+stop_convert_button = NodePath("VBoxContainer/HBoxContainer4/stop_button")
 delete_check_box = NodePath("VBoxContainer/delete_checkbox")
 res = ExtResource("5_v2gmf")
 
@@ -731,23 +731,22 @@ layout_mode = 2
 text = "转换完成自动删除并取消订阅"
 script = ExtResource("20_oldxj")
 
-[node name="start_convert" type="Button" parent="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer" unique_id=1324767763]
+[node name="HBoxContainer4" type="HBoxContainer" parent="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer" unique_id=1410761490]
 layout_mode = 2
+
+[node name="start_convert" type="Button" parent="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/HBoxContainer4" unique_id=1324767763]
+layout_mode = 2
+size_flags_horizontal = 3
 text = "开始转换"
 
-[node name="ProgressBar" type="ProgressBar" parent="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer" unique_id=1652196972]
-layout_mode = 2
-
-[node name="stop_button" type="Button" parent="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer" unique_id=1307335736]
+[node name="stop_button" type="Button" parent="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/HBoxContainer4" unique_id=1307335736]
 layout_mode = 2
 disabled = true
 shortcut = SubResource("Shortcut_brvut")
 text = "停止转换"
 
-[node name="test_button" type="Button" parent="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer" unique_id=231714332]
-visible = false
+[node name="ProgressBar" type="ProgressBar" parent="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer" unique_id=1652196972]
 layout_mode = 2
-text = "test"
 
 [node name="Control" parent="main_ui" unique_id=1524407716 instance=ExtResource("4_brvut")]
 z_index = 1
@@ -824,7 +823,7 @@ text = "或"
 [node name="VSeparator" type="VSeparator" parent="main_ui/tag_panel/MarginContainer/VBoxContainer/header_tags" unique_id=668213546]
 layout_mode = 2
 
-[node name="Button" type="Button" parent="main_ui/tag_panel/MarginContainer/VBoxContainer/header_tags" unique_id=82172167]
+[node name="set_untoggled_button" type="Button" parent="main_ui/tag_panel/MarginContainer/VBoxContainer/header_tags" unique_id=82172167]
 layout_mode = 2
 text = "不选"
 
@@ -865,9 +864,8 @@ size_flags_vertical = 3
 [connection signal="button_up" from="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/HBoxContainer2/instruction" to="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/HBoxContainer2/instruction" method="_on_button_up"]
 [connection signal="item_selected" from="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/HBoxContainer3/vcodec" to="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/HBoxContainer3/vcodec" method="_on_item_selected"]
 [connection signal="toggled" from="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/delete_checkbox" to="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/delete_checkbox" method="_on_toggled"]
-[connection signal="button_up" from="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/start_convert" to="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter" method="_on_start_convert_button_up"]
-[connection signal="button_up" from="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/stop_button" to="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter" method="_on_stop_button_button_up"]
-[connection signal="button_up" from="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/test_button" to="main_ui" method="_on_test_button_button_up"]
+[connection signal="button_up" from="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/HBoxContainer4/start_convert" to="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter" method="_on_start_convert_button_up"]
+[connection signal="button_up" from="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/HBoxContainer4/stop_button" to="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter" method="_on_stop_button_button_up"]
 [connection signal="rename_confirmed" from="main_ui/rename_win" to="main_ui" method="_on_rename_win_rename_confirmed"]
 [connection signal="toggled" from="main_ui/tag_panel/MarginContainer/VBoxContainer/header_tags/HBoxContainer/and_or" to="main_ui" method="_on_and_or_toggled"]
-[connection signal="button_up" from="main_ui/tag_panel/MarginContainer/VBoxContainer/header_tags/Button" to="main_ui/tag_panel" method="_on_button_button_up"]
+[connection signal="button_up" from="main_ui/tag_panel/MarginContainer/VBoxContainer/header_tags/set_untoggled_button" to="main_ui/tag_panel" method="_on_set_untoggled_button_button_up"]

@@ -5,6 +5,74 @@ import argparse
 import json
 import os
 import sys
+import subprocess
+import numpy as np
+
+def get_audio_hash(video_path):
+    """
+    通过 FFmpeg 提取音频采样并生成简单的音频哈希（指纹）。
+    """
+    if not os.path.exists(video_path):
+        return None
+
+    # 使用 ffmpeg 提取低采样率的音频 PCM 数据 (1000Hz, 单声道)
+    # 这样可以快速获得音频的包络特征
+    cmd = [
+        'ffmpeg', '-i', video_path,
+        '-vn', '-ac', '1', '-ar', '1000',
+        '-f', 's16le', '-acodec', 'pcm_s16le',
+        '-t', '60', # 只取前60秒避免大文件过慢
+        '-'
+    ]
+    
+    try:
+        # 即使没有环境变量，也可以尝试根据 Godot 传入的路径寻找 ffmpeg，这里假设系统路径可用
+        process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
+        out, _ = process.communicate()
+        
+        if len(out) < 100: # 音频太短或提取失败
+            return None
+            
+        # 将字节转为 numpy 数组并计算特征
+        audio_data = np.frombuffer(out, dtype=np.int16)
+        
+        # 简单的哈希：计算每秒音频的 RMS 能量作为特征序列
+        chunk_size = 1000 # 对应 1 秒
+        rms_values = []
+        for i in range(0, len(audio_data), chunk_size):
+            chunk = audio_data[i:i+chunk_size]
+            if len(chunk) == 0: break
+            rms = np.sqrt(np.mean(chunk.astype(np.float32)**2))
+            rms_values.append(int(rms))
+            
+        return rms_values
+    except Exception as e:
+        return None
+
+def compare_audio_hashes(h1, h2):
+    """
+    比较两个音频能量序列的相似度。
+    """
+    if not h1 or not h2: return 0.0
+    
+    # 对齐长度
+    min_len = min(len(h1), len(h2))
+    if min_len < 3: return 0.0
+    
+    v1 = np.array(h1[:min_len], dtype=np.float32)
+    v2 = np.array(h2[:min_len], dtype=np.float32)
+    
+    # 归一化能量
+    norm1 = np.linalg.norm(v1)
+    norm2 = np.linalg.norm(v2)
+    if norm1 == 0 or norm2 == 0: return 0.0
+    
+    v1 = v1 / norm1
+    v2 = v2 / norm2
+    
+    # 计算余弦相似度
+    similarity = np.dot(v1, v2)
+    return float(similarity)
 
 def get_video_hash(video_path, sample_rate=0.5, max_frames=20):
     """
@@ -74,7 +142,7 @@ def compare_hashes(hash_list1, hash_list2, threshold=10):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--action", choices=["get_hash", "compare"], required=True)
+    parser.add_argument("--action", choices=["get_hash", "compare", "get_audio_hash", "compare_audio"], required=True)
     parser.add_argument("--file1", type=str)
     parser.add_argument("--file2", type=str)
     parser.add_argument("--hashes1", type=str) # JSON string
@@ -86,8 +154,18 @@ if __name__ == "__main__":
         v_hash = get_video_hash(args.file1)
         print(json.dumps({"hashes": v_hash}))
     
+    elif args.action == "get_audio_hash":
+        a_hash = get_audio_hash(args.file1)
+        print(json.dumps({"audio_hashes": a_hash}))
+        
     elif args.action == "compare":
         h1 = json.loads(args.hashes1) if args.hashes1 else []
         h2 = json.loads(args.hashes2) if args.hashes2 else []
         sim = compare_hashes(h1, h2)
+        print(json.dumps({"similarity": sim}))
+        
+    elif args.action == "compare_audio":
+        h1 = json.loads(args.hashes1) if args.hashes1 else []
+        h2 = json.loads(args.hashes2) if args.hashes2 else []
+        sim = compare_audio_hashes(h1, h2)
         print(json.dumps({"similarity": sim}))
