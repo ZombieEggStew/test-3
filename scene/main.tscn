@@ -34,6 +34,7 @@
 [ext_resource type="Script" uid="uid://pooi8l4c1iu5" path="res://scripts/delete_checkbox.gd" id="20_oldxj"]
 [ext_resource type="PackedScene" uid="uid://bhbw5k2mfc2jp" path="res://scene/settings_dialog.tscn" id="21_fdqew"]
 [ext_resource type="Script" uid="uid://167jyo4wstle" path="res://scripts/tag_panel.gd" id="22_0d4pv"]
+[ext_resource type="Script" uid="uid://suh5jo6arv3s" path="res://scripts/dedup_container.gd" id="22_2km5d"]
 [ext_resource type="PackedScene" uid="uid://c218jajnssh1x" path="res://scene/tag.tscn" id="23_gtqqq"]
 [ext_resource type="Script" uid="uid://cs4dvwaaxrl0r" path="res://scripts/preset.gd" id="24_bmc2w"]
 [ext_resource type="Script" uid="uid://d4g1xk001y2hv" path="res://scripts/cq_2.gd" id="24_mjuaj"]
@@ -129,7 +130,7 @@ content_margin_right = 5.0
 content_margin_bottom = 0.0
 bg_color = Color(0.25490198, 0.5137255, 0.9607843, 1)
 
-[sub_resource type="ButtonGroup" id="ButtonGroup_jey2d"]
+[sub_resource type="ButtonGroup" id="ButtonGroup_fyltn"]
 allow_unpress = true
 
 [sub_resource type="Theme" id="Theme_tqoya"]
@@ -169,8 +170,11 @@ events = [SubResource("InputEventAction_wp4xf")]
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_fdqew"]
 bg_color = Color(0.13333334, 0.1254902, 0.13333334, 0.85490197)
 
-[node name="Node2D" type="Node2D" unique_id=1929871842]
+[node name="Node2D" type="Node2D" unique_id=1929871842 node_paths=PackedStringArray("context_menu_card", "context_menu_rename")]
 script = ExtResource("8_main")
+card_scene = ExtResource("3_4j5ol")
+context_menu_card = NodePath("main_ui/Control")
+context_menu_rename = NodePath("main_ui/rename_win")
 
 [node name="main_ui" type="CanvasLayer" parent="." unique_id=1938298878 node_paths=PackedStringArray("card_container", "dedup_container", "context_menu_card", "context_menu_folder", "context_menu_rename", "folder_selection_dialog", "right_panel", "filter_panel", "accept_dialog", "get_meta_data_progress_bar", "sort_option_button")]
 script = ExtResource("1_v0l8b")
@@ -306,21 +310,6 @@ button_pressed = true
 text = "在标题前显示tag"
 script = ExtResource("12_p8adh")
 
-[node name="VBoxContainer7" type="VBoxContainer" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/head_bar" unique_id=879079202]
-layout_mode = 2
-
-[node name="dont_have_tags" type="CheckButton" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/head_bar/VBoxContainer7" unique_id=1068120978]
-layout_mode = 2
-button_pressed = true
-text = "无tags"
-script = ExtResource("17_jey2d")
-
-[node name="have_tags" type="CheckButton" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/head_bar/VBoxContainer7" unique_id=1896460279]
-layout_mode = 2
-button_pressed = true
-text = "有tags"
-script = ExtResource("18_vc5kc")
-
 [node name="VBoxContainer5" type="VBoxContainer" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/head_bar" unique_id=1502383290]
 layout_mode = 2
 
@@ -335,6 +324,21 @@ layout_mode = 2
 button_pressed = true
 text = "显示工坊 "
 script = ExtResource("16_rg6nf")
+
+[node name="VBoxContainer7" type="VBoxContainer" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/head_bar" unique_id=879079202]
+layout_mode = 2
+
+[node name="dont_have_tags" type="CheckButton" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/head_bar/VBoxContainer7" unique_id=1068120978]
+layout_mode = 2
+button_pressed = true
+text = "无tags"
+script = ExtResource("17_jey2d")
+
+[node name="have_tags" type="CheckButton" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/head_bar/VBoxContainer7" unique_id=1896460279]
+layout_mode = 2
+button_pressed = true
+text = "有tags"
+script = ExtResource("18_vc5kc")
 
 [node name="header_2" type="HBoxContainer" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer" unique_id=20771510]
 layout_mode = 2
@@ -422,6 +426,7 @@ layout_mode = 2
 [node name="dedup_container" type="VBoxContainer" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/ScrollContainer2/MarginContainer" unique_id=713086145]
 visible = false
 layout_mode = 2
+script = ExtResource("22_2km5d")
 
 [node name="dedup" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/ScrollContainer2/MarginContainer/dedup_container" unique_id=301759678 instance=ExtResource("16_7xrs8")]
 layout_mode = 2
@@ -456,7 +461,7 @@ page_card = ExtResource("7_k65ib")
 
 [node name="page_1" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/page/HBoxContainer/page_num" unique_id=109932289 instance=ExtResource("7_k65ib")]
 layout_mode = 2
-button_group = SubResource("ButtonGroup_jey2d")
+button_group = SubResource("ButtonGroup_fyltn")
 
 [node name="Button2" type="Button" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/page/HBoxContainer" unique_id=924454259]
 layout_mode = 2
@@ -847,10 +852,10 @@ size_flags_vertical = 3
 [connection signal="item_selected" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/head_bar/VBoxContainer3/OptionButton" to="main_ui/HBoxContainer/MarginContainer/VBoxContainer/head_bar/VBoxContainer3/OptionButton" method="_on_item_selected"]
 [connection signal="request_sort_change" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/head_bar/VBoxContainer3/OptionButton" to="main_ui" method="_on_option_button_request_sort_change"]
 [connection signal="toggled" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/head_bar/VBoxContainer3/toggle_tag" to="main_ui/HBoxContainer/MarginContainer/VBoxContainer/head_bar/VBoxContainer3/toggle_tag" method="_on_toggled"]
-[connection signal="toggled" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/head_bar/VBoxContainer7/dont_have_tags" to="main_ui/HBoxContainer/MarginContainer/VBoxContainer/head_bar/VBoxContainer7/dont_have_tags" method="_on_toggled"]
-[connection signal="toggled" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/head_bar/VBoxContainer7/have_tags" to="main_ui/HBoxContainer/MarginContainer/VBoxContainer/head_bar/VBoxContainer7/have_tags" method="_on_toggled"]
 [connection signal="toggled" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/head_bar/VBoxContainer5/is_show_local" to="main_ui/HBoxContainer/MarginContainer/VBoxContainer/head_bar/VBoxContainer5/is_show_local" method="_on_toggled"]
 [connection signal="toggled" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/head_bar/VBoxContainer5/is_show_workshop" to="main_ui/HBoxContainer/MarginContainer/VBoxContainer/head_bar/VBoxContainer5/is_show_workshop" method="_on_toggled"]
+[connection signal="toggled" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/head_bar/VBoxContainer7/dont_have_tags" to="main_ui/HBoxContainer/MarginContainer/VBoxContainer/head_bar/VBoxContainer7/dont_have_tags" method="_on_toggled"]
+[connection signal="toggled" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/head_bar/VBoxContainer7/have_tags" to="main_ui/HBoxContainer/MarginContainer/VBoxContainer/head_bar/VBoxContainer7/have_tags" method="_on_toggled"]
 [connection signal="button_up" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/header_2/delete_meta_data" to="main_ui/HBoxContainer/MarginContainer/VBoxContainer/header_2/delete_meta_data" method="_on_button_up"]
 [connection signal="text_changed" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/header_2/search/search_edit_line" to="main_ui/HBoxContainer/MarginContainer/VBoxContainer/header_2/search" method="_on_search_edit_line_text_changed"]
 [connection signal="text_submitted" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/header_2/search/search_edit_line" to="main_ui/HBoxContainer/MarginContainer/VBoxContainer/header_2/search" method="_on_search_edit_line_text_submitted"]

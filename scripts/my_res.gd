@@ -2,7 +2,7 @@ extends Resource
 class_name MyRes
 
 
-const IS_SHOW_NAME := false
+const IS_SHOW_NAME := true
 
 const IS_TEST := false
 

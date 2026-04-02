@@ -4,6 +4,12 @@ class_name MainManager
 static var instance: MainManager 
 
 
+# @export var card_scene: PackedScene
+# @export var context_menu_card: Control
+# @export var context_menu_rename: AcceptDialog
+
+
+
 
 func _enter_tree() -> void:
 	if instance and instance != self:

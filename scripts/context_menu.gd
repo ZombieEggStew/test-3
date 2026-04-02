@@ -185,6 +185,7 @@ func backup_item(confirm_dialog: ConfirmationDialog) -> void:
 	print("已备份并移动文件到: %s" % dest_folder)
 
 	MainManager.unsubscribe_workshop_item_2(target_card_info)
+	SignalBus.request_item_deletion.emit(target_card_info)
 	
 	hide()
 

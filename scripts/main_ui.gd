@@ -2,8 +2,10 @@
 #TO DO : 
 #TO DO : 视频先时长查重，再首帧画面查重，；或者只通过时长查重
 #TO DO : 音频查重 + 画面查重
+#TO DO : 音频查重 + 时长 + 首帧（注意缓存，避免重读）
 #TO DO : 
-
+#TO DO : 优化gif显示，搜索现成的包
+#TO DO : 修复停止转换后无法去除转换中标签
 
 
 extends CanvasLayer
@@ -158,23 +160,18 @@ func on_finish_callback() -> void:
 
 
 func _perform_duration_based_dedup():
-	print("开始基于时长和音频进行快速查重扫描...")
+	print("开始基于时长和音频进行精准查重扫描...")
 	var items = cached_items.values()
 	var groups = {} # duration_key -> Array of items
 	
-	# 1. 按照时长分组 (允许 1 秒以内的误差)
+	# 1. 按照时长分组 (要求时长完全相同)
 	for item in items:
 		var duration = float(item.get("video_duration", 0.0))
 		if duration <= 0: continue
 		
-		var key = int(duration) # 使用整数秒作为基础键
+		var key = str(duration) # 使用字符串形式确保精确匹配
 		if not groups.has(key): groups[key] = []
 		groups[key].append(item)
-		
-		# 同时也加入到相邻秒的组中，以处理跨秒边界的情况
-		var key_plus = key + 1
-		if not groups.has(key_plus): groups[key_plus] = []
-		groups[key_plus].append(item)
 
 	# 2. 找出成员大于 1 的组进行音频对比
 	var checked_pairs = {} # "key1-key2" -> true
@@ -198,16 +195,16 @@ func _perform_duration_based_dedup():
 				if checked_pairs.has(pair_str): continue
 				checked_pairs[pair_str] = true
 				
-				# 检查时长是否真的足够接近 (<= 1.0s)
-				if abs(float(item1.get("video_duration")) - float(item2.get("video_duration"))) > 1.0:
+				# 检查时长是否完全相同
+				if float(item1.get("video_duration")) != float(item2.get("video_duration")):
 					continue
 					
-				# 3. 使用音频查重（比画面查重快得多）
+				# 3. 使用音频查重
 				var similarity = VideoDedup.compare_audio(path1, path2)
-				if similarity > 0.95: # 音频匹配阈值通常需要高一些
+				if similarity >= 1.0: # 只输出相似度 100% 的
 					var title1 = item1.get("title", "未知")
 					var title2 = item2.get("title", "未知")
-					print("[音频查重发现] 高度相似视频 (%.2f%%): \n  - %s \n  - %s" % [similarity * 100.0, title1, title2])
+					print("[精准查重发现] 完全一致视频 (100%%): \n  - %s \n  - %s" % [title1, title2])
 
 func _get_video_full_path(item: Dictionary) -> String:
 	var root = item.get("root_path", "")
