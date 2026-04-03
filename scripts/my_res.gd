@@ -2,44 +2,4 @@ extends Resource
 class_name MyRes
 
 
-const IS_SHOW_NAME := true
 
-const IS_TEST := false
-
-const MAX_TEST_FOLDER_COUNT := 10000
-
-const MY_WORKSHOP_ROOT := "D:/Steam/steamapps/workshop/content/431960"
-const MY_LOCAL_PROJECTS_ROOT := "D:/Steam/steamapps/common/wallpaper_engine/projects/myprojects"
-
-var WORKSHOP_ROOT := ""
-var LOCAL_PROJECTS_ROOT := ""
-const TEST_ROOT := "D:/AGodotProjects/test-3/test_video"
-
-
-# python相关路径
-# const PYTHON_EXE_PATH := "D:/AGodotProjects/test-3/py/.venv/Scripts/python.exe"
-# const CONVERTER_SCRIPT_PATH := "D:/AGodotProjects/test-3/py/converter.py"
-# const SPLIT_GIF_SCRIPT_PATH := "res://py/split_gif.py"
-# const CONVERTER_PROGRESS_PATH := "D:/AGodotProjects/test-3/py/convert_progress.txt"
-var PYTHON_EXE_PATH := ProjectSettings.globalize_path("res://py/python_embed/python.exe")
-var CONVERTER_SCRIPT_PATH := ProjectSettings.globalize_path("res://py/converter.py")
-var SPLIT_GIF_SCRIPT_PATH := ProjectSettings.globalize_path("res://py/split_gif.py")
-var CONVERTER_PROGRESS_PATH := ProjectSettings.globalize_path("res://py/convert_progress.txt")
-
-var FFPROBE_PATH := ProjectSettings.globalize_path("res://bin/ffprobe.exe")
-var FFMPEG_PATH := ProjectSettings.globalize_path("res://bin/ffmpeg.exe")
-
-# 缓存和配置文件路径
-const GIF_CACHE_DIR_PATH := "res://gif_cache/"
-const TAGS_STORE_PATH := "user://item_tags.json"
-const CUSTOM_FOLDER_STORE_PATH := "user://custom_folders.json"
-const CONFIG_PATH := "user://config.json"
-
-#deprecated
-const SUBSCRIPTIONS_VDF_PATH := "D:/Steam/userdata/213406194/ugc/431960_subscriptions.vdf"
-const WORKSHOP_CACHE_PATH := "user://workshop_video_cache.json"
-const LANDSCAPE_WIDTH := 1920
-const PORTRAIT_WIDTH := 1080
-const WORKSHOP_CACHE_VERSION := 1
-const CUSTOM_FOLDER_STORE_VERSION := 1
-const CUSTOM_FOLDER_ITEM_TYPE := "custom_folder"

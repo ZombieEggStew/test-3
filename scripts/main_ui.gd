@@ -12,28 +12,15 @@ extends CanvasLayer
 
 signal setup_pages(_total_items : int, max :int ,_current_page :int)
 
-@export var card_container : HFlowContainer
-@export var dedup_container : VBoxContainer
-
-@export var card_scene : PackedScene
-@export var folder_scene : PackedScene
-
-@export var context_menu_card : Control
-@export var context_menu_folder : Control
-@export var context_menu_rename : AcceptDialog
-@export var folder_selection_dialog : AcceptDialog
+@export var card_manager : Container
+@export var dedup_container : Container
 
 @export var right_panel : MarginContainer
 @export var filter_panel : PanelContainer
 
-@export var res: MyRes
-
-@export var accept_dialog : AcceptDialog
-
 @export var get_meta_data_progress_bar : ProgressBar
 
 @export var sort_option_button : OptionButton
-
 
 const MAX_ONE_PAGE_COUNT := 100
 
@@ -62,13 +49,18 @@ var IS_SHOW_PREVIEW := false
 
 var _is_load_meta_data_in_progress := false
 
+var current_tab = 0
+
+
 func _ready() -> void:
 	var steam := Engine.get_singleton("Steam")
 	if not steam.isSteamRunning() or not steam.loggedOn():
-		_popup_warning("未检测到steam。请确保Steam已运行并登录后再启动应用,否则无法取消订阅和删除创意工坊项目")
+		SignalBus.request_popup_warning.emit("未检测到steam。请确保Steam已运行并登录后再启动应用,否则无法取消订阅和删除创意工坊项目")
 		
-	card_container.visible = true
+	card_manager.visible = true
 	dedup_container.visible = false
+	dedup_container.clear_groups()
+	
 	current_sort_index = int(MainManager.get_config_value("sort", 1))
 	is_show_tag_before_name = bool(MainManager.get_config_value("show_tag_before_name", true))
 	IS_SHOW_PREVIEW = bool(MainManager.get_config_value("is_show_preview", false))
@@ -80,9 +72,9 @@ func _ready() -> void:
 	SignalBus.conversion_finished.connect(_on_conversion_finished)
 	SignalBus.request_file_dialog.connect(_on_request_file_dialog)
 	SignalBus.update_filter.connect(_on_update_filter)
-	SignalBus.request_popup_dialog.connect(_popup_dialog)
+	SignalBus.rename_confirmed.connect(_on_rename_win_rename_confirmed)
 	SignalBus.toggle_show_tag_before_name.connect(_on_toggle_show_tag)
-	SignalBus.request_popup_warning.connect(_popup_warning)
+
 	SignalBus.toggle_show_preview.connect(_on_toggle_show_preview)
 	SignalBus.toggle_show_local.connect(_on_is_show_local_toggled)
 	SignalBus.toggle_show_workshop.connect(_on_is_show_workshop_toggled)
@@ -94,6 +86,8 @@ func _ready() -> void:
 	SignalBus.toggle_show_cards_dont_have_tags.connect(_on_toggle_show_cards_dont_have_tags)
 	SignalBus.submit_search_keyword.connect(_on_search_text_submitted)
 	SignalBus.reset_all_filters.connect(_on_reset_all_filters)
+	
+
 
 	var wallpaper := MainManager.get_config_value("wallpaper_root" , "") as String
 	var workshop := MainManager.get_config_value("workshop_root" , "") as String
@@ -101,9 +95,9 @@ func _ready() -> void:
 		_on_request_file_dialog()
 		return
 
-	res.WORKSHOP_ROOT = workshop.replace("\\", "/").strip_edges()
-	res.LOCAL_PROJECTS_ROOT = (wallpaper + "/projects/myprojects").replace("\\", "/").strip_edges()
-	print(res.LOCAL_PROJECTS_ROOT)
+	Global.WORKSHOP_ROOT = workshop.replace("\\", "/").strip_edges()
+	Global.LOCAL_PROJECTS_ROOT = (wallpaper + "/projects/myprojects").replace("\\", "/").strip_edges()
+	print(Global.LOCAL_PROJECTS_ROOT)
 	set_process(true)
 	_clear_detail_labels()
 	
@@ -117,14 +111,24 @@ func _ready() -> void:
 		get_meta_data_progress_bar.visible = true
 		get_meta_data_progress_bar.value = 0
 		
-	MainManager.background_cache_metadata(cached_items.values(), upddata_progress_bar,on_finish_callback)
+	# MainManager.background_cache_metadata(cached_items.values(), upddata_progress_bar,on_finish_callback)
 	
 
 	# 开始后台查重扫描
 	# if VideoDedup:
 	# 	VideoDedup.start_background_scan(cached_items)
 
+func _enter_tree() -> void:
+	SignalBus.save_config.connect(_on_save_config)
 
+func _on_save_config(key: String, value: Variant) -> void:
+	var config := MainManager.read_json_file(Global.CONFIG_PATH)
+	config[key] = value
+	
+	var file := FileAccess.open(Global.CONFIG_PATH, FileAccess.WRITE)
+	if file:
+		file.store_string(JSON.stringify(config, "  "))
+		file.close()
 
 func _on_toggle_show_cards_have_tags(toggled_on: bool) -> void:
 	is_show_cards_have_tags = toggled_on
@@ -154,71 +158,17 @@ func on_finish_callback() -> void:
 	# get_meta_data_progress_bar.visible = false
 	sort_option_button.set_item_disabled(4, false)
 	print("元数据扫描完成，已启用时长排序选项")
-	#查重########################################################################################
-	# 时长扫描完成后，开始进行时长相近查重
-	# _perform_duration_based_dedup()
+	SignalBus.on_meta_data_cache_finished.emit(cached_items.values())
 
-
-func _perform_duration_based_dedup():
-	print("开始基于时长和音频进行精准查重扫描...")
-	var items = cached_items.values()
-	var groups = {} # duration_key -> Array of items
-	
-	# 1. 按照时长分组 (要求时长完全相同)
-	for item in items:
-		var duration = float(item.get("video_duration", 0.0))
-		if duration <= 0: continue
-		
-		var key = str(duration) # 使用字符串形式确保精确匹配
-		if not groups.has(key): groups[key] = []
-		groups[key].append(item)
-
-	# 2. 找出成员大于 1 的组进行音频对比
-	var checked_pairs = {} # "key1-key2" -> true
-	
-	for key in groups:
-		var group_items = groups[key]
-		if group_items.size() < 2: continue
-		
-		for i in range(group_items.size()):
-			for j in range(i + 1, group_items.size()):
-				var item1 = group_items[i]
-				var item2 = group_items[j]
-				
-				var path1 = _get_video_full_path(item1)
-				var path2 = _get_video_full_path(item2)
-				
-				# 确保不重复比对
-				var pair_key = [path1, path2]
-				pair_key.sort()
-				var pair_str = "-".join(pair_key)
-				if checked_pairs.has(pair_str): continue
-				checked_pairs[pair_str] = true
-				
-				# 检查时长是否完全相同
-				if float(item1.get("video_duration")) != float(item2.get("video_duration")):
-					continue
-					
-				# 3. 使用音频查重
-				var similarity = VideoDedup.compare_audio(path1, path2)
-				if similarity >= 1.0: # 只输出相似度 100% 的
-					var title1 = item1.get("title", "未知")
-					var title2 = item2.get("title", "未知")
-					print("[精准查重发现] 完全一致视频 (100%%): \n  - %s \n  - %s" % [title1, title2])
-
-func _get_video_full_path(item: Dictionary) -> String:
-	var root = item.get("root_path", "")
-	var folder = item.get("folder_name", "")
-	var media = item.get("media_file_name", "")
-	return root + "/" + folder + "/" + media
 
 
 func _on_tab_bar_tab_selected(tab: int) -> void:
-	if tab == 0:
-		card_container.visible = true
+	current_tab = tab
+	if current_tab == 0:
+		card_manager.visible = true
 		dedup_container.visible = false
 	else:
-		card_container.visible = false
+		card_manager.visible = false
 		dedup_container.visible = true
 
 func _on_toggle_show_preview(toggled_on: bool) -> void:
@@ -254,29 +204,13 @@ func _on_conversion_finished(success: bool, message: String) -> void:
 
 	converting_item_key = ""
 	
-	_popup_dialog("转换成功" if success else "转换失败", message)
+	SignalBus.request_popup_dialog.emit("转换成功" if success else "转换失败", message)
 	# 还原最小化的窗口并带到前台
 	DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
 	DisplayServer.window_move_to_foreground()
 
-func _popup_dialog(title: String, message: String) -> void:
-	accept_dialog.title = title
-	accept_dialog.dialog_text = message
-	accept_dialog.popup_centered()
-
-func _popup_warning(message: String) -> void:
-	accept_dialog.title = "警告"
-	accept_dialog.dialog_text = message
-	accept_dialog.popup_centered()
-
 func _on_conversion_started(info: Dictionary) -> void:
 	converting_item_key = MainManager.get_item_unique_key(info)
-	
-	# 如果当前页刚好显示了这张卡片，直接调用它的 set_converting
-	for child in card_container.get_children():
-		if child.has_method("get_card_info") and child.has_method("set_converting"):
-			if MainManager.get_item_unique_key(child.call("get_card_info")) == converting_item_key:
-				child.call("set_converting")
 	
 	_apply_sort_on_cached_items()
 	_render_current_page_from_cache()
@@ -325,7 +259,7 @@ func _build_item_info_from_folder(folder_full_path: String) -> Dictionary:
 	if title.is_empty():
 		title = folder_name
 
-	var is_workshop := folder_full_path.begins_with(res.WORKSHOP_ROOT)
+	var is_workshop := folder_full_path.begins_with(Global.WORKSHOP_ROOT)
 	var published_id := int(folder_name) if folder_name.is_valid_int() else 0
 	var subscribe_time := _resolve_item_create_time(root_path, folder_name)
 	
@@ -389,11 +323,8 @@ func _add_or_update_item_by_path(folder_full_path: String) -> void:
 
 
 func _load_workshop_cards() -> void:
-	if card_container == null:
-		_popup_warning("card_container 未绑定")
-		return
-	if card_scene == null:
-		_popup_warning("card_scene 未绑定")
+	if card_manager == null:
+		SignalBus.request_popup_warning.emit("card_manager 未绑定")
 		return
 
 	_preload_workshop_items_once()
@@ -413,16 +344,16 @@ func _preload_workshop_items_once() -> bool:
 	
 	# 本地项目优先加载，合并时把本地放前面
 
-	if res.IS_TEST:
-		var test_vedio := _scan_root_for_items(res.TEST_ROOT)
+	if Global.IS_TEST:
+		var test_vedio := _scan_root_for_items(Global.TEST_ROOT)
 		items = test_vedio
 	else:
-		var items_workshop := _scan_root_for_items(res.WORKSHOP_ROOT)
-		var items_local := _scan_root_for_items(res.LOCAL_PROJECTS_ROOT)
+		var items_workshop := _scan_root_for_items(Global.WORKSHOP_ROOT)
+		var items_local := _scan_root_for_items(Global.LOCAL_PROJECTS_ROOT)
 		items = items_local + items_workshop
 
-	if res.MAX_TEST_FOLDER_COUNT > 0 and items.size() > res.MAX_TEST_FOLDER_COUNT:
-		items = items.slice(0, res.MAX_TEST_FOLDER_COUNT)
+	if Global.MAX_TEST_FOLDER_COUNT > 0 and items.size() > Global.MAX_TEST_FOLDER_COUNT:
+		items = items.slice(0, Global.MAX_TEST_FOLDER_COUNT)
 
 	for item in items:
 		if item.is_empty():
@@ -460,47 +391,33 @@ func _apply_sort_on_cached_items() -> void:
 
 
 func _render_current_page_from_cache() -> void:
-	_clear_cards()
-
-	# var custom_items := _get_visible_custom_folder_infos()
-	# var visible_items := custom_items
-	# visible_items.append_array(_get_visible_items_from_sorted_cache())
+	# 先根据当前的可见性（本地/订阅）、搜索关键词、标签过滤出所有符合条件的项
 	var visible_items = _get_visible_items_from_sorted_cache()
+	
+	# 如果切换到了自定义文件夹 Tab，合并自定义文件夹的信息（它们也有自己的搜索/过滤逻辑）
+	if current_tab == 0:
+		var custom_items := _get_visible_custom_folder_infos()
+		# 将自定义文件夹放在最前面
+		var combined_items = custom_items
+		combined_items.append_array(visible_items)
+		visible_items = combined_items
+
 	var total_items := visible_items.size()
 	var total_pages := _calculate_total_pages(total_items)
 	if total_pages <= 0:
 		current_page = 1
 		_update_page_num(total_items)
+		# 清空显示
+		if card_manager and card_manager.has_method("clear_cards"):
+			card_manager.call("clear_cards")
 		return
 
 	current_page = clampi(current_page, 1, total_pages)
 	_update_page_num(total_items)
 
 	var page_items := _slice_items_for_page(visible_items, current_page)
-	for card_info in page_items:
-		var title := str(card_info.get("title", "")).strip_edges()
-		if title.is_empty():
-			title = MainManager.extract_card_title(card_info)
-			
-		if is_show_tag_before_name:
-			var project_data = card_info.get("project_data", {})
-			var my_tags = project_data.get("my_tags", [])
-			if my_tags is Array and not my_tags.is_empty():
-				var tags_str = ""
-				for tag in my_tags:
-					tags_str += "[%s]" % str(tag)
-				title = tags_str + " " + title
-				
-		if _is_custom_folder_info(card_info):
-			_add_custom_folder_card(card_info, title)
-		else:
-			var card = _add_card(card_info, title)
-			card.call("apply_card_texture", IS_SHOW_PREVIEW)
-			# 如果该卡片正在转换，手动触发显示状态
-			if not converting_item_key.is_empty() and MainManager.get_item_unique_key(card_info) == converting_item_key:
-				if card.has_method("set_converting"):
-					card.call("set_converting")
-
+	if card_manager and card_manager.has_method("render_page"):
+		card_manager.call("render_page", page_items, is_show_tag_before_name, IS_SHOW_PREVIEW, converting_item_key)
 
 func _get_visible_items_from_sorted_cache() -> Array:
 	var _visible: Array = []
@@ -510,10 +427,10 @@ func _get_visible_items_from_sorted_cache() -> Array:
 
 		var info := item as Dictionary
 		var root_path := str(info.get("root_path", "")).strip_edges()
-		var is_local_item := root_path == res.LOCAL_PROJECTS_ROOT
-		var is_workshop_item := root_path == res.WORKSHOP_ROOT
+		var is_local_item := root_path == Global.LOCAL_PROJECTS_ROOT
+		var is_workshop_item := root_path == Global.WORKSHOP_ROOT
 		var root_matched := (is_local_item and is_show_local) or (is_workshop_item and is_show_workshop)
-		if res.IS_TEST:
+		if Global.IS_TEST:
 			root_matched = true
 		if not root_matched:
 			continue
@@ -618,7 +535,7 @@ func _get_visible_custom_folder_infos() -> Array:
 
 
 func _is_custom_folder_info(info: Dictionary) -> bool:
-	return str(info.get("item_type", "")) == res.CUSTOM_FOLDER_ITEM_TYPE
+	return str(info.get("item_type", "")) == Global.CUSTOM_FOLDER_ITEM_TYPE
 
 
 func _build_custom_folder_card_info(folder_entry: Dictionary) -> Dictionary:
@@ -627,7 +544,7 @@ func _build_custom_folder_card_info(folder_entry: Dictionary) -> Dictionary:
 		return {}
 
 	return {
-		"item_type": res.CUSTOM_FOLDER_ITEM_TYPE,
+		"item_type": Global.CUSTOM_FOLDER_ITEM_TYPE,
 		"folder_name": folder_name,
 		"title": folder_name,
 		"created_at": int(folder_entry.get("created_at", 0)),
@@ -660,33 +577,6 @@ func _update_page_num(total_items: int) -> void:
 	# 	page_num_node.call("setup_pages", total_items, MAX_ONE_PAGE_COUNT, current_page)
 
 
-func _add_card(card_info: Dictionary, title: String) -> Node:
-	var card := card_scene.instantiate()
-	card_container.add_child(card)
-	# 注入 context_menu 实例到卡片，降低对单例的直接依赖
-
-	if card.has_method("set_context_menu"):
-		card.call("set_context_menu", context_menu_card,context_menu_rename)
-	if card.has_method("set_card_info"):
-		card.call("set_card_info", card_info)
-	if card.has_signal("card_left_clicked"):
-		card.connect("card_left_clicked", _on_card_left_clicked)
-	_set_card_label(card, title)
-	return card
-
-
-func _add_custom_folder_card(card_info: Dictionary, title: String) -> void:
-	if folder_scene == null:
-		_popup_warning("folder_scene 未绑定")
-		return
-
-	var folder_card := folder_scene.instantiate()
-	card_container.add_child(folder_card)
-	if folder_card.has_method("set_context_menu"):
-		folder_card.call("set_context_menu", context_menu_folder , context_menu_rename)
-	if folder_card.has_method("set_card_info"):
-		folder_card.call("set_card_info", card_info)
-	_set_card_label(folder_card, title)
 
 
 func delete_custom_folder(info: Dictionary) -> bool:
@@ -745,18 +635,9 @@ func rename_item(info: Dictionary, new_title: String) -> void:
 	_add_or_update_item_by_path(info.get("item_path", ""))
 
 
-func _set_card_label(card: Node, title: String) -> void:
-	card.call("set_label_text", title)
-
-
-
-
-
 func _clear_cards() -> void:
-	selected_card_node = null
-
-	for child in card_container.get_children():
-		child.queue_free()
+	if card_manager and card_manager.has_method("clear_cards"):
+		card_manager.call("clear_cards")
 
 
 func _resolve_item_create_time(root_path: String, folder_name: String) -> int:
@@ -793,7 +674,7 @@ func _filter_items_with_mp4(items: Array) -> Array:
 		if folder_name.is_empty():
 			continue
 
-		var item_root := str(item.get("root_path", res.WORKSHOP_ROOT))
+		var item_root := str(item.get("root_path", Global.WORKSHOP_ROOT))
 		var project_json_path := "%s/%s/project.json" % [item_root, folder_name]
 		var project_data := MainManager.read_json_file(project_json_path)
 
@@ -858,8 +739,8 @@ func _compare_video_duration_desc(a: Dictionary, b: Dictionary) -> bool:
 func _compare_publish_date_with_local_last(a: Dictionary, b: Dictionary) -> bool:
 	var a_root := str(a.get("root_path", "")).strip_edges()
 	var b_root := str(b.get("root_path", "")).strip_edges()
-	var a_is_local := a_root == res.LOCAL_PROJECTS_ROOT
-	var b_is_local := b_root == res.LOCAL_PROJECTS_ROOT
+	var a_is_local := a_root == Global.LOCAL_PROJECTS_ROOT
+	var b_is_local := b_root == Global.LOCAL_PROJECTS_ROOT
 
 	if a_is_local and not b_is_local:
 		return false
@@ -875,40 +756,10 @@ func _on_option_button_request_sort_change(new_sort: int) -> void:
 	_apply_sort_on_cached_items()
 	_render_current_page_from_cache()
 
-func _on_card_left_clicked(card: Node, info: Dictionary) -> void:
-	if selected_card_node and selected_card_node != card and selected_card_node.has_method("set_selected"):
-		selected_card_node.call("set_selected", false)
-
-	selected_card_node = card
-	if selected_card_node and selected_card_node.has_method("set_selected"):
-		selected_card_node.call("set_selected", true)
-
-	var selected_card_info = info.duplicate(true)
-
-	# 在这里动态获取 MP4 元数据，避免启动卡顿
-	var media_file_path = selected_card_info.get("media_file_path", "")
-	if not str(media_file_path).is_empty() and str(media_file_path).to_lower().ends_with(".mp4"):
-		var meta := MainManager.read_mp4_metadata(media_file_path)
-		
-		# 更新当前持有的字典（用于传递给面板）
-		selected_card_info["video_resolution"] = str(meta.get("resolution", ""))
-		selected_card_info["video_bitrate_kbps"] = int(meta.get("bitrate_kbps", 0))
-		selected_card_info["video_duration"] = float(meta.get("duration", 0.0))
-		
-		# 同时更新原始缓存字典（info 为原始引用），确保后续排序能直接取到
-		info["video_resolution"] = selected_card_info["video_resolution"]
-		info["video_bitrate_kbps"] = selected_card_info["video_bitrate_kbps"]
-		info["video_duration"] = selected_card_info["video_duration"]
-		# video_file_size 已经在软件开启扫描时从文件系统读取并缓存在 info 中
-
-	SignalBus.on_card_selected.emit(selected_card_info)
-
-
 
 func _clear_detail_labels() -> void:
-
-	if selected_card_node and selected_card_node.has_method("set_selected"):
-		selected_card_node.call("set_selected", false)
+	if card_manager and card_manager.has_method("clear_cards"):
+		card_manager.call("clear_cards")
 	selected_card_node = null
 
 
@@ -917,10 +768,10 @@ func _prepare_convert_output_dir(input_file: String) -> String:
 	if input_file_name.is_empty():
 		input_file_name = "converted"
 
-	var output_dir := "%s/%s_my_convert" % [res.LOCAL_PROJECTS_ROOT, input_file_name]
+	var output_dir := "%s/%s_my_convert" % [Global.LOCAL_PROJECTS_ROOT, input_file_name]
 	var err := DirAccess.make_dir_recursive_absolute(output_dir)
 	if err != OK:
-		_popup_warning("创建输出目录失败: %s, err=%d" % [output_dir, err])
+		SignalBus.request_popup_warning.emit("创建输出目录失败: %s, err=%d" % [output_dir, err])
 		return ""
 
 	return output_dir
@@ -981,12 +832,12 @@ func _is_custom_folder_name_exists(folder_name: String) -> bool:
 
 func _load_custom_folders_from_local() -> void:
 	custom_folders.clear()
-	if not FileAccess.file_exists(res.CUSTOM_FOLDER_STORE_PATH):
+	if not FileAccess.file_exists(Global.CUSTOM_FOLDER_STORE_PATH):
 		return
 
-	var file := FileAccess.open(res.CUSTOM_FOLDER_STORE_PATH, FileAccess.READ)
+	var file := FileAccess.open(Global.CUSTOM_FOLDER_STORE_PATH, FileAccess.READ)
 	if file == null:
-		_popup_warning("无法读取自定义文件夹存档: %s" % res.CUSTOM_FOLDER_STORE_PATH)
+		SignalBus.request_popup_warning.emit("无法读取自定义文件夹存档: %s" % Global.CUSTOM_FOLDER_STORE_PATH)
 		return
 
 	var raw := file.get_as_text().strip_edges()
@@ -995,11 +846,11 @@ func _load_custom_folders_from_local() -> void:
 
 	var parsed := JSON.parse_string(raw) as Dictionary
 	if not (parsed is Dictionary):
-		_popup_warning("自定义文件夹存档格式无效")
+		SignalBus.request_popup_warning.emit("自定义文件夹存档格式无效")
 		return
 
 	var payload := parsed as Dictionary
-	if int(payload.get("store_version", 0)) != res.CUSTOM_FOLDER_STORE_VERSION:
+	if int(payload.get("store_version", 0)) != Global.CUSTOM_FOLDER_STORE_VERSION:
 		return
 
 	var entries := payload.get("folders", []) as Array
@@ -1019,14 +870,14 @@ func _load_custom_folders_from_local() -> void:
 
 func _save_custom_folders_to_local() -> void:
 	var payload := {
-		"store_version": res.CUSTOM_FOLDER_STORE_VERSION,
+		"store_version": Global.CUSTOM_FOLDER_STORE_VERSION,
 		"saved_at": Time.get_unix_time_from_system(),
 		"folders": custom_folders,
 	}
 
-	var file := FileAccess.open(res.CUSTOM_FOLDER_STORE_PATH, FileAccess.WRITE)
+	var file := FileAccess.open(Global.CUSTOM_FOLDER_STORE_PATH, FileAccess.WRITE)
 	if file == null:
-		_popup_warning("无法写入自定义文件夹存档: %s" % res.CUSTOM_FOLDER_STORE_PATH)
+		SignalBus.request_popup_warning.emit("无法写入自定义文件夹存档: %s" % Global.CUSTOM_FOLDER_STORE_PATH)
 		return
 
 	file.store_string(JSON.stringify(payload))
@@ -1048,7 +899,7 @@ func _on_rename_win_rename_confirmed(new_name: String, target_info: Dictionary) 
 	# _load_workshop_cards()
 
 func _on_request_file_dialog() -> void:
-	folder_selection_dialog.popup_centered()
+	ContextMenu.folder_selection_dialog.popup_centered()
 
 
 func _on_filter_toggled(toggled_on: bool) -> void:
@@ -1064,15 +915,15 @@ func _on_filter_toggled(toggled_on: bool) -> void:
 
 func _delete_all_meta_data() -> void:
 	if cached_items.is_empty():
-		_popup_warning("当前没有检测到任何项目")
+		SignalBus.request_popup_warning.emit("当前没有检测到任何项目")
 		return
 
 	var count = MainManager.delete_all_metadata_cache(cached_items.keys())
-	_popup_dialog("删除成功", "已成功删除 %d 个 video_meta.json 缓存文件。列表显示的元数据将在后续重新获取。" % count)
+	SignalBus.request_popup_dialog.emit("删除成功", "已成功删除 %d 个 video_meta.json 缓存文件。列表显示的元数据将在后续重新获取。" % count)
 	
 	# 重置当前选中卡片的信息显示，强迫下次点击重新读取
-	if selected_card_node:
-		_on_card_left_clicked(selected_card_node, selected_card_node.call("get_card_info") if selected_card_node.has_method("get_card_info") else {})
+	# if selected_card_node:
+	# 	_on_card_left_clicked(selected_card_node, selected_card_node.call("get_card_info") if selected_card_node.has_method("get_card_info") else {})
 
 
 func _on_reset_search_button_button_up() -> void:

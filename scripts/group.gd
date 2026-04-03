@@ -93,7 +93,7 @@ func _drop_data(_at_position: Vector2, data) -> void:
 			
 func _save_all_groups_order() -> void:
 
-	var old_data = MainManager.read_json_file(MyRes.TAGS_STORE_PATH)
+	var old_data = MainManager.read_json_file(Global.TAGS_STORE_PATH)
 	var new_ordered_data = {}
 	var processed_keys = []
 	
@@ -108,7 +108,7 @@ func _save_all_groups_order() -> void:
 				processed_keys.append(storage_key)
 
 	
-	MainManager.save_json_file(MyRes.TAGS_STORE_PATH, new_ordered_data)
+	MainManager.save_json_file(Global.TAGS_STORE_PATH, new_ordered_data)
 
 
 func _update_group_order_in_storage() -> void:
@@ -119,7 +119,7 @@ func _update_group_order_in_storage() -> void:
 		if child.has_method("get_tag_name"):
 			current_order.append(child.get_tag_name())
 	
-	var all_data = MainManager.read_json_file(MyRes.TAGS_STORE_PATH)
+	var all_data = MainManager.read_json_file(Global.TAGS_STORE_PATH)
 	if group_name == "默认分组":
 		all_data["ungrouped_tags"] = current_order
 	else:
@@ -127,11 +127,11 @@ func _update_group_order_in_storage() -> void:
 
 	print("Saving order for group: ", group_name, " with tags: ", current_order)
 		
-	MainManager.save_json_file(MyRes.TAGS_STORE_PATH, all_data)
+	MainManager.save_json_file(Global.TAGS_STORE_PATH, all_data)
 	# 刷新列表显示（如果需要重新渲染同步状态的话，这里其实已经 UI 修改了）
 
 func _move_tag_in_storage(tag_name: String, target_group_name: String) -> void:
-	var all_data = MainManager.read_json_file(MyRes.TAGS_STORE_PATH)
+	var all_data = MainManager.read_json_file(Global.TAGS_STORE_PATH)
 	
 	# 扁平化结构：遍历所有键，移除旧标签
 	for key in all_data.keys():
@@ -153,7 +153,7 @@ func _move_tag_in_storage(tag_name: String, target_group_name: String) -> void:
 
 	print("Moved tag: ", tag_name, " to group: ", target_group_name)
 	
-	MainManager.save_json_file(MyRes.TAGS_STORE_PATH, all_data)
+	MainManager.save_json_file(Global.TAGS_STORE_PATH, all_data)
 
 
 func _on_delete_button_button_up() -> void:
@@ -179,7 +179,7 @@ func delete_self(confirm_dialog: ConfirmationDialog) -> void:
 	if group_name == "默认分组":
 		return # 默认分组不允许删除
 	
-	var all_data = MainManager.read_json_file(MyRes.TAGS_STORE_PATH)
+	var all_data = MainManager.read_json_file(Global.TAGS_STORE_PATH)
 	
 	# 1. 获取该组下的所有标签
 	var tags_to_move = all_data.get(group_name, [])
@@ -198,7 +198,7 @@ func delete_self(confirm_dialog: ConfirmationDialog) -> void:
 	# 4. 持久化到本地文件
 
 	print("Deleting group: ", group_name, " and moving tags: ", tags_to_move, " to default group.")
-	MainManager.save_json_file(MyRes.TAGS_STORE_PATH, all_data)
+	MainManager.save_json_file(Global.TAGS_STORE_PATH, all_data)
 	
 	# 5. UI 刷新逻辑：向上查找持有加载逻辑的 AcceptDialog (rename_script.gd)
 	var parent_dialog = get_parent()

@@ -1,38 +1,6 @@
 extends Node
 class_name MainManager
 
-static var instance: MainManager 
-
-
-# @export var card_scene: PackedScene
-# @export var context_menu_card: Control
-# @export var context_menu_rename: AcceptDialog
-
-
-
-
-func _enter_tree() -> void:
-	if instance and instance != self:
-		queue_free()
-		return
-	instance = self
-	SignalBus.save_config.connect(_on_save_config)
-
-func _exit_tree() -> void:
-	if instance == self:
-		instance = null
-
-
-func _on_save_config(key: String, value: Variant) -> void:
-	var config := read_json_file(MyRes.CONFIG_PATH)
-	config[key] = value
-	
-	var file := FileAccess.open(MyRes.CONFIG_PATH, FileAccess.WRITE)
-	if file:
-		file.store_string(JSON.stringify(config, "  "))
-		file.close()
-
-
 # ============ 工具函数 ============
 static func has_tag(card_info: Dictionary) -> bool:
 	var project_data := card_info.get("project_data", {}) as Dictionary
@@ -41,13 +9,13 @@ static func has_tag(card_info: Dictionary) -> bool:
 
 
 static func delete_tag(tag_name: String) -> void:
-	var all_tags_data = MainManager.read_json_file(MyRes.TAGS_STORE_PATH)
+	var all_tags_data = read_json_file(Global.TAGS_STORE_PATH)
 	var global_tags = all_tags_data.get("global_tags", [])
 	
 	if tag_name in global_tags:
 		global_tags.erase(tag_name)
 		all_tags_data["global_tags"] = global_tags
-		MainManager.save_json_file(MyRes.TAGS_STORE_PATH, all_tags_data)
+		save_json_file(Global.TAGS_STORE_PATH, all_tags_data)
 
 
 static func delete_and_unsubscribe(target_card_info: Dictionary) -> bool:
@@ -78,7 +46,7 @@ static func delete_and_unsubscribe(target_card_info: Dictionary) -> bool:
 	# 接着如果是工坊项，提交取消订阅请求
 
 
-	SignalBus.request_item_deletion.emit(target_card_info)
+
 	return true
 
 		
@@ -94,10 +62,7 @@ static func resolve_target_folder_path(target_card_info : Dictionary) -> String:
 		if DirAccess.dir_exists_absolute(folder_path):
 			return folder_path
 
-	if not root_path.is_empty() and DirAccess.dir_exists_absolute(root_path):
-		return root_path
-
-
+	# 删除了这部分危险代码：当 folder_name 为空时返回 root_path 会导致删除整个父目录
 	return ""
 
 
@@ -304,26 +269,6 @@ static func _submit_unsubscribe_request(steam: Object, published_id: int) -> boo
 	return false
 
 
-## 计算目录总大小（字节）
-# static func calculate_dir_size_bytes(dir_path: String) -> int:
-# 	var dir := DirAccess.open(dir_path)
-# 	if dir == null:
-# 		return 0
-
-# 	var total_size := 0
-# 	for file_name in dir.get_files():
-# 		var file_path := "%s/%s" % [dir_path, file_name]
-# 		var f := FileAccess.open(file_path, FileAccess.READ)
-# 		if f:
-# 			total_size += f.get_length()
-
-# 	for sub_dir_name in dir.get_directories():
-# 		var sub_dir_path := "%s/%s" % [dir_path, sub_dir_name]
-# 		total_size += calculate_dir_size_bytes(sub_dir_path)
-
-# 	return total_size
-
-
 ## 读取 JSON 文件数据
 static func read_json_file(json_path: String) -> Dictionary:
 	if not FileAccess.file_exists(json_path):
@@ -417,8 +362,6 @@ static func extract_vdf_number(line: String, key: String) -> String:
 	return match.get_string(1)
 
 
-
-
 ## 读取 MP4 文件元数据（需要 ffprobe），并增加 JSON 缓存机制
 static func read_mp4_metadata(file_path: String) -> Dictionary:
 	var cache_path := file_path.get_base_dir().path_join("video_meta.json")
@@ -462,12 +405,11 @@ static func read_mp4_metadata(file_path: String) -> Dictionary:
 		file_path,
 	]
 	
-	var res_data = load("res://resources/my_res.tres")
+
 	var ffprobe_exe = "ffprobe"
-	if res_data and res_data is MyRes:
-		ffprobe_exe = res_data.FFPROBE_PATH
-		if not FileAccess.file_exists(ffprobe_exe):
-			ffprobe_exe = "ffprobe" # 退回到系统路径
+	ffprobe_exe = Global.FFPROBE_PATH
+	if not FileAccess.file_exists(ffprobe_exe):
+		ffprobe_exe = "ffprobe" # 退回到系统路径
 
 	var exit_code := OS.execute(ffprobe_exe, args, output, true)
 	if exit_code == 0 and not output.is_empty():
@@ -563,6 +505,8 @@ static func delete_all_metadata_cache(items: Array) -> int:
 	print("已清除 %d 个元数据缓存文件" % deleted_count)
 	return deleted_count
 
+
+
 static func deleta_meta_data(item:Dictionary) -> void:
 	var media_file_path = item.get("media_file_path", "")
 	if str(media_file_path).is_empty():
@@ -579,6 +523,7 @@ static func deleta_meta_data(item:Dictionary) -> void:
 			SignalBus.request_popup_warning.emit("删除元数据缓存失败: %s, err=%d" % [cache_path, err])
 	else:
 		SignalBus.request_popup_warning.emit("未找到元数据缓存文件: %s" % cache_path)
+
 
 ## 格式化文件大小为可读文本
 static func format_size_text(size_bytes: int) -> String:
@@ -670,8 +615,9 @@ static func remove_dir_recursive(path: String) -> Error:
 
 
 static func get_config_value(key: String, default_value: Variant = 0) -> Variant:
-	var config := read_json_file(MyRes.CONFIG_PATH)
+	var config := read_json_file(Global.CONFIG_PATH)
 	return config.get(key, default_value)
+
 
 static func get_item_unique_key(info: Dictionary) -> String:
 	var root := str(info.get("root_path", "")).replace("\\", "/").strip_edges()

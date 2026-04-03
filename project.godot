@@ -19,6 +19,8 @@ config/icon="res://icon.svg"
 
 SignalBus="*uid://do3juypt3dqq6"
 VideoDedup="*uid://b8kco3aaw7psg"
+ContextMenu="*uid://f51fi4a8ybf2"
+Global="*uid://b68tgmkrjlckb"
 
 [debug]
 

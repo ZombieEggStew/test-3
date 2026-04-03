@@ -1,7 +1,5 @@
 extends PanelContainer
 
-@export var res: MyRes
-
 var target_card_info: Dictionary = {}
 
 var context_menu : AcceptDialog
@@ -10,6 +8,7 @@ var context_menu : AcceptDialog
 @export var backup_button : Button
 
 func _ready() -> void: 
+	context_menu = ContextMenu.context_menu_rename
 	hide()
 
 
@@ -21,10 +20,7 @@ func _input(event: InputEvent) -> void:
 	and event.pressed:
 		if not get_global_rect().has_point(event.position):
 			hide()
-
-func set_context_menu_rename(cm: AcceptDialog) -> void:
-	context_menu = cm
-
+			
 func set_target_card_info(info: Dictionary) -> void:
 	target_card_info = info.duplicate(true)
 
@@ -116,7 +112,7 @@ func _delete_target_card(confirm_dialog: ConfirmationDialog) -> void:
 	if confirm_dialog:
 		confirm_dialog.queue_free()
 	MainManager.delete_and_unsubscribe(target_card_info)
-
+	SignalBus.request_item_deletion.emit(target_card_info)
 
 
 
@@ -157,10 +153,10 @@ func backup_item(confirm_dialog: ConfirmationDialog) -> void:
 		return
 
 	var dest_folder_name := title + "_my_backup"
-	var dest_folder := "%s/%s" % [res.LOCAL_PROJECTS_ROOT, dest_folder_name]
+	var dest_folder := "%s/%s" % [Global.LOCAL_PROJECTS_ROOT, dest_folder_name]
 	dest_folder = dest_folder.replace("\\", "/")
 
-	var dir := DirAccess.open(res.LOCAL_PROJECTS_ROOT)
+	var dir := DirAccess.open(Global.LOCAL_PROJECTS_ROOT)
 	if not dir.dir_exists(dest_folder):
 		var err := dir.make_dir_recursive(dest_folder) as Error
 		if err != OK:

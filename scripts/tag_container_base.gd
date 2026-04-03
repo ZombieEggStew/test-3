@@ -21,7 +21,7 @@ func load_all_tags_from_storage(_active_tags: Array = [], _current_selected: Arr
 	for child in group_container_root.get_children():
 		child.queue_free()
 
-	var tags_json := MainManager.read_json_file(MyRes.TAGS_STORE_PATH)
+	var tags_json := MainManager.read_json_file(Global.TAGS_STORE_PATH)
 	
 	# 用于在 UI 加载时排重
 	var loaded_tags := {}

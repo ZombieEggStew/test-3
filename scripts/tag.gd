@@ -95,7 +95,7 @@ func delete_self(confirm_dialog: ConfirmationDialog) -> void:
 	var tag_name = get_tag_name()
 	
 	# 1. 从全局存储中移除（支持扁平化结构）
-	var all_data = MainManager.read_json_file(MyRes.TAGS_STORE_PATH)
+	var all_data = MainManager.read_json_file(Global.TAGS_STORE_PATH)
 	var changed = false
 	
 	for key in all_data.keys():
@@ -106,7 +106,7 @@ func delete_self(confirm_dialog: ConfirmationDialog) -> void:
 	
 	if changed:
 		print("Tag deleted from storage: ", tag_name)
-		MainManager.save_json_file(MyRes.TAGS_STORE_PATH, all_data)
+		MainManager.save_json_file(Global.TAGS_STORE_PATH, all_data)
 		print("Tag deleted and saved to local: ", tag_name)
 
 

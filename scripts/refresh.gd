@@ -1,9 +1,5 @@
 extends Button
 
-@export var res: MyRes
-
-
-
 func _on_button_up() -> void:
 	if not get_global_rect().has_point(get_global_mouse_position()):
 		return

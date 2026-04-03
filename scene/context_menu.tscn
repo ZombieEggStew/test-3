@@ -1,0 +1,51 @@
+[gd_scene format=3 uid="uid://f51fi4a8ybf2"]
+
+[ext_resource type="Script" uid="uid://bo7c83dejbp4u" path="res://scripts/global_context_menu.gd" id="1_htkqa"]
+[ext_resource type="PackedScene" uid="uid://4vn0qbvanm2x" path="res://scene/folder.tscn" id="2_0fwkv"]
+[ext_resource type="PackedScene" uid="uid://bmyhw36fx17qy" path="res://scene/node_2d.tscn" id="2_rhdo7"]
+[ext_resource type="PackedScene" uid="uid://8i0frwpx4bec" path="res://scene/control.tscn" id="3_m6ljf"]
+[ext_resource type="PackedScene" uid="uid://besmajj3fj03t" path="res://scene/folder_context_menu.tscn" id="3_rhdo7"]
+[ext_resource type="PackedScene" uid="uid://dmtlv641hdua0" path="res://scene/dedup_group.tscn" id="4_474sd"]
+[ext_resource type="PackedScene" uid="uid://dbxt26px8q0m3" path="res://scene/rename_win.tscn" id="5_474sd"]
+[ext_resource type="PackedScene" uid="uid://bhbw5k2mfc2jp" path="res://scene/settings_dialog.tscn" id="5_htkqa"]
+
+[node name="context_menu" type="CanvasLayer" unique_id=1206538378 node_paths=PackedStringArray("context_menu_card", "context_menu_folder", "context_menu_rename", "folder_selection_dialog", "accept_dialog")]
+layer = 4
+script = ExtResource("1_htkqa")
+folder_scene = ExtResource("2_0fwkv")
+card_scene = ExtResource("2_rhdo7")
+dedup_group_scene = ExtResource("4_474sd")
+context_menu_card = NodePath("Control")
+context_menu_folder = NodePath("folder_context_menu")
+context_menu_rename = NodePath("rename_win")
+folder_selection_dialog = NodePath("settings_dialog")
+accept_dialog = NodePath("AcceptDialog")
+
+[node name="folder_context_menu" parent="." unique_id=1028343036 instance=ExtResource("3_rhdo7")]
+offset_left = 965.0
+offset_top = 226.0
+offset_right = 1169.0
+offset_bottom = 312.0
+
+[node name="Control" parent="." unique_id=1185269889 instance=ExtResource("3_m6ljf")]
+z_index = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -210.0
+offset_right = 0.0
+offset_bottom = 226.0
+grow_horizontal = 0
+
+[node name="rename_win" parent="." unique_id=338288176 instance=ExtResource("5_474sd")]
+position = Vector2i(39, 44)
+
+[node name="settings_dialog" parent="." unique_id=714392010 instance=ExtResource("5_htkqa")]
+position = Vector2i(58, 361)
+
+[node name="AcceptDialog" type="AcceptDialog" parent="." unique_id=1232511074]
+oversampling_override = 1.0
+title = "弹窗"
+position = Vector2i(762, 62)
+visible = true
+dialog_text = "default"

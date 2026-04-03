@@ -1,6 +1,6 @@
 extends AcceptDialog
 
-signal rename_confirmed(new_name: String, target_info: Dictionary)
+
 
 @export var rename_line_edit: LineEdit
 @export var add_tag_line_edit: LineEdit
@@ -9,7 +9,6 @@ signal rename_confirmed(new_name: String, target_info: Dictionary)
 @export var group_container_root: VBoxContainer
 @export var group_scene: PackedScene
 
-@export var res : MyRes
 var target_info: Dictionary = {}
 var current_tags: Array = [] # 当前卡片选中的标签列表
 
@@ -27,7 +26,7 @@ func _on_confirmed() -> void:
 			MainManager.save_json_file(project_json_path, project_data)
 			print("Tags saved to project.json: ", current_tags)
 
-		rename_confirmed.emit(rename_line_edit.text.strip_edges(), target_info)
+		SignalBus.rename_confirmed.emit(rename_line_edit.text.strip_edges(), target_info)
 
 
 func set_target_info(info: Dictionary) -> void:
@@ -53,7 +52,7 @@ func _on_add_tag_button_button_up() -> void:
 		return
 	
 	# 获取当前所有全局数据
-	var all_data = MainManager.read_json_file(MyRes.TAGS_STORE_PATH)
+	var all_data = MainManager.read_json_file(Global.TAGS_STORE_PATH)
 	
 	# 全局除重：检查标签是否存在于任何组（键）中
 	var exists_anywhere := false
@@ -70,7 +69,7 @@ func _on_add_tag_button_button_up() -> void:
 		ungrouped_tags.append(tag_name)
 		all_data["ungrouped_tags"] = ungrouped_tags
 		print("New tag added to storage: ", tag_name)
-		MainManager.save_json_file(MyRes.TAGS_STORE_PATH, all_data)
+		MainManager.save_json_file(Global.TAGS_STORE_PATH, all_data)
 	
 	add_tag_line_edit.text = ""
 
@@ -80,14 +79,14 @@ func _on_add_group_button_button_up() -> void:
 	if group_name.is_empty():
 		return
 	
-	var all_data = MainManager.read_json_file(MyRes.TAGS_STORE_PATH)
+	var all_data = MainManager.read_json_file(Global.TAGS_STORE_PATH)
 	
 	# 扁平化存储：如果该分组名（键）在 JSON 中不存在
 	if not group_name in all_data:
 		# Godot 4 字典是有序的。通过直接赋值，新键会添加在末尾。
 		all_data[group_name] = []
 		print("New group added to storage: ", group_name)
-		MainManager.save_json_file(MyRes.TAGS_STORE_PATH, all_data)
+		MainManager.save_json_file(Global.TAGS_STORE_PATH, all_data)
 		
 		# 2. 更新 UI
 		tag_loader._create_group_ui_internal(group_name)

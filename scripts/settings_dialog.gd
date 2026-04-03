@@ -1,6 +1,5 @@
 extends AcceptDialog
 
-@export var res: MyRes
 @export var wallpaper_dialog: AcceptDialog
 @export var workshop_dialog: AcceptDialog
 
@@ -39,11 +38,11 @@ func _on_confirmed() -> void:
     # 保存路径到配置
     if workshop_line_edit:
         SignalBus.save_config.emit("workshop_root", workshop_line_edit.text)
-        res.WORKSHOP_ROOT = workshop_line_edit.text
+        Global.WORKSHOP_ROOT = workshop_line_edit.text
     
     if wallpaper_line_edit:
         SignalBus.save_config.emit("wallpaper_root", wallpaper_line_edit.text)
-        res.LOCAL_PROJECTS_ROOT = wallpaper_line_edit.text + "/projects/myprojects"
+        Global.LOCAL_PROJECTS_ROOT = wallpaper_line_edit.text + "/projects/myprojects"
 
     SignalBus.load_workshop_cards.emit()  # 强制重新加载工坊卡片
     

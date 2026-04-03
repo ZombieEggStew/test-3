@@ -3,36 +3,31 @@
 [ext_resource type="Script" uid="uid://cwp6sx5187trt" path="res://scripts/main_ui.gd" id="1_v0l8b"]
 [ext_resource type="PackedScene" uid="uid://bmyhw36fx17qy" path="res://scene/node_2d.tscn" id="3_4j5ol"]
 [ext_resource type="Texture2D" uid="uid://bacarg6uviypr" path="res://tex/preview_3.jpg" id="3_wp4xf"]
-[ext_resource type="PackedScene" uid="uid://8i0frwpx4bec" path="res://scene/control.tscn" id="4_brvut"]
 [ext_resource type="PackedScene" uid="uid://4vn0qbvanm2x" path="res://scene/folder.tscn" id="4_k65ib"]
 [ext_resource type="Script" uid="uid://d2r1dil1jo6c0" path="res://scripts/right_panel.gd" id="5_p1hux"]
 [ext_resource type="Theme" uid="uid://dnhnt8qo2nlyy" path="res://new_theme.tres" id="5_tqoya"]
-[ext_resource type="Resource" uid="uid://85tjdggbyiv0" path="res://resources/my_res.tres" id="5_v2gmf"]
 [ext_resource type="Script" uid="uid://r1o1erk3r2qn" path="res://scripts/page_num.gd" id="6_k65ib"]
 [ext_resource type="Script" uid="uid://1s8etse0uucc" path="res://scripts/preview.gd" id="7_4jm02"]
 [ext_resource type="Script" uid="uid://calgnn76b14px" path="res://scripts/settings_button.gd" id="7_gjnwh"]
 [ext_resource type="PackedScene" uid="uid://5poiej2aowo" path="res://scene/page_1.tscn" id="7_k65ib"]
 [ext_resource type="Script" uid="uid://fsqo2uyiubyg" path="res://scripts/converter.gd" id="7_of57s"]
-[ext_resource type="Script" uid="uid://cxutw5bxqcjtd" path="res://scripts/main.gd" id="8_main"]
 [ext_resource type="Script" uid="uid://cf8xhutpjenkg" path="res://scripts/open_local_button.gd" id="8_smf0o"]
 [ext_resource type="Script" uid="uid://cstjx6ranpgep" path="res://scripts/delete_gif_cache.gd" id="8_vneqc"]
 [ext_resource type="Script" uid="uid://nw8l0ivwo1hh" path="res://scripts/option_button.gd" id="9_0vlqb"]
 [ext_resource type="Script" uid="uid://dnqxwnlou5dph" path="res://scripts/refresh.gd" id="9_gjnwh"]
 [ext_resource type="Script" uid="uid://ycn0c8k5v0cr" path="res://scripts/open_res_button.gd" id="9_tv8i1"]
 [ext_resource type="Script" uid="uid://qshmyxknhc6w" path="res://scripts/toggle_tag.gd" id="12_p8adh"]
-[ext_resource type="PackedScene" uid="uid://besmajj3fj03t" path="res://scene/folder_context_menu.tscn" id="13_mswub"]
-[ext_resource type="PackedScene" uid="uid://dbxt26px8q0m3" path="res://scene/rename_win.tscn" id="14_hybxs"]
 [ext_resource type="Script" uid="uid://cvqb4ldn08orp" path="res://scripts/is_show_local.gd" id="15_fa8t4"]
-[ext_resource type="PackedScene" uid="uid://dmtlv641hdua0" path="res://scene/dedup.tscn" id="16_7xrs8"]
-[ext_resource type="Script" uid="uid://um35xx1vq1a" path="res://scripts/my_res.gd" id="16_gn2wi"]
+[ext_resource type="PackedScene" uid="uid://dmtlv641hdua0" path="res://scene/dedup_group.tscn" id="16_7xrs8"]
 [ext_resource type="Script" uid="uid://d37q4463ajyi" path="res://scripts/delete_meta_data.gd" id="16_kpobt"]
 [ext_resource type="Script" uid="uid://dc8yhmb7pbdqm" path="res://scripts/is_show_workshop.gd" id="16_rg6nf"]
+[ext_resource type="Script" uid="uid://b4xin6xgsercv" path="res://scripts/card_container.gd" id="17_7xrs8"]
 [ext_resource type="Script" uid="uid://7wy405gmm1o0" path="res://scripts/dont_have_tags.gd" id="17_jey2d"]
+[ext_resource type="Script" uid="uid://bbd0w84dusr4q" path="res://scripts/dedup_manager.gd" id="17_kpobt"]
 [ext_resource type="Script" uid="uid://c0qd7j8f25cin" path="res://scripts/have_tags.gd" id="18_vc5kc"]
 [ext_resource type="Script" uid="uid://fyc5k0o0fnkl" path="res://scripts/search.gd" id="19_cv4lv"]
 [ext_resource type="Texture2D" uid="uid://c3i0d1ho11mi2" path="res://tex/x.png" id="19_vc5kc"]
 [ext_resource type="Script" uid="uid://pooi8l4c1iu5" path="res://scripts/delete_checkbox.gd" id="20_oldxj"]
-[ext_resource type="PackedScene" uid="uid://bhbw5k2mfc2jp" path="res://scene/settings_dialog.tscn" id="21_fdqew"]
 [ext_resource type="Script" uid="uid://167jyo4wstle" path="res://scripts/tag_panel.gd" id="22_0d4pv"]
 [ext_resource type="Script" uid="uid://suh5jo6arv3s" path="res://scripts/dedup_container.gd" id="22_2km5d"]
 [ext_resource type="PackedScene" uid="uid://c218jajnssh1x" path="res://scene/tag.tscn" id="23_gtqqq"]
@@ -130,14 +125,10 @@ content_margin_right = 5.0
 content_margin_bottom = 0.0
 bg_color = Color(0.25490198, 0.5137255, 0.9607843, 1)
 
-[sub_resource type="ButtonGroup" id="ButtonGroup_fyltn"]
+[sub_resource type="ButtonGroup" id="ButtonGroup_kpobt"]
 allow_unpress = true
 
 [sub_resource type="Theme" id="Theme_tqoya"]
-
-[sub_resource type="Resource" id="Resource_oldxj"]
-script = ExtResource("16_gn2wi")
-metadata/_custom_type_script = "uid://um35xx1vq1a"
 
 [sub_resource type="LabelSettings" id="LabelSettings_wp4xf"]
 font_size = 24
@@ -170,30 +161,18 @@ events = [SubResource("InputEventAction_wp4xf")]
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_fdqew"]
 bg_color = Color(0.13333334, 0.1254902, 0.13333334, 0.85490197)
 
-[node name="Node2D" type="Node2D" unique_id=1929871842 node_paths=PackedStringArray("context_menu_card", "context_menu_rename")]
-script = ExtResource("8_main")
-card_scene = ExtResource("3_4j5ol")
-context_menu_card = NodePath("main_ui/Control")
-context_menu_rename = NodePath("main_ui/rename_win")
+[node name="Node2D" type="Node2D" unique_id=1929871842]
 
-[node name="main_ui" type="CanvasLayer" parent="." unique_id=1938298878 node_paths=PackedStringArray("card_container", "dedup_container", "context_menu_card", "context_menu_folder", "context_menu_rename", "folder_selection_dialog", "right_panel", "filter_panel", "accept_dialog", "get_meta_data_progress_bar", "sort_option_button")]
+[node name="main_ui" type="CanvasLayer" parent="." unique_id=1938298878 node_paths=PackedStringArray("card_manager", "dedup_container", "right_panel", "filter_panel", "get_meta_data_progress_bar", "sort_option_button")]
 script = ExtResource("1_v0l8b")
-card_container = NodePath("HBoxContainer/MarginContainer/VBoxContainer/ScrollContainer2/MarginContainer/Card_container")
-dedup_container = NodePath("HBoxContainer/MarginContainer/VBoxContainer/ScrollContainer2/MarginContainer/dedup_container")
-card_scene = ExtResource("3_4j5ol")
-folder_scene = ExtResource("4_k65ib")
-context_menu_card = NodePath("Control")
-context_menu_folder = NodePath("folder_context_menu")
-context_menu_rename = NodePath("rename_win")
-folder_selection_dialog = NodePath("settings_dialog")
+card_manager = NodePath("HBoxContainer/MarginContainer/VBoxContainer/VBoxContainer/Card_container")
+dedup_container = NodePath("HBoxContainer/MarginContainer/VBoxContainer/VBoxContainer/dedup_container")
 right_panel = NodePath("HBoxContainer/right_panel")
 filter_panel = NodePath("tag_panel")
-res = ExtResource("5_v2gmf")
-accept_dialog = NodePath("AcceptDialog")
 get_meta_data_progress_bar = NodePath("HBoxContainer/MarginContainer/VBoxContainer/header_2/CenterContainer/ProgressBar")
 sort_option_button = NodePath("HBoxContainer/MarginContainer/VBoxContainer/head_bar/VBoxContainer3/OptionButton")
 
-[node name="ColorRect" type="ColorRect" parent="main_ui" unique_id=98198692]
+[node name="background" type="ColorRect" parent="main_ui" unique_id=98198692]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -261,7 +240,6 @@ layout_mode = 2
 layout_mode = 2
 text = "打开本地目录"
 script = ExtResource("8_smf0o")
-res = ExtResource("5_v2gmf")
 
 [node name="open_res_button" type="Button" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/head_bar/VBoxContainer2" unique_id=535021144]
 layout_mode = 2
@@ -275,7 +253,6 @@ layout_mode = 2
 layout_mode = 2
 text = "刷新"
 script = ExtResource("9_gjnwh")
-res = ExtResource("5_v2gmf")
 
 [node name="settings_button" type="Button" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/head_bar/VBoxContainer" unique_id=1621929074]
 layout_mode = 2
@@ -402,48 +379,45 @@ theme_override_styles/hover = SubResource("StyleBoxFlat_p8adh")
 theme_override_styles/hover_pressed = SubResource("StyleBoxFlat_oldxj")
 text = "  过滤  "
 
-[node name="ScrollContainer2" type="ScrollContainer" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer" unique_id=778066209]
+[node name="VBoxContainer" type="VBoxContainer" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer" unique_id=651367563]
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="MarginContainer" type="MarginContainer" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/ScrollContainer2" unique_id=765039720]
+[node name="Card_container" type="VBoxContainer" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/VBoxContainer" unique_id=1364648321 node_paths=PackedStringArray("flow_container")]
+visible = false
+layout_mode = 2
+size_flags_vertical = 3
+script = ExtResource("17_7xrs8")
+flow_container = NodePath("ScrollContainer2/HFlow")
+
+[node name="ScrollContainer2" type="ScrollContainer" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/VBoxContainer/Card_container" unique_id=778066209]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="HFlow" type="HFlowContainer" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/VBoxContainer/Card_container/ScrollContainer2" unique_id=1796475393]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-theme_override_constants/margin_top = 10
-theme_override_constants/margin_bottom = 10
 
-[node name="Card_container" type="HFlowContainer" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/ScrollContainer2/MarginContainer" unique_id=1796475393]
+[node name="Node2D" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/VBoxContainer/Card_container/ScrollContainer2/HFlow" unique_id=747637982 instance=ExtResource("3_4j5ol")]
 layout_mode = 2
 
-[node name="Node2D" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/ScrollContainer2/MarginContainer/Card_container" unique_id=747637982 instance=ExtResource("3_4j5ol")]
-layout_mode = 2
-res = ExtResource("5_v2gmf")
-
-[node name="PanelContainer" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/ScrollContainer2/MarginContainer/Card_container" unique_id=1147595711 instance=ExtResource("4_k65ib")]
+[node name="PanelContainer" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/VBoxContainer/Card_container/ScrollContainer2/HFlow" unique_id=1147595711 instance=ExtResource("4_k65ib")]
 layout_mode = 2
 
-[node name="dedup_container" type="VBoxContainer" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/ScrollContainer2/MarginContainer" unique_id=713086145]
-visible = false
-layout_mode = 2
-script = ExtResource("22_2km5d")
-
-[node name="dedup" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/ScrollContainer2/MarginContainer/dedup_container" unique_id=301759678 instance=ExtResource("16_7xrs8")]
-layout_mode = 2
-
-[node name="page" type="MarginContainer" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer" unique_id=712038022]
+[node name="page" type="MarginContainer" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/VBoxContainer/Card_container" unique_id=712038022]
 layout_mode = 2
 theme_override_constants/margin_left = 0
 theme_override_constants/margin_top = 10
 theme_override_constants/margin_right = 0
 theme_override_constants/margin_bottom = 5
 
-[node name="HBoxContainer" type="HBoxContainer" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/page" unique_id=581211235]
+[node name="HBoxContainer" type="HBoxContainer" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/VBoxContainer/Card_container/page" unique_id=581211235]
 layout_mode = 2
 theme_override_constants/separation = 10
 alignment = 1
 
-[node name="Button" type="Button" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/page/HBoxContainer" unique_id=62267357]
+[node name="Button" type="Button" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/VBoxContainer/Card_container/page/HBoxContainer" unique_id=62267357]
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4
@@ -452,18 +426,18 @@ theme_type_variation = &"button_page"
 theme_override_font_sizes/font_size = 18
 text = "  <<  "
 
-[node name="page_num" type="HBoxContainer" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/page/HBoxContainer" unique_id=1034348021]
+[node name="page_num" type="HBoxContainer" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/VBoxContainer/Card_container/page/HBoxContainer" unique_id=1034348021]
 layout_mode = 2
 theme_override_constants/separation = 4
 alignment = 1
 script = ExtResource("6_k65ib")
 page_card = ExtResource("7_k65ib")
 
-[node name="page_1" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/page/HBoxContainer/page_num" unique_id=109932289 instance=ExtResource("7_k65ib")]
+[node name="page_1" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/VBoxContainer/Card_container/page/HBoxContainer/page_num" unique_id=109932289 instance=ExtResource("7_k65ib")]
 layout_mode = 2
-button_group = SubResource("ButtonGroup_fyltn")
+button_group = SubResource("ButtonGroup_kpobt")
 
-[node name="Button2" type="Button" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/page/HBoxContainer" unique_id=924454259]
+[node name="Button2" type="Button" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/VBoxContainer/Card_container/page/HBoxContainer" unique_id=924454259]
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4
@@ -471,6 +445,45 @@ theme = SubResource("Theme_tqoya")
 theme_type_variation = &"button_page"
 theme_override_font_sizes/font_size = 18
 text = "  >>  "
+
+[node name="dedup_container" type="VBoxContainer" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/VBoxContainer" unique_id=1639592914 node_paths=PackedStringArray("container")]
+layout_mode = 2
+size_flags_vertical = 3
+script = ExtResource("22_2km5d")
+container = NodePath("scroll/Vbox")
+
+[node name="header_3" type="HBoxContainer" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/VBoxContainer/dedup_container" unique_id=2143989626]
+layout_mode = 2
+
+[node name="dedup_manager" type="HBoxContainer" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/VBoxContainer/dedup_container/header_3" unique_id=1887376183 node_paths=PackedStringArray("start_dedup_button", "progress_bar")]
+layout_mode = 2
+script = ExtResource("17_kpobt")
+start_dedup_button = NodePath("start_dedup")
+progress_bar = NodePath("CenterContainer/ProgressBar_dedup")
+
+[node name="start_dedup" type="Button" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/VBoxContainer/dedup_container/header_3/dedup_manager" unique_id=2050319677]
+layout_mode = 2
+disabled = true
+text = "开始查重"
+
+[node name="CenterContainer" type="CenterContainer" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/VBoxContainer/dedup_container/header_3/dedup_manager" unique_id=151136456]
+layout_mode = 2
+
+[node name="ProgressBar_dedup" type="ProgressBar" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/VBoxContainer/dedup_container/header_3/dedup_manager/CenterContainer" unique_id=555332638]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+
+[node name="scroll" type="ScrollContainer" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/VBoxContainer/dedup_container" unique_id=1222088422]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Vbox" type="VBoxContainer" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/VBoxContainer/dedup_container/scroll" unique_id=713086145]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="test_group" parent="main_ui/HBoxContainer/MarginContainer/VBoxContainer/VBoxContainer/dedup_container/scroll/Vbox" unique_id=301759678 instance=ExtResource("16_7xrs8")]
+layout_mode = 2
 
 [node name="right_panel" type="MarginContainer" parent="main_ui/HBoxContainer" unique_id=756927448 node_paths=PackedStringArray("title_label", "resolution_label", "bitrate_label", "duration_label", "video_size_label")]
 custom_minimum_size = Vector2(250, 0)
@@ -487,7 +500,6 @@ resolution_label = NodePath("ScrollContainer/VBox/Attributes/VBoxContainer/HBoxC
 bitrate_label = NodePath("ScrollContainer/VBox/Attributes/VBoxContainer/HBoxContainer2/biterate_Label3")
 duration_label = NodePath("ScrollContainer/VBox/Attributes/VBoxContainer/HBoxContainer2/duration_label")
 video_size_label = NodePath("ScrollContainer/VBox/Attributes/VBoxContainer/HBoxContainer/size_Label")
-res = SubResource("Resource_oldxj")
 
 [node name="ScrollContainer" type="ScrollContainer" parent="main_ui/HBoxContainer/right_panel" unique_id=549181938]
 layout_mode = 2
@@ -614,7 +626,6 @@ progress_bar = NodePath("VBoxContainer/ProgressBar")
 start_convert_button = NodePath("VBoxContainer/HBoxContainer4/start_convert")
 stop_convert_button = NodePath("VBoxContainer/HBoxContainer4/stop_button")
 delete_check_box = NodePath("VBoxContainer/delete_checkbox")
-res = ExtResource("5_v2gmf")
 
 [node name="VBoxContainer" type="VBoxContainer" parent="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter" unique_id=1141371230]
 layout_mode = 2
@@ -753,34 +764,6 @@ text = "停止转换"
 [node name="ProgressBar" type="ProgressBar" parent="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer" unique_id=1652196972]
 layout_mode = 2
 
-[node name="Control" parent="main_ui" unique_id=1524407716 instance=ExtResource("4_brvut")]
-z_index = 1
-anchors_preset = 1
-anchor_left = 1.0
-anchor_right = 1.0
-offset_left = 283.0
-offset_top = 171.0
-offset_right = 493.0
-offset_bottom = 362.0
-grow_horizontal = 0
-res = ExtResource("5_v2gmf")
-
-[node name="folder_context_menu" parent="main_ui" unique_id=1028343036 instance=ExtResource("13_mswub")]
-offset_left = 1458.0
-offset_right = 1662.0
-offset_bottom = 86.0
-
-[node name="rename_win" parent="main_ui" unique_id=1585673485 instance=ExtResource("14_hybxs")]
-visible = false
-
-[node name="AcceptDialog" type="AcceptDialog" parent="main_ui" unique_id=1252112133]
-oversampling_override = 1.0
-title = "弹窗"
-dialog_text = "default"
-
-[node name="settings_dialog" parent="main_ui" unique_id=714392010 instance=ExtResource("21_fdqew")]
-visible = false
-
 [node name="tag_panel" type="PanelContainer" parent="main_ui" unique_id=1131897239 node_paths=PackedStringArray("group_container_root")]
 anchors_preset = 11
 anchor_left = 1.0
@@ -841,7 +824,7 @@ layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
-[connection signal="setup_pages" from="main_ui" to="main_ui/HBoxContainer/MarginContainer/VBoxContainer/page/HBoxContainer/page_num" method="_on_main_ui_setup_pages"]
+[connection signal="setup_pages" from="main_ui" to="main_ui/HBoxContainer/MarginContainer/VBoxContainer/VBoxContainer/Card_container/page/HBoxContainer/page_num" method="_on_main_ui_setup_pages"]
 [connection signal="tab_selected" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/head_bar/TabBar" to="main_ui" method="_on_tab_bar_tab_selected"]
 [connection signal="toggled" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/head_bar/VBoxContainer6/preview" to="main_ui/HBoxContainer/MarginContainer/VBoxContainer/head_bar/VBoxContainer6/preview" method="_on_toggled"]
 [connection signal="button_up" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/head_bar/VBoxContainer6/delete_gif_cache" to="main_ui/HBoxContainer/MarginContainer/VBoxContainer/head_bar/VBoxContainer6/delete_gif_cache" method="_on_button_up"]
@@ -861,7 +844,8 @@ size_flags_vertical = 3
 [connection signal="text_submitted" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/header_2/search/search_edit_line" to="main_ui/HBoxContainer/MarginContainer/VBoxContainer/header_2/search" method="_on_search_edit_line_text_submitted"]
 [connection signal="button_up" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/header_2/search/reset_search_button" to="main_ui/HBoxContainer/MarginContainer/VBoxContainer/header_2/search" method="_on_reset_search_button_button_up"]
 [connection signal="toggled" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/header_2/filter" to="main_ui" method="_on_filter_toggled"]
-[connection signal="page_selected" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/page/HBoxContainer/page_num" to="main_ui" method="_on_page_num_page_selected"]
+[connection signal="page_selected" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/VBoxContainer/Card_container/page/HBoxContainer/page_num" to="main_ui" method="_on_page_num_page_selected"]
+[connection signal="button_up" from="main_ui/HBoxContainer/MarginContainer/VBoxContainer/VBoxContainer/dedup_container/header_3/dedup_manager/start_dedup" to="main_ui/HBoxContainer/MarginContainer/VBoxContainer/VBoxContainer/dedup_container/header_3/dedup_manager" method="_on_start_dedup_button_up"]
 [connection signal="item_selected" from="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/HBoxContainer/preset" to="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/HBoxContainer/preset" method="_on_item_selected"]
 [connection signal="item_selected" from="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/HBoxContainer/cq" to="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter" method="_on_cq_item_selected"]
 [connection signal="text_changed" from="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/HBoxContainer/CenterContainer/cq2" to="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/HBoxContainer/CenterContainer/cq2" method="_on_text_changed"]
@@ -871,6 +855,5 @@ size_flags_vertical = 3
 [connection signal="toggled" from="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/delete_checkbox" to="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/delete_checkbox" method="_on_toggled"]
 [connection signal="button_up" from="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/HBoxContainer4/start_convert" to="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter" method="_on_start_convert_button_up"]
 [connection signal="button_up" from="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter/VBoxContainer/HBoxContainer4/stop_button" to="main_ui/HBoxContainer/right_panel/ScrollContainer/VBox/converter" method="_on_stop_button_button_up"]
-[connection signal="rename_confirmed" from="main_ui/rename_win" to="main_ui" method="_on_rename_win_rename_confirmed"]
 [connection signal="toggled" from="main_ui/tag_panel/MarginContainer/VBoxContainer/header_tags/HBoxContainer/and_or" to="main_ui" method="_on_and_or_toggled"]
 [connection signal="button_up" from="main_ui/tag_panel/MarginContainer/VBoxContainer/header_tags/set_untoggled_button" to="main_ui/tag_panel" method="_on_set_untoggled_button_button_up"]

@@ -1,7 +1,5 @@
 extends PanelContainer
 
-signal show_context_menu(pos:Vector2)
-signal card_left_clicked(card: Node, info: Dictionary)
 
 @export var tex : TextureRect
 @export var hover_duration := 0.15
@@ -9,7 +7,6 @@ signal card_left_clicked(card: Node, info: Dictionary)
 @export var label : Label
 
 @export var defalt_tex : Texture2D
-@export var res : MyRes
 @export var local_label: PanelContainer
 @export var tagged_label: PanelContainer
 @export var converting_label: PanelContainer
@@ -39,10 +36,14 @@ func _ready() -> void:
 
 	normal_alpha = panel_style.border_color.a
 
+	context_menu = ContextMenu.context_menu_card
+
+	SignalBus.on_card_selected.connect(_on_card_selected)
+
 
 func set_label_text(text: String) -> void:
 	if label:
-		if res.IS_SHOW_NAME:
+		if Global.IS_SHOW_NAME:
 			label.text = text
 		else:
 			label.text = "演示壁纸"
@@ -71,7 +72,7 @@ func _on_gui_input(event: InputEvent) -> void:
 		return
 
 	if mouse_event.button_index == MOUSE_BUTTON_LEFT:
-		card_left_clicked.emit(self, get_card_info())
+		_on_card_left_clicked()
 		accept_event()
 		return
 
@@ -81,18 +82,13 @@ func _on_gui_input(event: InputEvent) -> void:
 		if context_menu == null:
 			SignalBus.request_popup_warning.emit("context_menu 未就绪，无法显示右键菜单")
 			return
-		if context_menu.has_method("set_target_card_info"):
-			context_menu.call("set_target_card_info", get_card_info())
+
+		context_menu.set_target_card_info(get_card_info())
 		context_menu.position = get_viewport().get_mouse_position()
 		context_menu.show()
-		show_context_menu.emit(context_menu.position)
 		accept_event()
 
 
-
-func set_context_menu(cm: Control , cm_rename:AcceptDialog) -> void:
-	context_menu = cm
-	cm.call("set_context_menu_rename", cm_rename)
 
 
 func set_card_info(info: Dictionary) -> void:
@@ -120,7 +116,6 @@ func set_converted() -> void:
 
 func set_converting() -> void:
 	converting_label.visible = true
-
 
 
 func apply_card_texture(show_pic: bool) -> void:
@@ -181,7 +176,7 @@ func _load_texture_from_path(file_path: String , _name:String) -> Texture2D:
 	# 如果是 GIF 文件，使用 GIFToAnimatedTexture 进行转换加载
 	if file_path.to_lower().ends_with(".gif"):
 		# 缓存目录：使用 base_name 区分不同的 GIF
-		var cache_dir = ProjectSettings.globalize_path(res.GIF_CACHE_DIR_PATH + _name)
+		var cache_dir = ProjectSettings.globalize_path(Global.GIF_CACHE_DIR_PATH + _name)
 		var at = GIFToAnimatedTexture.convert_gif_to_animated_texture(file_path, cache_dir)
 		if at:
 			return at
@@ -205,3 +200,28 @@ func _load_texture_from_path(file_path: String , _name:String) -> Texture2D:
 
 	var texture := ImageTexture.create_from_image(image)
 	return texture
+
+func _on_card_left_clicked() -> void:
+
+	# 在这里动态获取 MP4 元数据，避免启动卡顿
+	var media_file_path = card_info.get("media_file_path", "")
+	if not str(media_file_path).is_empty() and str(media_file_path).to_lower().ends_with(".mp4"):
+		var meta := MainManager.read_mp4_metadata(media_file_path)
+		
+		# 更新当前持有的字典（用于传递给面板）
+		card_info["video_resolution"] = str(meta.get("resolution", ""))
+		card_info["video_bitrate_kbps"] = int(meta.get("bitrate_kbps", 0))
+		card_info["video_duration"] = float(meta.get("duration", 0.0))
+		
+		# # 同时更新原始缓存字典（info 为原始引用），确保后续排序能直接取到
+		# info["video_resolution"] = selected_card_info["video_resolution"]
+		# info["video_bitrate_kbps"] = selected_card_info["video_bitrate_kbps"]
+		# info["video_duration"] = selected_card_info["video_duration"]
+		# video_file_size 已经在软件开启扫描时从文件系统读取并缓存在 info 中
+		SignalBus.on_card_selected.emit(card_info)
+
+func _on_card_selected(info: Dictionary) -> void:
+	if MainManager.get_item_unique_key(info) == MainManager.get_item_unique_key(card_info):
+		_set_selected(true)
+	else:
+		_set_selected(false)

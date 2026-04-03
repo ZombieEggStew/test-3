@@ -12,9 +12,6 @@ extends Control
 @export var stop_convert_button: Button
 @export var delete_check_box: CheckBox
 
-
-@export var res: MyRes
-
 var is_converting := false
 var converter_pid := -1
 var progress_poll_accum := 0.0
@@ -156,7 +153,7 @@ func _update_progress_bar_from_file() -> void:
 	if progress_bar == null:
 		return
 
-	var value := get_progress(res.CONVERTER_PROGRESS_PATH)
+	var value := get_progress(Global.CONVERTER_PROGRESS_PATH)
 	
 	# 如果进度读取不到（返回 -1.0），先检查进程是否还在
 	if value < 0.0:
@@ -176,7 +173,7 @@ func _update_progress_bar_from_file() -> void:
 	if value >= 100.0:
 		_finish_conversion_state(true)
 
-		SignalBus.request_add_item_by_path.emit(res.LOCAL_PROJECTS_ROOT + "/" + converting_card_info.get("title", "") + "_my_convert")
+		SignalBus.request_add_item_by_path.emit(Global.LOCAL_PROJECTS_ROOT + "/" + converting_card_info.get("title", "") + "_my_convert")
 		SignalBus.conversion_finished.emit(true, "文件转换已完成！")
 
 		if delete_check_box and delete_check_box.button_pressed:
@@ -224,21 +221,21 @@ func _on_start_convert_button_up() -> void:
 	if title.is_empty():
 		SignalBus.request_popup_warning.emit("当前 card 没有有效的标题")
 
-	var output_dir := prepare_output_dir(res.LOCAL_PROJECTS_ROOT, title) as String
+	var output_dir := prepare_output_dir(Global.LOCAL_PROJECTS_ROOT, title) as String
 	if output_dir.is_empty():
 		SignalBus.request_popup_warning.emit("创建输出目录失败")
 		return
 
-	if not FileAccess.file_exists(res.PYTHON_EXE_PATH):
-		SignalBus.request_popup_warning.emit("Python 不存在: %s" % res.PYTHON_EXE_PATH)
+	if not FileAccess.file_exists(Global.PYTHON_EXE_PATH):
+		SignalBus.request_popup_warning.emit("Python 不存在: %s" % Global.PYTHON_EXE_PATH)
 		return
-	if not FileAccess.file_exists(res.CONVERTER_SCRIPT_PATH):
-		SignalBus.request_popup_warning.emit("转换脚本不存在: %s" % res.CONVERTER_SCRIPT_PATH)
+	if not FileAccess.file_exists(Global.CONVERTER_SCRIPT_PATH):
+		SignalBus.request_popup_warning.emit("转换脚本不存在: %s" % Global.CONVERTER_SCRIPT_PATH)
 		return
 
-	write_progress(res.CONVERTER_PROGRESS_PATH, 0.0)
+	write_progress(Global.CONVERTER_PROGRESS_PATH, 0.0)
 
-	start_conversion(res.PYTHON_EXE_PATH, res.CONVERTER_SCRIPT_PATH, input_file, output_dir, res.CONVERTER_PROGRESS_PATH)
+	start_conversion(Global.PYTHON_EXE_PATH, Global.CONVERTER_SCRIPT_PATH, input_file, output_dir, Global.CONVERTER_PROGRESS_PATH)
 	
 func _on_stop_button_button_up() -> void:
 	if not stop_convert_button.get_global_rect().has_point(get_global_mouse_position()):
@@ -250,7 +247,7 @@ func _on_stop_button_button_up() -> void:
 		if not kill_process_tree(converter_pid):
 			SignalBus.request_popup_warning.emit("停止转换失败")
 
-	write_progress(res.CONVERTER_PROGRESS_PATH,0.0)
+	write_progress(Global.CONVERTER_PROGRESS_PATH,0.0)
 	if progress_bar:
 		progress_bar.value = 0.0
 

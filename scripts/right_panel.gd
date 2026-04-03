@@ -8,7 +8,6 @@ extends MarginContainer
 @export var duration_label : Label
 @export var video_size_label : Label
 
-@export var res: MyRes
 
 func _ready() -> void:
     SignalBus.on_card_selected.connect(_on_main_ui_on_card_selected)
@@ -31,7 +30,7 @@ func clear_info() -> void:
 func _on_main_ui_on_card_selected(info: Dictionary) -> void:
     if title_label:
         # title_label.text = MainManager.extract_card_title(info)
-        if res.IS_SHOW_NAME:
+        if Global.IS_SHOW_NAME:
             title_label.text = MainManager.extract_card_title(info)
         else:
             title_label.text = "不予展示"

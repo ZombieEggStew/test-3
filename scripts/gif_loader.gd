@@ -17,9 +17,8 @@ static func convert_gif_to_animated_texture(gif_path: String, output_dir: String
 
 	var abs_gif_path = ProjectSettings.globalize_path(gif_path)
 	# 从资源脚本读取路径配置，确保脚本已被加载
-	var res = preload("res://resources/my_res.tres")
-	var python_path = res.PYTHON_EXE_PATH
-	var script_path = res.SPLIT_GIF_SCRIPT_PATH
+	var python_path = Global.PYTHON_EXE_PATH
+	var script_path = Global.SPLIT_GIF_SCRIPT_PATH
 	
 	# 确保输出目录存在（使用全路径）
 	if not DirAccess.dir_exists_absolute(output_dir):

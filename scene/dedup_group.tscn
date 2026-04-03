@@ -1,10 +1,13 @@
 [gd_scene format=3 uid="uid://dmtlv641hdua0"]
 
+[ext_resource type="Script" uid="uid://b4xin6xgsercv" path="res://scripts/card_container.gd" id="1_elof8"]
 [ext_resource type="PackedScene" uid="uid://bmyhw36fx17qy" path="res://scene/node_2d.tscn" id="1_pmtph"]
 
-[node name="dedup" type="VBoxContainer" unique_id=301759678]
+[node name="dedup_group" type="VBoxContainer" unique_id=301759678 node_paths=PackedStringArray("flow_container")]
 offset_right = 915.0
 offset_bottom = 210.0
+script = ExtResource("1_elof8")
+flow_container = NodePath("HFlowContainer")
 
 [node name="HFlowContainer" type="HFlowContainer" parent="." unique_id=1584798376]
 layout_mode = 2
