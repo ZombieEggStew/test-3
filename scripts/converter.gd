@@ -178,6 +178,7 @@ func _update_progress_bar_from_file() -> void:
 
 		if delete_check_box and delete_check_box.button_pressed:
 			MainManager.delete_and_unsubscribe(converting_card_info)
+			SignalBus.request_item_deletion.emit(converting_card_info)
 		converting_card_info.clear()
 
 

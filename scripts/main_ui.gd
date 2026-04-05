@@ -6,7 +6,7 @@
 #TO DO : 
 #TO DO : 优化gif显示，搜索现成的包
 #TO DO : 修复停止转换后无法去除转换中标签
-
+#TO DO : 双击播放
 
 extends CanvasLayer
 

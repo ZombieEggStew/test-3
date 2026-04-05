@@ -2,12 +2,39 @@ extends Container
 
 @export var container : VBoxContainer
 
+var current_dedup_items: Array = []
+
 func _ready() -> void:
 	SignalBus.dedup_items_found.connect(_on_dedup_found)
+	SignalBus.request_item_deletion.connect(_on_request_item_deletion)
+
+func _on_request_item_deletion(info: Dictionary) -> void:
+	var unique_key = MainManager.get_item_unique_key(info)
+	
+	# 过滤掉所有包含该 unique_key 的组
+	var items_to_keep = []
+	for group in current_dedup_items:
+		var contains_item = false
+		for item in group:
+			if MainManager.get_item_unique_key(item) == unique_key:
+				contains_item = true
+				break
+		if not contains_item:
+			items_to_keep.append(group)
+	
+	current_dedup_items = items_to_keep
+	_refresh()
+
+
 	
 func _on_dedup_found(items: Array) -> void:
-	add_dedup_group(items)
+	current_dedup_items.append(items)
+	_refresh()
 
+func _refresh():
+	clear_groups()
+	for items in current_dedup_items:
+		add_dedup_group(items)
 
 func clear_groups() -> void:
 	for child in container.get_children():
